@@ -15,7 +15,8 @@ function Login() {
                 // Signed in 
                 const user = userCredential.user;
                 console.log(user);
-                // ...
+                
+                // redirect to home page with user dat
 
             })
             .catch((error) => {
