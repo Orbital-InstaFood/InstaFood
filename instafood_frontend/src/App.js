@@ -2,41 +2,35 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
+import { auth } from './firebase';
+
 import Login from './authentication/login';
 import Signup from './authentication/signup';
-import { auth } from './firebase';
+import Logout from './authentication/logout';
 
 import Dashboard from './pages/dashboard';
 import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
 import Navbar from './Navbar';
-import Logout from './authentication/logout';
-
 
 function App() {
-  // renders a login page if user is not logged in
-  // renders a dashboard if user is logged in
-
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUser(user);
-      } else {
-        setUser(null);
-      }
+      setUser(user);
     });
   }, []);
 
   if (user) {
     return (
       <Router>
+        <h1>Instafood</h1>
         <Navbar />
         <Routes>
-          <Route path="/" element={<Dashboard user={user} />} />
-          <Route path="/create" element={<NewPost />} />
-          <Route path="/profile" element={<UserInfo user={user} />} />
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/newPost" element={<NewPost />} />
+          <Route path="/editProfile" element={<UserInfo />} />
         </Routes>
         <Logout />
       </Router>
@@ -44,10 +38,13 @@ function App() {
   }
 
   return (
-    <div className="App">
-      <Login />
-      <Signup />
-    </div>
+    <Router>
+      <h1>Instafood</h1>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+      </Routes>
+    </Router>
   );
 }
 

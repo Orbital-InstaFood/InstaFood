@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
@@ -15,13 +16,9 @@ function Login() {
                 // Signed in 
                 const user = userCredential.user;
                 console.log(user);
-                
                 // redirect to home page with user dat
-
             })
             .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
                 console.log(error);
             });
     }
@@ -41,6 +38,9 @@ function Login() {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <button onClick={handleLogin}>Login</button>
+            <div>
+                <Link to="/signup">Sign Up</Link>
+            </div>
         </div>
     );
 }

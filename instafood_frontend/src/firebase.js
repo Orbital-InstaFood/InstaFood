@@ -4,7 +4,6 @@ import { getStorage } from "firebase/storage";
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-
 const firebaseConfig = {
   apiKey: "AIzaSyDDq1uxsca3kc3KVSO41I6MxaERqe9F2YM",
   authDomain: "orbital-386a9.firebaseapp.com",
