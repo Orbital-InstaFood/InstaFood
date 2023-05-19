@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate, Link } from "react-router-dom";
 
 import { auth } from "../firebase";
 import { createUserWithEmailAndPassword } from "firebase/auth";
@@ -7,35 +8,44 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 function Signup() {
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const navigate = useNavigate();
 
     const handleSignup = (e) => {
         e.preventDefault();
 
         createUserWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
-                // Signed in 
-            })
+            .then(
+                navigate("/")
+            )
             .catch((error) => {
-                console.log(error);
+                const errorMessage = error.message;
+                return alert(errorMessage);
             });
     }
 
     return (
         <div>
-            <input
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-            <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-            />
-            <button onClick={handleSignup}>Signup</button>
+            <div>
+                <input
+                    type="email"
+                    placeholder="Email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+                <input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+                <button onClick={handleSignup}>Sign Up</button>
+            </div>
+
+            <div>
+                <Link to="/">Login</Link>
+            </div>
         </div>
+
     );
 }
 
