@@ -1,12 +1,12 @@
-import React from "react";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 import { auth } from "../firebase";
 import { signInWithEmailAndPassword } from "firebase/auth";
 
 function Login() {
-    const [email, setEmail] = React.useState("");
-    const [password, setPassword] = React.useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -39,7 +39,7 @@ function Login() {
             />
             <button onClick={handleLogin}>Login</button>
             <div>
-                <Link to="/signup">Sign Up</Link>
+                <Link to="/signup">Create Account</Link>
             </div>
         </div>
     );
