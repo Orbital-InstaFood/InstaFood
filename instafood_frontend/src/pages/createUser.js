@@ -1,7 +1,11 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth } from '../firebase';
+import { db, auth } from '../firebaseConfig';
 import { useNavigate } from 'react-router-dom';
+
+/*
+Unique userIDs are stored in the backend database.
+*/
 
 function CreateUser() {
     const [username, setUserName] = useState("");
