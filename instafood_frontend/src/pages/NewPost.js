@@ -1,4 +1,3 @@
-import React from 'react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -6,7 +5,7 @@ import { db, auth, storage } from '../firebase';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, addDoc, collection, updateDoc, serverTimestamp } from 'firebase/firestore';
 
-import getUserDoc from '../getUserDoc';
+import getUserDoc from '../functions/getUserDoc';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 

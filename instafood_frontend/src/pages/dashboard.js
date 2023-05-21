@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import getUserDoc from '../getUserDoc';
+import { useEffect, useState } from 'react';
+import getUserDoc from '../functions/getUserDoc';
 
 function Dashboard() {
     const [username, setUserName] = useState('');
