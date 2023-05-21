@@ -1,7 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+
 import { db, auth } from '../firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import displayArray from '../functions/displayArray';
+
+import CreateUser from './createUser';
 
 function UserInfo() {
     const navigate = useNavigate();
@@ -10,43 +14,67 @@ function UserInfo() {
     const [bio, setBio] = useState('');
     const [isPrivate, setIsPrivate] = useState(false);
     const [userID, setUserID] = useState('');
-    const [userIDUnique, setUserIDUnique] = useState(false);
+    const [followers, setFollowers] = useState([]);
+    const [following, setFollowing] = useState([]);
+    const [savedPosts, setSavedPosts] = useState([]);
+    const [personalPosts, setPersonalPosts] = useState([]);
 
     const [userExists, setUserExists] = useState(null);
     const [userWantsToEdit, setUserWantsToEdit] = useState(false);
 
     const user = auth.currentUser;
 
-    // To move this to backend:
-    const logicRef = doc(db, 'backend_logic', 'uXGhybdqAbR8zIDfaf7I');
+    function confirmation(array, setArray, item, message) {
+        if (window.confirm(message)) {
+            const index = array.indexOf(item);
+            if (index > -1) {
+                const newArray = array.filter((element) => (element !== item));
+                setArray(newArray);
+            }
+        }
+    }
+
+    function displayAndSelectToDelete(array, setArray, message) {
+        return array.map((item) => {
+            return (
+                <div>
+                    <ul>
+                        <p>{item}</p>
+                        <button
+                            onClick={() => confirmation(array, setArray, item, message)}>
+                            Delete
+                        </button>
+                    </ul>
+                </div>
+            );
+        });
+    }
 
     useEffect(() => {
         async function getUserInfo() {
             const userRef = doc(db, 'users', user.uid);
             const snapshot = await getDoc(userRef);
+
             if (snapshot.exists()) {
                 const data = snapshot.data();
+
                 setUserName(data.username);
                 setBio(data.bio);
                 setIsPrivate(data.isPrivate);
+                setUserID(data.user_id);
+                setFollowers(data.followers);
+                setFollowing(data.following);
+                setSavedPosts(data.saved_posts);
+                setPersonalPosts(data.personal_posts);
+
                 setUserExists(true);
+
             } else {
                 setUserExists(false);
             }
         }
         getUserInfo();
     }, [user.uid]);
-
-    // To move this to backend:
-    useEffect(() => {
-        async function isUserIDUnique() {
-            const logicSnapshot = await getDoc(logicRef);
-            const logicData = logicSnapshot.data();
-            const userIDs = logicData.userIDs;
-            setUserIDUnique(!userIDs.includes(userID));
-        }
-        isUserIDUnique();
-    }, [userID]);
 
     const handleSubmitUserInfo = async (e) => {
         e.preventDefault();
@@ -55,17 +83,16 @@ function UserInfo() {
             username: username,
             bio: bio,
             isPrivate: isPrivate,
-            user_id: userID,
-            followers: [],
-            following: [],
-            saved_posts: [],
-            personal_posts: [],
+            followers: followers,
+            following: following,
+            saved_posts: savedPosts,
+            personal_posts: personalPosts,
         };
 
         const userRef = doc(db, 'users', user.uid);
-        await setDoc(userRef, userDoc);
 
-        console.log('User created/updated successfully!');
+        await updateDoc(userRef, userDoc);
+        console.log('User updated successfully!');
         navigate('/');
     };
 
@@ -77,61 +104,100 @@ function UserInfo() {
         );
     }
 
+    if (!userExists) {
+        return (
+            <CreateUser />
+        );
 
-    function handleUserEdit() {
-        setUserWantsToEdit(true);
     }
 
-    if (userExists && !userWantsToEdit) {
+    if (!userWantsToEdit) {
         return (
             <div>
                 <h2>User Information</h2>
                 <p>Username: {username}</p>
                 <p>Bio: {bio}</p>
                 <p>Private: {isPrivate.toString()}</p>
-                <button onClick={handleUserEdit}>Edit</button>
+                <p>User ID: {userID}</p>
+                {displayArray(followers, 'Followers')}
+                {displayArray(following, 'Following')}
+                {displayArray(savedPosts, 'Saved Posts')}
+                {displayArray(personalPosts, 'Personal Posts')}
+
+                <button
+                    onClick={() => {
+                        setUserWantsToEdit(true);
+                    }}
+                >
+                    Edit User Information
+                </button>
             </div>
         );
     }
 
     return (
         <div>
-            <h2>Create User</h2>
-            <input
-                type="text"
-                placeholder="Username"
-                required
-                value={username}
-                onChange={(e) => setUserName(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="Bio"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-            />
-            <input
-                type="text"
-                placeholder="User ID"
-                required
-                value={userID}
-                onChange={(e) => setUserID(e.target.value)}
-            />
-            <input
-                type="checkbox"
-                placeholder="Private"
-                required
-                checked={isPrivate}
-                onChange={(e) => setIsPrivate(e.target.checked)}
-            />
-            {
-                userIDUnique ?
-                    <div>
-                        <p>User ID is unique!</p>
-                        <button onClick={handleSubmitUserInfo}>Submit</button>
-                    </div>
-                    : <p>User ID is not unique!</p>
-            }
+            <h2>Edit User Information</h2>
+
+            <div>
+                <label>Username</label>
+                <input
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUserName(e.target.value)}
+                />
+            </div>
+
+            <div>
+                <label>Bio</label>
+                <input
+                    type="text"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                />
+            </div>
+
+            <div>
+                <label>Set as private</label>
+                <input
+                    type="checkbox"
+                    required
+                    checked={isPrivate}
+                    onChange={(e) => setIsPrivate(e.target.checked)}
+                />
+            </div>
+
+            {followers.length > 0 && (
+                <div>
+                    <label>Followers</label>
+                    {displayAndSelectToDelete(followers, setFollowers, 'Are you sure you want to remove this follower?')}
+                </div>
+            )}
+
+            {following.length > 0 && (
+                <div>
+                    <label>Following</label>
+                    {displayAndSelectToDelete(following, setFollowing, 'Are you sure you want to unfollow this user?')}
+                </div>
+            )}
+
+            {savedPosts.length > 0 && (
+                <div>
+                    <label>Saved Posts</label>
+                    {displayAndSelectToDelete(savedPosts, setSavedPosts, 'Are you sure you want to remove this saved post?')}
+                </div>
+            )}
+
+            {personalPosts.length > 0 && (
+                <div>
+                    <label>Personal Posts</label>
+                    {displayAndSelectToDelete(personalPosts, setPersonalPosts, 'Are you sure you want to delete this post?')}
+                </div>
+            )}
+
+            <button onClick={handleSubmitUserInfo}>Submit</button>
+
         </div>
     );
 }
