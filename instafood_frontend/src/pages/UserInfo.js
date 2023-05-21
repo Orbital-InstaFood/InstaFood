@@ -1,11 +1,17 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
-import { db, auth } from '../firebase';
+import { db, auth } from '../firebaseConfig';
 import displayArray from '../functions/displayArray';
-
 import CreateUser from './createUser';
+
+import displayPost from '../functions/displayPost';
+import useGetPosts from '../functions/useGetPosts';
+
+/*
+Edits of followers, following to be updated in the backend database 
+*/
 
 function UserInfo() {
     const navigate = useNavigate();
@@ -51,6 +57,7 @@ function UserInfo() {
     }
 
     useEffect(() => {
+
         async function getUserInfo() {
             const userRef = doc(db, 'users', user.uid);
             const snapshot = await getDoc(userRef);
@@ -96,7 +103,10 @@ function UserInfo() {
         navigate('/');
     };
 
-    if (userExists === null) {
+    const [personalPostsContent, personalPostLoading] = useGetPosts(personalPosts);
+    const [savedPostsContent, savedPostLoading] = useGetPosts(savedPosts);
+
+    if (userExists === null || personalPostLoading || savedPostLoading ) {
         return (
             <div>
                 <h2>Loading...</h2>
@@ -108,7 +118,6 @@ function UserInfo() {
         return (
             <CreateUser />
         );
-
     }
 
     if (!userWantsToEdit) {
@@ -121,8 +130,16 @@ function UserInfo() {
                 <p>User ID: {userID}</p>
                 {displayArray(followers, 'Followers')}
                 {displayArray(following, 'Following')}
-                {displayArray(savedPosts, 'Saved Posts')}
-                {displayArray(personalPosts, 'Personal Posts')}
+
+                <h3>Personal Posts</h3>
+                {personalPostsContent.map((post) => {
+                    return displayPost(post);
+                })}
+
+                <h3>Saved Posts</h3>
+                {savedPostsContent.map((post) => {
+                    return displayPost(post);
+                })}
 
                 <button
                     onClick={() => {
