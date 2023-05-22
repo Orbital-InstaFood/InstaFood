@@ -12,7 +12,9 @@ import useGetPosts from '../functions/useGetPosts';
 /*
 Edits of followers, following to be updated in the backend database 
 */
-
+function indicator () {
+    console.log('hello');
+}
 function UserInfo() {
     const navigate = useNavigate();
 
