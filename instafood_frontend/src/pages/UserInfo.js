@@ -1,20 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConfig';
-import displayArray from '../functions/displayArray';
+
 import CreateUser from './createUser';
 
 import displayPost from '../functions/displayPost';
+import DisplayArray from '../functions/DisplayArray';
 import useGetPosts from '../functions/useGetPosts';
+
 
 /*
 Edits of followers, following to be updated in the backend database 
 */
-function indicator () {
-    console.log('hello');
-}
+
 function UserInfo() {
     const navigate = useNavigate();
 
@@ -32,11 +32,11 @@ function UserInfo() {
 
     const user = auth.currentUser;
 
-    function confirmation(array, setArray, item, message) {
+    function confirmDelete (array, setArray, item, message) {
         if (window.confirm(message)) {
             const index = array.indexOf(item);
             if (index > -1) {
-                const newArray = array.filter((element) => (element !== item));
+                const newArray = array.splice(index, 1);
                 setArray(newArray);
             }
         }
@@ -49,7 +49,9 @@ function UserInfo() {
                     <ul>
                         <p>{item}</p>
                         <button
-                            onClick={() => confirmation(array, setArray, item, message)}>
+                            onClick={() => 
+                                confirmDelete (array, setArray, item, message)
+                            }>
                             Delete
                         </button>
                     </ul>
@@ -59,8 +61,8 @@ function UserInfo() {
     }
 
     useEffect(() => {
-
         async function getUserInfo() {
+
             const userRef = doc(db, 'users', user.uid);
             const snapshot = await getDoc(userRef);
 
@@ -130,18 +132,12 @@ function UserInfo() {
                 <p>Bio: {bio}</p>
                 <p>Private: {isPrivate.toString()}</p>
                 <p>User ID: {userID}</p>
-                {displayArray(followers, 'Followers')}
-                {displayArray(following, 'Following')}
 
                 <h3>Personal Posts</h3>
-                {personalPostsContent.map((post) => {
-                    return displayPost(post);
-                })}
+                <DisplayArray array={personalPostsContent} displayObjectFunc={displayPost} />
 
                 <h3>Saved Posts</h3>
-                {savedPostsContent.map((post) => {
-                    return displayPost(post);
-                })}
+                <DisplayArray array={savedPostsContent} displayObjectFunc={displayPost} />
 
                 <button
                     onClick={() => {
@@ -211,7 +207,7 @@ function UserInfo() {
             {personalPosts.length > 0 && (
                 <div>
                     <label>Personal Posts</label>
-                    {displayAndSelectToDelete(personalPosts, setPersonalPosts, 'Are you sure you want to delete this post?')}
+                    {displayAndSelectToDelete(personalPosts, setPersonalPosts, 'Are you sure you want to remove this personal post?')}
                 </div>
             )}
 
