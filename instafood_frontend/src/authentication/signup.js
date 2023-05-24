@@ -1,7 +1,7 @@
 import { useNavigate, Link } from "react-router-dom";
 import { useState } from "react";
 
-import { auth } from "../firebaseConfig";
+import { auth } from "../firebaseConf";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
 function Signup() {

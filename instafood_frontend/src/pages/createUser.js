@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth, functions } from '../firebaseConfig';
+import { db, auth, functions } from '../firebaseConf';
 import { useNavigate } from 'react-router-dom';
 
 import { httpsCallable } from 'firebase/functions';

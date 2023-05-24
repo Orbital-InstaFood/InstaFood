@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import { db, auth } from '../firebaseConf';
 
 import CreateUser from './createUser';
 

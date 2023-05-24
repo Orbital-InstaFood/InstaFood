@@ -1,4 +1,4 @@
-import { auth, db } from '../firebaseConfig';
+import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 
 async function getUserDoc() {
