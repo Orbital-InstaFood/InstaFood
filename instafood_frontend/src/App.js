@@ -2,7 +2,7 @@ import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
-import { auth } from './firebaseConfig';
+import { auth } from './firebaseConf';
 
 import Login from './authentication/login';
 import Signup from './authentication/signup';
@@ -25,7 +25,7 @@ function App() {
   if (user) {
     return (
       <Router>
-        <h1>Instafood</h1>
+        <h1>InstaFood</h1>
         <Navbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -39,7 +39,7 @@ function App() {
 
   return (
     <Router>
-      <h1>Instafood</h1>
+      <h1>InstaFood</h1>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

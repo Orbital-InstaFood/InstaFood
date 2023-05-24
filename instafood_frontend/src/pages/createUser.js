@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { db, auth } from '../firebaseConfig';
+import { db, auth, functions } from '../firebaseConf';
 import { useNavigate } from 'react-router-dom';
+
+import { httpsCallable } from 'firebase/functions';
 
 /*
 Unique userIDs are stored in the backend database.
@@ -19,13 +21,14 @@ function CreateUser() {
 
     const [userIDUnique, setUserIDUnique] = useState(false);
 
-    const logicRef = doc(db, 'backend_logic', 'uXGhybdqAbR8zIDfaf7I');
+    const addUserID = httpsCallable(functions, 'addUserID');
+
+    const uniqueIDsRef = doc(db, 'backend', "uniqueIDsDoc");
 
     useEffect(() => {
         async function isUserIDUnique() {
-            const logicSnapshot = await getDoc(logicRef);
-            const logicData = logicSnapshot.data();
-            const userIDs = logicData.userIDs;
+            const uniqueIDsDoc = await getDoc(uniqueIDsRef);
+            const userIDs = uniqueIDsDoc.data().uniqueIDs;
             setUserIDUnique(!userIDs.includes(userID));
         }
         isUserIDUnique();
@@ -47,6 +50,8 @@ function CreateUser() {
 
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, userDoc);
+
+        await addUserID({ userID: userID });
         console.log('User created successfully!');
         navigate('/');
     };
