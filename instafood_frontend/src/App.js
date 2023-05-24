@@ -25,7 +25,7 @@ function App() {
   if (user) {
     return (
       <Router>
-        <h1>Instafood</h1>
+        <h1>InstaFood</h1>
         <Navbar />
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -39,7 +39,7 @@ function App() {
 
   return (
     <Router>
-      <h1>Instafood</h1>
+      <h1>InstaFood</h1>
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />

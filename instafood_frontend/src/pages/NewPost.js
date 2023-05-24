@@ -42,11 +42,15 @@ function NewPost() {
         }
 
         if (userDoc) {
+
+            const postDocRef = doc(collection(db, 'posts'));
+
             const postDoc = {
                 title: title,
                 creator: userDoc.data().user_id,
                 caption: caption,
                 date_created: serverTimestamp(),
+                post_id : postDocRef.id,
                 likes: [],
                 comments: [],
             };
@@ -55,18 +59,10 @@ function NewPost() {
                 postDoc.images = urls;
             }
 
-            const postColRef = collection(db, 'posts');
-            const postDocRef = await addDoc(postColRef, postDoc);
-
-            const postID = postDocRef.id;
-            const updatedPostDoc = {
-                ...postDoc,
-                post_id: postID
-            };
-            await setDoc(doc(db, 'posts', postID), updatedPostDoc);
+            await setDoc(postDocRef, postDoc);
 
             await updateDoc(userRef, {
-                personal_posts: [...userDoc.data().personal_posts, postID]
+                personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
             });
 
             console.log('Post created successfully!');
