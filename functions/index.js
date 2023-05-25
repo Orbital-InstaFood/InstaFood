@@ -2,11 +2,10 @@ const { logger } = require("firebase-functions/v2");
 
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore } = require("firebase-admin/firestore");
-const admin = require("firebase-admin");
-
-const functions = require("firebase-functions/v2");
+const { functions } = require("firebase-functions/v2");
 
 initializeApp();
+const admin = require("firebase-admin");
 const db = getFirestore();
 
 exports.addUserID = functions.https.onCall( async (request) => {
@@ -21,3 +20,4 @@ exports.addUserID = functions.https.onCall( async (request) => {
     return { result: result };
 }
 );
+
