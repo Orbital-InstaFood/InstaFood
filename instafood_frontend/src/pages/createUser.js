@@ -51,7 +51,9 @@ function CreateUser() {
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, userDoc);
 
-        await addUserID({ userID: userID });
+        const result = await addUserID({ userID: userID });
+        console.log(result.data.result);
+
         console.log('User created successfully!');
         navigate('/');
     };
