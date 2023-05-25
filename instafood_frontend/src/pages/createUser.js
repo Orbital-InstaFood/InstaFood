@@ -5,10 +5,6 @@ import { useNavigate } from 'react-router-dom';
 
 import { httpsCallable } from 'firebase/functions';
 
-/*
-Unique userIDs are stored in the backend database.
-*/
-
 function CreateUser() {
     const [username, setUserName] = useState("");
     const [bio, setBio] = useState("");
@@ -16,13 +12,10 @@ function CreateUser() {
     const [isPrivate, setIsPrivate] = useState(false);
 
     const user = auth.currentUser;
-
     const navigate = useNavigate();
 
     const [userIDUnique, setUserIDUnique] = useState(false);
-
     const addUserID = httpsCallable(functions, 'addUserID');
-
     const uniqueIDsRef = doc(db, 'backend', "uniqueIDsDoc");
 
     useEffect(() => {

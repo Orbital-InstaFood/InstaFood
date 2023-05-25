@@ -16,6 +16,7 @@ function Logout() {
         }).catch((error) => {
             // An error happened.
             console.log(error);
+            return alert(error.message);
         });
     }
 
