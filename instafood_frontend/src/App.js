@@ -8,9 +8,10 @@ import Login from './authentication/login';
 import Signup from './authentication/signup';
 import Logout from './authentication/logout';
 
-import Dashboard from './pages/dashboard';
+import Dashboard from './pages/Dashboard';
 import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
+import Connect from './pages/Connect';
 import Navbar from './Navbar';
 
 function App() {
@@ -31,6 +32,7 @@ function App() {
           <Route path="/" element={<Dashboard />} />
           <Route path="/newPost" element={<NewPost />} />
           <Route path="/editProfile" element={<UserInfo />} />
+          <Route path="/connect" element={<Connect />} />
         </Routes>
         <Logout />
       </Router>
