@@ -3,9 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { db, auth, storage } from '../firebaseConf';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, setDoc, addDoc, collection, updateDoc, serverTimestamp } from 'firebase/firestore';
-
-import getUserDoc from '../functions/getUserDoc';
+import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
@@ -17,58 +15,65 @@ function NewPost() {
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
     const [images, setImages] = useState([]);
+    const [imageObjects, setImageObjects] = useState([]);
 
-    const handleImageChange = (e) => {
-        const newImages = Array.from(e.target.files)
-        .map(file => ({
-            file: file,
-            uniqueID: generateUniqueID()
-        }));
-        setImages(prevImages => [...prevImages, ...newImages]);
+    function handleImageChange(e) {
+        const newImages = [...images];
+        const newImageObjects = [...imageObjects];
+
+        for (const image of e.target.files) {
+            newImages.push(image);
+            newImageObjects.push({
+                content: image,
+                uniqueID: generateUniqueID()
+            })
+        }
+
+        setImages(newImages);
+        setImageObjects(newImageObjects);
+
+        e.target.value = null;
     };
 
     const handleSubmitNewPost = async (e) => {
         e.preventDefault();
 
         const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getUserDoc();
+        const userDoc = await getDoc(userRef);
+        const userUniqueID = userDoc.data().user_id;
+
+        const postDocRef = doc(collection(db, 'posts'));
+
         let urls = [];
 
-        for (const image of images) {
-            const storageRef = ref(storage, `${image.uniqueID}`);
-            const snapshot = await uploadBytesResumable(storageRef, image.file);
+        for (const imageObject of imageObjects) {
+            const imageRef = ref(storage, `/${userUniqueID}/${postDocRef.id}/${imageObject.content.name}/${imageObject.uniqueID}`);
+            const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
             const url = await getDownloadURL(snapshot.ref);
             urls.push(url);
         }
 
-        if (userDoc) {
+        const postDoc = {
+            title: title,
+            creator: userUniqueID,
+            caption: caption,
+            date_created: serverTimestamp(),
+            images: urls,
+            post_id: postDocRef.id,
+            likes: [],
+            comments: [],
+        };
 
-            const postDocRef = doc(collection(db, 'posts'));
+        await setDoc(postDocRef, postDoc);
 
-            const postDoc = {
-                title: title,
-                creator: userDoc.data().user_id,
-                caption: caption,
-                date_created: serverTimestamp(),
-                post_id : postDocRef.id,
-                likes: [],
-                comments: [],
-            };
+        await updateDoc(userRef, {
+            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
+        });
 
-            if (urls.length > 0) {
-                postDoc.images = urls;
-            }
-
-            await setDoc(postDocRef, postDoc);
-
-            await updateDoc(userRef, {
-                personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
-            });
-
-            console.log('Post created successfully!');
-            navigate('/');
-        }
+        console.log('Post created successfully!');
+        navigate('/');
     };
+
     return (
         <div>
             <h2>New Post</h2>
@@ -77,6 +82,7 @@ function NewPost() {
                 <input
                     type="text"
                     id="title"
+                    required
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                 />
@@ -84,6 +90,7 @@ function NewPost() {
                 <input
                     type="text"
                     id="caption"
+                    required
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
                 />
@@ -94,16 +101,25 @@ function NewPost() {
                     multiple
                     onChange={handleImageChange}
                 />
-                {images.length > 0 && (
+                {imageObjects.length > 0 && (
                     <div>
-                        {images.map((image) => (
-                            <div key={image.uniqueID}>
-                                <h3>{image.file.name}</h3>
+                        {imageObjects.map((imageObject) => (
+                            <div key={imageObject.uniqueID}>
+                                <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
+
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setImages(images.filter((img) => img.uniqueID !== image.uniqueID));
-                                    }}>
+
+                                        setImageObjects(imageObjects.filter((imgObj) => {
+                                            return imgObj !== imageObject;
+                                        }));
+
+                                        setImages(images.filter((image) => {
+                                            return image !== imageObject.content;
+                                        }));
+                                    }}
+                                >
                                     Delete Image
                                 </button>
                             </div>
@@ -114,7 +130,6 @@ function NewPost() {
             </form>
         </div>
     );
-
-
 }
+
 export default NewPost;
