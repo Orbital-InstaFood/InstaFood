@@ -15,7 +15,7 @@ function Signup() {
 
         createUserWithEmailAndPassword(auth, email, password)
             .then(
-                navigate("/")
+                navigate("/editProfile")
             )
             .catch((error) => {
                 const errorMessage = error.message;
@@ -42,7 +42,7 @@ function Signup() {
             </div>
 
             <div>
-                <Link to="/">Login</Link>
+                <Link to="/">Return to Login</Link>
             </div>
         </div>
 
