@@ -27,7 +27,7 @@ function Connect() {
     useEffect(() => {
         async function getFollowing() {
             const userDoc = await getDoc(userRef);
-            setUserOwnID(userDoc.data().user_id);
+            setUserOwnID(userDoc.data().userID);
             setFollowing(userDoc.data().following);
             setLoadingFollowing(false);
         }

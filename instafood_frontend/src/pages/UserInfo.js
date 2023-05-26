@@ -72,7 +72,7 @@ function UserInfo() {
                 setUserName(data.username);
                 setBio(data.bio);
                 setIsPrivate(data.isPrivate);
-                setUserID(data.user_id);
+                setUserID(data.userID);
                 setFollowers(data.followers);
                 setFollowing(data.following);
                 setSavedPosts(data.saved_posts);
@@ -85,7 +85,7 @@ function UserInfo() {
             }
         }
         getUserInfo();
-    }, [user.uid]);
+    }, []);
 
     const handleSubmitUserInfo = async (e) => {
         e.preventDefault();
