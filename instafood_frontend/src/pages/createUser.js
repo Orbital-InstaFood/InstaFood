@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { doc, setDoc } from 'firebase/firestore';
 import { db, auth, functions } from '../firebaseConf';
 import { useNavigate } from 'react-router-dom';
 
@@ -15,16 +15,21 @@ function CreateUser() {
     const navigate = useNavigate();
 
     const [userIDUnique, setUserIDUnique] = useState(false);
+    const [listOfUserIDs, setListOfUserIDs] = useState([]);
+    const getListOfUserIDs = httpsCallable(functions, 'getListOfUserIDs');
+
     const addUserID = httpsCallable(functions, 'addUserID');
-    const uniqueIDsRef = doc(db, 'backend', "uniqueIDsDoc");
 
     useEffect(() => {
-        async function isUserIDUnique() {
-            const uniqueIDsDoc = await getDoc(uniqueIDsRef);
-            const userIDs = uniqueIDsDoc.data().uniqueIDs;
-            setUserIDUnique(!userIDs.includes(userID));
+        async function getUserIDs() {
+            const result = await getListOfUserIDs({ ownUserID: null });
+            setListOfUserIDs(result.data.listOfUserIDs);
         }
-        isUserIDUnique();
+        getUserIDs();
+    }, []);
+
+    useEffect(() => {
+        setUserIDUnique(!listOfUserIDs.includes(userID));
     }, [userID]);
 
     const handleSubmitUserInfo = async (e) => {
@@ -36,7 +41,9 @@ function CreateUser() {
             isPrivate: isPrivate,
             userID: userID,
             followers: [],
+            followRequestsReceived: [],
             following: [],
+            followRequestsSent: [],
             saved_posts: [],
             personal_posts: [],
         };
@@ -44,7 +51,7 @@ function CreateUser() {
         const userRef = doc(db, 'users', user.uid);
         await setDoc(userRef, userDoc);
 
-        const result = await addUserID({ userID: userID });
+        const result = await addUserID({ userID: userID, UID: user.uid });
         console.log(result.data.result);
 
         console.log('User created successfully!');
