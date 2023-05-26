@@ -40,7 +40,7 @@ function NewPost() {
 
         const userRef = doc(db, 'users', user.uid);
         const userDoc = await getDoc(userRef);
-        const userUniqueID = userDoc.data().user_id;
+        const userUniqueID = userDoc.data().userID;
 
         const postDocRef = doc(collection(db, 'posts'));
 

@@ -34,7 +34,7 @@ function CreateUser() {
             username: username,
             bio: bio,
             isPrivate: isPrivate,
-            user_id: userID,
+            userID: userID,
             followers: [],
             following: [],
             saved_posts: [],
