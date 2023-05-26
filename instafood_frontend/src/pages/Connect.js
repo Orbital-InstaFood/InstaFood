@@ -9,11 +9,13 @@ import { useState } from 'react';
 
 function Connect() {
 
+    const user = auth.currentUser;
+
     const uniqueIDsRef = doc(db, 'backend', "uniqueIDsDoc");
     const [userIDs, setUserIDs] = useState([]);
     const [loadingUserIDs, setLoadingUserIDs] = useState(true);
 
-    const userRef = doc(db, 'users', auth.currentUser.uid);
+    const userRef = doc(db, 'users', user.uid);
     const [userOwnID, setUserOwnID] = useState('');
     const [following, setFollowing] = useState([]);
     const [loadingFollowing, setLoadingFollowing] = useState(true);
@@ -30,7 +32,7 @@ function Connect() {
             setLoadingFollowing(false);
         }
         getFollowing();
-    }, [userRef]);
+    }, []);
 
     useEffect(() => {
         async function getUserIDs() {
@@ -39,7 +41,7 @@ function Connect() {
             setLoadingUserIDs(false);
         }
         getUserIDs();
-    }, [uniqueIDsRef]);
+    }, []);
 
     useEffect(() => {
         async function checkIfMatchFound() {
