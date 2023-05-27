@@ -7,8 +7,10 @@ import { db, auth } from '../firebaseConf';
 import CreateUser from './createUser';
 
 import displayPost from '../functions/displayPost';
+import displayUser from '../functions/displayUser';
 import DisplayArray from '../functions/DisplayArray';
 import useGetPosts from '../functions/useGetPosts';
+import DisplayRequestArray from '../functions/DisplayRequestArray';
 
 
 /*
@@ -24,6 +26,8 @@ function UserInfo() {
     const [userID, setUserID] = useState('');
     const [followers, setFollowers] = useState([]);
     const [following, setFollowing] = useState([]);
+    const [followRequestsReceived, setFollowRequestsReceived] = useState([]);
+    const [followRequestsSent, setFollowRequestsSent] = useState([]);
     const [savedPosts, setSavedPosts] = useState([]);
     const [personalPosts, setPersonalPosts] = useState([]);
 
@@ -31,34 +35,6 @@ function UserInfo() {
     const [userWantsToEdit, setUserWantsToEdit] = useState(false);
 
     const user = auth.currentUser;
-
-    function confirmDelete (array, setArray, item, message) {
-        if (window.confirm(message)) {
-            const index = array.indexOf(item);
-            if (index > -1) {
-                const newArray = array.splice(index, 1);
-                setArray(newArray);
-            }
-        }
-    }
-
-    function displayAndSelectToDelete(array, setArray, message) {
-        return array.map((item) => {
-            return (
-                <div>
-                    <ul>
-                        <p>{item}</p>
-                        <button
-                            onClick={() => 
-                                confirmDelete (array, setArray, item, message)
-                            }>
-                            Delete
-                        </button>
-                    </ul>
-                </div>
-            );
-        });
-    }
 
     useEffect(() => {
         async function getUserInfo() {
@@ -75,6 +51,8 @@ function UserInfo() {
                 setUserID(data.userID);
                 setFollowers(data.followers);
                 setFollowing(data.following);
+                setFollowRequestsReceived(data.followRequestsReceived);
+                setFollowRequestsSent(data.followRequestsSent);
                 setSavedPosts(data.saved_posts);
                 setPersonalPosts(data.personal_posts);
 
@@ -90,19 +68,14 @@ function UserInfo() {
     const handleSubmitUserInfo = async (e) => {
         e.preventDefault();
 
-        const userDoc = {
+        const userRef = doc(db, 'users', user.uid);
+
+        await updateDoc(userRef, {
             username: username,
             bio: bio,
             isPrivate: isPrivate,
-            followers: followers,
-            following: following,
-            saved_posts: savedPosts,
-            personal_posts: personalPosts,
-        };
+        });
 
-        const userRef = doc(db, 'users', user.uid);
-
-        await updateDoc(userRef, userDoc);
         console.log('User updated successfully!');
         navigate('/');
     };
@@ -133,10 +106,22 @@ function UserInfo() {
                 <p>Private: {isPrivate.toString()}</p>
                 <p>User ID: {userID}</p>
 
-                <h3>Personal Posts</h3>
+                <p>Followers</p>
+                <DisplayArray array={followers} displayObjectFunc={displayUser} />
+
+                <p>Following</p>
+                <DisplayArray array={following} displayObjectFunc={displayUser} />
+
+                <p>Follow Requests Received</p>
+                <DisplayRequestArray requestArray={followRequestsReceived} userOwnUserID={userID} />
+
+                <p>Follow Requests Sent</p>
+                <DisplayArray array={followRequestsSent} displayObjectFunc={displayUser} />
+
+                <p>Personal Posts</p>
                 <DisplayArray array={personalPostsContent} displayObjectFunc={displayPost} />
 
-                <h3>Saved Posts</h3>
+                <p>Saved Posts</p>
                 <DisplayArray array={savedPostsContent} displayObjectFunc={displayPost} />
 
                 <button
@@ -182,34 +167,6 @@ function UserInfo() {
                     onChange={(e) => setIsPrivate(e.target.checked)}
                 />
             </div>
-
-            {followers.length > 0 && (
-                <div>
-                    <label>Followers</label>
-                    {displayAndSelectToDelete(followers, setFollowers, 'Are you sure you want to remove this follower?')}
-                </div>
-            )}
-
-            {following.length > 0 && (
-                <div>
-                    <label>Following</label>
-                    {displayAndSelectToDelete(following, setFollowing, 'Are you sure you want to unfollow this user?')}
-                </div>
-            )}
-
-            {savedPosts.length > 0 && (
-                <div>
-                    <label>Saved Posts</label>
-                    {displayAndSelectToDelete(savedPosts, setSavedPosts, 'Are you sure you want to remove this saved post?')}
-                </div>
-            )}
-
-            {personalPosts.length > 0 && (
-                <div>
-                    <label>Personal Posts</label>
-                    {displayAndSelectToDelete(personalPosts, setPersonalPosts, 'Are you sure you want to remove this personal post?')}
-                </div>
-            )}
 
             <button onClick={handleSubmitUserInfo}>Submit</button>
 
