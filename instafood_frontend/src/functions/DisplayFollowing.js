@@ -1,6 +1,7 @@
-import {functions} from '../firebaseConf'
+import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
+
 
 function DisplayFollowing ( {otherUserID, userOwnID }) {
     const unfollow = httpsCallable(functions, 'unfollow');
@@ -24,11 +25,7 @@ function DisplayFollowing ( {otherUserID, userOwnID }) {
     }
 
     if (unfollowHasBeenProcessed) {
-        return (
-            <div>
-                <p>Unfollowed {otherUserID}!!</p>
-            </div>
-        );
+        window.location.reload();
     }
 
     return (

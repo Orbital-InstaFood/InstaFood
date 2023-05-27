@@ -6,11 +6,9 @@ function DisplayRequestReceived ({otherUserID, userOwnID}) {
     const answerFollowRequest = httpsCallable(functions, 'answerFollowRequest');
     const [requestIsBeingProcessed, setRequestIsBeingProcessed] = useState(false); 
     const [requestHasBeenProcessed, setRequestHasBeenProcessed] = useState(false);
-    const [requestAccepted, setRequestAccepted] = useState(false);
 
     const handleAcceptOrReject = async (accept) => {
         setRequestIsBeingProcessed(true);
-        setRequestAccepted(accept);
         const result = await answerFollowRequest({ followerUserID: otherUserID, followedUserID: userOwnID, accept: accept });
         console.log(result.data.result);
         setRequestHasBeenProcessed(true);   
@@ -26,19 +24,7 @@ function DisplayRequestReceived ({otherUserID, userOwnID}) {
     }
 
     if (requestHasBeenProcessed) {
-        if (requestAccepted) {
-            return (
-                <div>
-                    <p>Request from {otherUserID} has been accepted!!</p>
-                </div>
-            );
-        } else {
-            return (
-                <div>
-                    <p>Request from {otherUserID} has been rejected!!</p>
-                </div>
-            );
-        }
+        window.location.reload();
     }
 
     return (
