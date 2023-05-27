@@ -1,8 +1,8 @@
-import {functions} from '../firebaseConf'
+import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 
-function DisplayRequest ({otherUserID, userOwnID}) {
+function DisplayRequestReceived ({otherUserID, userOwnID}) {
     const answerFollowRequest = httpsCallable(functions, 'answerFollowRequest');
     const [requestIsBeingProcessed, setRequestIsBeingProcessed] = useState(false); 
     const [requestHasBeenProcessed, setRequestHasBeenProcessed] = useState(false);
@@ -50,4 +50,4 @@ function DisplayRequest ({otherUserID, userOwnID}) {
     );
 }
 
-export default DisplayRequest;
+export default DisplayRequestReceived;
