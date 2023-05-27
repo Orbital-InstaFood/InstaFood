@@ -7,12 +7,13 @@ import { db, auth } from '../firebaseConf';
 import CreateUser from './createUser';
 
 import displayPost from '../functions/displayPost';
-import displayUser from '../functions/displayUser';
-import DisplayArray from '../functions/DisplayArray';
 import useGetPosts from '../functions/useGetPosts';
+
+import DisplayArray from '../functions/DisplayArray';
+import displayUser from '../functions/displayUser';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
 import DisplayFollowing from '../functions/DisplayFollowing';
-
+import DisplayFollower from '../functions/DisplayFollower';
 
 /*
 Edits of followers, following to be updated in the backend database 
@@ -108,7 +109,9 @@ function UserInfo() {
                 <p>User ID: {userID}</p>
 
                 <p>Followers</p>
-                <DisplayArray array={followers} displayObjectFunc={displayUser} />
+                <DisplayArray array={followers} displayObjectFunc={ c => {
+                    return <DisplayFollower otherUserID={c} userOwnID={userID} />
+                }} />
 
                 <p>Following</p>
                 <DisplayArray array={following} displayObjectFunc={ c => {

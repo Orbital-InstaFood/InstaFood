@@ -86,6 +86,7 @@ function Connect() {
         <div>
             <div>
                 <h2>Connect</h2>
+                <label>Search for a user by his/her userID</label>
                 <input
                     type="text"
                     value={input}
