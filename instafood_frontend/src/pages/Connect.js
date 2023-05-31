@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { db, auth, functions } from '../firebaseConf';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc } from 'firebase/firestore';
 
+import textSearch from '../functions/textSearch';
+import DisplayArray from '../functions/DisplayArray';
 import { httpsCallable } from 'firebase/functions';
+import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function Connect() {
 
@@ -19,11 +22,7 @@ function Connect() {
     const [loadingUser, setLoadingUser] = useState(true);
 
     const [input, setInput] = useState('');
-    const [isMatchFound, setIsMatchFound] = useState(false);
-    const [matchFound, setMatchFound] = useState('');
-    const makeFollowRequest = httpsCallable(functions, 'makeFollowRequest');
-
-    const [loadingMakeFollowRequest, setLoadingMakeFollowRequest] = useState(false);
+    const [listOfPossibleMatches, setListOfPossibleMatches] = useState([]);
 
     useEffect(() => {
         async function getUser() {
@@ -47,75 +46,40 @@ function Connect() {
     }, []);
 
     useEffect(() => {
-        async function checkIfMatchFound() {
-            if (userIDs.includes(input) && input !== userOwnID) {
-                setIsMatchFound(true);
-                setMatchFound(input);
-            } else {
-                setIsMatchFound(false);
-            }
-        }
-        checkIfMatchFound();
+        const possibleMatches = textSearch(input, userIDs);
+        const filterOwnID = possibleMatches.filter(c => c !== userOwnID);
+        console.log(possibleMatches);
+        setListOfPossibleMatches(filterOwnID);
     }, [input]);
 
-    const handleFollowRequest = (e) => {
-
-        e.preventDefault();
-        setLoadingMakeFollowRequest(true);
-
-        async function executeFollowRequest() {
-            const result = await makeFollowRequest({ requesterUserID: userOwnID, requestedUserID: matchFound });
-            console.log(result.data.result);
-
-            const newFollowRequestsSent = [...followRequestsSent, matchFound];
-            setFollowRequestsSent(newFollowRequestsSent);
-
-            await updateDoc(userRef, { followRequestsSent: newFollowRequestsSent });
-            console.log('Follow request sent successfully!');
-
-            setLoadingMakeFollowRequest(false);
-        };
-        executeFollowRequest();
+    const handleFollowRequestSent = (otherUserID) => {
+        setFollowRequestsSent([...followRequestsSent, otherUserID]);
     };
 
-    if (loadingUserIDs || loadingUser || loadingMakeFollowRequest ) {
+    if (loadingUserIDs || loadingUser) {
         return <p>Loading...</p>;
     }
 
     return (
         <div>
-            <div>
-                <h2>Connect</h2>
-                <label>Search for a user by his/her userID</label>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                />
-            </div>
-
-            {isMatchFound && following.includes(matchFound) &&
-                <div>
-                    <p>You are already following {matchFound}</p>
-                </div>
-            }
-
-            {isMatchFound && followRequestsSent.includes(matchFound) &&
-                <div>
-                    <p>You have already sent a follow request to {matchFound}</p>
-                </div>
-            }
-
-            {isMatchFound && !followRequestsSent.includes(matchFound) && !following.includes(matchFound) &&
-                <div>
-                    <p>Not following {matchFound} yet</p>
-                    <button onClick={handleFollowRequest}>Follow {matchFound} ?</button>
-
-                </div>
-            }
+            <h2>Connect</h2>
+            <label>Search for a user by his/her userID</label>
+            <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+            />
+            <DisplayArray array={listOfPossibleMatches} displayObjectFunc={c =>
+                <DisplayUserForConnect
+                    otherUserID={c}
+                    userOwnID={userOwnID}
+                    following={following}
+                    followRequestSent={followRequestsSent}
+                    onFollowRequestSent={handleFollowRequestSent} 
+                /> } 
+            />
         </div>
     );
 }
-
 
 export default Connect;
