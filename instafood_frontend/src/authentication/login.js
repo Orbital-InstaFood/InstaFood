@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { auth } from "../firebaseConf";
 import { signInWithEmailAndPassword } from "firebase/auth";
+import "./login.css";
 
 function Login() {
     const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ function Login() {
     }
 
     return (
-        <div>
+        <div className="login-container">
             <input
                 type="email"
                 placeholder="Email"
