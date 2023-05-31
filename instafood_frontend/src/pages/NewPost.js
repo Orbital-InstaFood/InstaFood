@@ -59,7 +59,7 @@ function NewPost() {
             caption: caption,
             date_created: serverTimestamp(),
             images: urls,
-            post_id: postDocRef.id,
+            postID: postDocRef.id,
             likes: [],
             comments: [],
         };
