@@ -2,17 +2,16 @@ import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 
-function DisplayFollower ( {otherUserID, userOwnID} ) {
+function DisplayFollower ( {otherUserID, userOwnID, onFollowerRemoved } ) {
     const removeFollower = httpsCallable(functions, 'removeFollower');
     const [removeFollowerIsBeingProcessed, setRemoveFollowerIsBeingProcessed] = useState(false); 
-    const [removeFollowerHasBeenProcessed, setRemoveFollowerHasBeenProcessed] = useState(false);
 
     const handleRemoveFollower = async () => {
         setRemoveFollowerIsBeingProcessed(true);
         const result = await removeFollower({ followerUserID: otherUserID, followedUserID: userOwnID });
-        console.log(result.data.result);
-        setRemoveFollowerHasBeenProcessed(true);   
+        console.log(result.data.result);  
         setRemoveFollowerIsBeingProcessed(false);
+        onFollowerRemoved(otherUserID);
     }
 
     if (removeFollowerIsBeingProcessed) {
@@ -23,9 +22,6 @@ function DisplayFollower ( {otherUserID, userOwnID} ) {
         );
     }
 
-    if (removeFollowerHasBeenProcessed) {
-        window.location.reload();
-    }
 
     return (
         <div>

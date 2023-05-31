@@ -82,6 +82,21 @@ function UserInfo() {
         navigate('/');
     };
 
+    const handleFollowerRemoved = (otherUserID) => {
+        setFollowers(followers.filter((id) => id !== otherUserID));
+    };
+
+    const handleFollowingRemoved = (otherUserID) => {
+        setFollowing(following.filter((id) => id !== otherUserID));
+    };
+
+    const handleFollowRequestAnswered = (otherUserID, accept) => {
+        if (accept) {
+            setFollowers([...followers, otherUserID]);
+        } 
+        setFollowRequestsReceived(followRequestsReceived.filter((id) => id !== otherUserID));
+    };
+
     const [personalPostsContent, personalPostLoading] = useGetPosts(personalPosts);
     const [savedPostsContent, savedPostLoading] = useGetPosts(savedPosts);
 
@@ -110,17 +125,26 @@ function UserInfo() {
 
                 <p>Followers</p>
                 <DisplayArray array={followers} displayObjectFunc={ c => {
-                    return <DisplayFollower otherUserID={c} userOwnID={userID} />
+                    return <DisplayFollower 
+                    otherUserID={c}
+                    userOwnID={userID} 
+                    onFollowerRemoved={handleFollowerRemoved}/>
                 }} />
 
                 <p>Following</p>
                 <DisplayArray array={following} displayObjectFunc={ c => {
-                    return <DisplayFollowing otherUserID={c} userOwnID={userID} />
+                    return <DisplayFollowing 
+                    otherUserID={c} 
+                    userOwnID={userID} 
+                    onFollowingRemoved={ handleFollowingRemoved } />
                 }} />
 
                 <p>Follow Requests Received</p>
                 <DisplayArray array={followRequestsReceived} displayObjectFunc={ c => {
-                    return <DisplayRequestReceived otherUserID={c} userOwnID={userID} />
+                    return <DisplayRequestReceived 
+                    otherUserID={c} 
+                    userOwnID={userID} 
+                    onFollowRequestAnswered={handleFollowRequestAnswered}/>
                 }} />
 
                 <p>Follow Requests Sent</p>
