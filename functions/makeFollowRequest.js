@@ -20,11 +20,20 @@ exports.makeFollowRequest = functions.https.onCall(async (request) => {
 
     const requestedUID = requestedSnapshot.data().UID;
 
-    const result = await db.collection('users').doc(requestedUID).update(
+    await db.collection('users').doc(requestedUID).update(
         {
             followRequestsReceived: admin.firestore.FieldValue.arrayUnion(requesterUserID),
         }
     );
 
-    return { result: result };
+    const requesterSnapshot = await db.collection('backend_userID_UID').doc(requesterUserID).get();
+    const requesterUID = requesterSnapshot.data().UID;
+
+    await db.collection('users').doc(requesterUID).update(
+        {
+            followRequestsSent: admin.firestore.FieldValue.arrayUnion(requestedUserID),
+        }
+    );
+
+    return { result: "Follow request sent successfully!" };
 });
