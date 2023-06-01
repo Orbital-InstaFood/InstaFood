@@ -1,10 +1,24 @@
 import DisplayArray from "./DisplayArray";
 import displayImage from "./displayImage";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
+import Likes from "./Likes";
+import displayUser from "./displayUser";
+
 
 function DisplayPost({ post, userOwnID }) {
+
+    const [likes, setLikes] = useState(post.likes);
+
+    const handleLike = (liked) => {
+        if (liked) {
+            setLikes([...likes, userOwnID]);
+        } else {
+            const newLikes = likes.filter(likerID => likerID !== userOwnID);
+            setLikes(newLikes);
+        }
+    };
 
     const [comments, setComments] = useState(post.comments);
 
@@ -19,9 +33,17 @@ function DisplayPost({ post, userOwnID }) {
 
     return (
         <div>
-            <p>{post.creator}</p>
-            <h3>{post.title}</h3>
-            <p>{post.caption}</p>
+            <p>Creator: {post.creator}</p>
+            <h3>Title: {post.title}</h3>
+            <p>Caption: {post.caption}</p>
+
+            <Likes
+                postID={post.postID}
+                userOwnID={userOwnID}
+                onLike={handleLike}
+            />
+
+            <DisplayArray array={likes} displayObjectFunc={displayUser} />
 
             <MakeComment
                 postID={post.postID}
