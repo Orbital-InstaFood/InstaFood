@@ -10,7 +10,6 @@ function MakeComment({ postID, commenterID, onCommentMade }) {
     const makeComment = httpsCallable(functions, 'makeComment');
     const [loadingSubmitComment, setLoadingSubmitComment] = useState(false);
 
-
     const handleMakeComment = async (e) => {
         setLoadingSubmitComment(true);
 

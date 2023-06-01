@@ -15,16 +15,14 @@ function DisplayArray ( {array, displayObjectFunc} ) {
 
     return (
         <div>
-            <ul>
                 {arrayAndUniqueID.map((object) => {
                     return (
-                        <li key={object.uniqueID}>
+                        <div key={object.uniqueID}>
                             {displayObjectFunc(object.content)}
-                        </li>
+                        </div>
                     );
                 }
                 )}
-            </ul>
         </div>
     );
 }
