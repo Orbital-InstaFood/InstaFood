@@ -9,6 +9,8 @@ const unfollow = require("./unfollow");
 const removeFollower = require("./removeFollower");
 const makeComment = require("./makeComment");
 const deleteComment = require("./deleteComment");
+const likePost = require("./likePost");
+const unlikePost = require("./unlikePost");
 
 exports.addUserID = addUserID.addUserID;
 exports.getListOfUserIDs = getListOfUserIDs.getListOfUserIDs;
@@ -18,3 +20,5 @@ exports.unfollow = unfollow.unfollow;
 exports.removeFollower = removeFollower.removeFollower;
 exports.makeComment = makeComment.makeComment;
 exports.deleteComment = deleteComment.deleteComment;
+exports.likePost = likePost.likePost;
+exports.unlikePost = unlikePost.unlikePost;
