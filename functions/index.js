@@ -11,6 +11,7 @@ const makeComment = require("./makeComment");
 const deleteComment = require("./deleteComment");
 const likePost = require("./likePost");
 const unlikePost = require("./unlikePost");
+const infoUserCanView = require("./infoUserCanView");
 
 exports.addUserID = addUserID.addUserID;
 exports.getListOfUserIDs = getListOfUserIDs.getListOfUserIDs;
@@ -22,3 +23,4 @@ exports.makeComment = makeComment.makeComment;
 exports.deleteComment = deleteComment.deleteComment;
 exports.likePost = likePost.likePost;
 exports.unlikePost = unlikePost.unlikePost;
+exports.infoUserCanView = infoUserCanView.infoUserCanView;
