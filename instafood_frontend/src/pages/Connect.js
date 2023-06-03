@@ -48,7 +48,6 @@ function Connect() {
     useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
         const filterOwnID = possibleMatches.filter(c => c !== userOwnID);
-        console.log(possibleMatches);
         setListOfPossibleMatches(filterOwnID);
     }, [input]);
 

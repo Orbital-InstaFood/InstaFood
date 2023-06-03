@@ -1,6 +1,7 @@
 import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from "react";
+import DisplayUserLink from './DisplayUserLink';
 
 function DisplayComment ({ comment, userOwnID, postID, onDeleteComment }) {
 
@@ -34,7 +35,7 @@ function DisplayComment ({ comment, userOwnID, postID, onDeleteComment }) {
 
     return (
         <div>
-            <p>{comment.commenterID}: {comment.commentText}</p>
+            <p><DisplayUserLink userID={comment.commenterID} />: {comment.commentText}</p>
         </div>
     );
 }

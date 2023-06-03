@@ -10,7 +10,7 @@ import DisplayPost from '../functions/DisplayPost';
 import useGetPosts from '../functions/useGetPosts';
 
 import DisplayArray from '../functions/DisplayArray';
-import displayUser from '../functions/displayUser';
+import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
 import DisplayFollowing from '../functions/DisplayFollowing';
 import DisplayFollower from '../functions/DisplayFollower';
@@ -148,7 +148,7 @@ function UserInfo() {
                 }} />
 
                 <p>Follow Requests Sent</p>
-                <DisplayArray array={followRequestsSent} displayObjectFunc={displayUser} />
+                <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
 
                 <p>Personal Posts</p>
                 <DisplayArray array={personalPostsContent} displayObjectFunc={c => {

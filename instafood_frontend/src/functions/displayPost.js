@@ -1,10 +1,10 @@
 import DisplayArray from "./DisplayArray";
 import displayImage from "./displayImage";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
 import Likes from "./Likes";
-import displayUser from "./displayUser";
+import DisplayUserLink from "./DisplayUserLink";
 
 
 function DisplayPost({ post, userOwnID }) {
@@ -43,7 +43,10 @@ function DisplayPost({ post, userOwnID }) {
                 onLike={handleLike}
             />
 
-            <DisplayArray array={likes} displayObjectFunc={displayUser} />
+            <DisplayArray array={likes} displayObjectFunc={ liker => {
+                return <DisplayUserLink
+                        userID={liker}/>
+            }} />
 
             <MakeComment
                 postID={post.postID}

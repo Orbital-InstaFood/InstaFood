@@ -1,7 +1,7 @@
 import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
-
+import DisplayUserLink from './DisplayUserLink';
 
 function DisplayFollowing ( {otherUserID, userOwnID, onFollowingRemoved}) {
     const unfollow = httpsCallable(functions, 'unfollow');
@@ -25,7 +25,7 @@ function DisplayFollowing ( {otherUserID, userOwnID, onFollowingRemoved}) {
 
     return (
         <div>
-            <p>{otherUserID}</p>
+            <DisplayUserLink userID={otherUserID}/>
             <button onClick={() => handleUnfollow()}>Unfollow?</button>
         </div>
     );
