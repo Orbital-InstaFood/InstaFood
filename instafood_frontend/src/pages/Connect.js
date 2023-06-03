@@ -34,7 +34,7 @@ function Connect() {
             setLoadingUser(false);
         }
         getUser();
-    }, []);
+    }, [userRef]);
 
     useEffect(() => {
         async function getUserIDs() {
@@ -43,14 +43,14 @@ function Connect() {
             setLoadingUserIDs(false);
         }
         getUserIDs();
-    }, []);
+    }, [getListOfUserIDs, userOwnID]);
 
     useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
         const filterOwnID = possibleMatches.filter(c => c !== userOwnID);
         console.log(possibleMatches);
         setListOfPossibleMatches(filterOwnID);
-    }, [input]);
+    }, [userIDs, userOwnID, input]);
 
     const handleFollowRequestSent = (otherUserID) => {
         setFollowRequestsSent([...followRequestsSent, otherUserID]);
