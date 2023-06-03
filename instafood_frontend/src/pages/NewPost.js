@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 
 import { db, auth, storage } from '../firebaseConf';
@@ -8,128 +8,160 @@ import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc } from 'fir
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
 function NewPost() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const user = auth.currentUser;
+  const user = auth.currentUser;
 
-    const [title, setTitle] = useState('');
-    const [caption, setCaption] = useState('');
-    const [images, setImages] = useState([]);
-    const [imageObjects, setImageObjects] = useState([]);
+  const [title, setTitle] = useState('');
+  const [caption, setCaption] = useState('');
+  const [images, setImages] = useState([]);
+  const [imageObjects, setImageObjects] = useState([]);
 
-    function handleImageChange(e) {
-        const newImages = [...images];
-        const newImageObjects = [...imageObjects];
+  const [categories, setCategories] = useState([]); 
 
-        for (const image of e.target.files) {
-            newImages.push(image);
-            newImageObjects.push({
-                content: image,
-                uniqueID: generateUniqueID()
-            })
-        }
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const categoriesRef = collection(db, 'categories');
+      const categoriesSnapshot = await getDoc(categoriesRef);
+      const categoriesData = categoriesSnapshot.docs.map((doc) => ({
+        id: doc.id,
+        name: doc.data().name,
+      }));
+      setCategories(categoriesData);
+    };
+    fetchCategories();
+  }, []);
 
-        setImages(newImages);
-        setImageObjects(newImageObjects);
+  function handleImageChange(e) {
+    const newImages = [...images];
+    const newImageObjects = [...imageObjects];
 
-        e.target.value = null;
+    for (const image of e.target.files) {
+      newImages.push(image);
+      newImageObjects.push({
+        content: image,
+        uniqueID: generateUniqueID(),
+      });
+    }
+
+    setImages(newImages);
+    setImageObjects(newImageObjects);
+
+    e.target.value = null;
+  }
+
+  const handleSubmitNewPost = async (e) => {
+    e.preventDefault();
+
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    const userUniqueID = userDoc.data().userID;
+
+    const postDocRef = doc(collection(db, 'posts'));
+
+    let urls = [];
+
+    for (const imageObject of imageObjects) {
+      const imageRef = ref(
+        storage,
+        `/${userUniqueID}/${postDocRef.id}/${imageObject.content.name}/${imageObject.uniqueID}`
+      );
+      const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
+      const url = await getDownloadURL(snapshot.ref);
+      urls.push(url);
+    }
+
+    const postDoc = {
+      title: title,
+      creator: userUniqueID,
+      caption: caption,
+      date_created: serverTimestamp(),
+      images: urls,
+      postID: postDocRef.id,
+      likes: [],
+      comments: [],
+      category: categories,
     };
 
-    const handleSubmitNewPost = async (e) => {
-        e.preventDefault();
+    await setDoc(postDocRef, postDoc);
 
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        const userUniqueID = userDoc.data().userID;
+    const categoryRef = doc(db, 'categories', categories);
+    const categoryDoc = await getDoc(categoryRef);
+    if (categoryDoc.exists()) {
+      await updateDoc(categoryRef, {
+        posts: [...categoryDoc.data().posts, postDocRef.id],
+      });
+    }
 
-        const postDocRef = doc(collection(db, 'posts'));
+    await updateDoc(userRef, {
+      personal_posts: [...userDoc.data().personal_posts, postDocRef.id],
+    });
 
-        let urls = [];
+    console.log('Post created successfully!');
+    navigate('/');
+  };
 
-        for (const imageObject of imageObjects) {
-            const imageRef = ref(storage, `/${userUniqueID}/${postDocRef.id}/${imageObject.content.name}/${imageObject.uniqueID}`);
-            const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
-            const url = await getDownloadURL(snapshot.ref);
-            urls.push(url);
-        }
+  return (
+    <div>
+      <h2>New Post</h2>
+      <form onSubmit={handleSubmitNewPost}>
+        <label htmlFor="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <label htmlFor="caption">Caption</label>
+        <input
+          type="text"
+          id="caption"
+          required
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+        />
+        <label htmlFor="category">Category</label>
+        <select
+          id="category"
+          value={categories}
+          onChange={(e) => setCategories(e.target.value)}
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="images">Images</label>
+        <input type="file" id="images" multiple onChange={handleImageChange} />
+        {imageObjects.length > 0 && (
+          <div>
+            {imageObjects.map((imageObject) => (
+              <div key={imageObject.uniqueID}>
+                <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
 
-        const postDoc = {
-            title: title,
-            creator: userUniqueID,
-            caption: caption,
-            date_created: serverTimestamp(),
-            images: urls,
-            postID: postDocRef.id,
-            likes: [],
-            comments: [],
-        };
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageObjects(
+                      imageObjects.filter((imgObj) => imgObj !== imageObject)
+                    );
 
-        await setDoc(postDocRef, postDoc);
-
-        await updateDoc(userRef, {
-            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
-        });
-
-        console.log('Post created successfully!');
-        navigate('/');
-    };
-
-    return (
-        <div>
-            <h2>New Post</h2>
-            <form onSubmit={handleSubmitNewPost}>
-                <label htmlFor="title">Title</label>
-                <input
-                    type="text"
-                    id="title"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <label htmlFor="caption">Caption</label>
-                <input
-                    type="text"
-                    id="caption"
-                    required
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                />
-                <label htmlFor="images">Images</label>
-                <input
-                    type="file"
-                    id="images"
-                    multiple
-                    onChange={handleImageChange}
-                />
-                {imageObjects.length > 0 && (
-                    <div>
-                        {imageObjects.map((imageObject) => (
-                            <div key={imageObject.uniqueID}>
-                                <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
-
-                                <button
-                                    type="button"
-                                    onClick={() => {
-
-                                        setImageObjects(imageObjects.filter((imgObj) => {
-                                            return imgObj !== imageObject;
-                                        }));
-
-                                        setImages(images.filter((image) => {
-                                            return image !== imageObject.content;
-                                        }));
-                                    }}
-                                >
-                                    Delete Image
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <button type="submit">Create Post</button>
-            </form>
-        </div>
-    );
+                    setImages(images.filter((image) => image !== imageObject.content));
+                  }}
+                >
+                  Delete Image
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <button type="submit">Create Post</button>
+      </form>
+    </div>
+  );
 }
 
 export default NewPost;
