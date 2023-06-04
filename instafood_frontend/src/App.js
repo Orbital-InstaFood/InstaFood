@@ -14,6 +14,8 @@ import NewPost from './pages/NewPost';
 import Connect from './pages/Connect';
 import Navbar from './Navbar';
 
+import "./ButtonDesign/general.css";
+
 function App() {
   const [user, setUser] = useState(null);
 
@@ -23,30 +25,73 @@ function App() {
     });
   }, []);
 
+  const DashboardButton = () => {
+    return (
+      <div>
+        <button className="general-button">Dashboard</button>
+        <Dashboard />
+      </div>
+    );
+  };
+
+  const NewPostButton = () => {
+    return (
+      <div>
+        <button className="general-button">New Post</button>
+        <NewPost />
+      </div>
+    );
+  };
+
+  const UserInfoButton = () => {
+    return (
+      <div>
+        <button className="general-button">Edit Profile</button>
+        <UserInfo />
+      </div>
+    );
+  };
+
+  const ConnectButton = () => {
+    return (
+      <div>
+        <button className="general-button">Connect</button>
+        <Connect />
+      </div>
+    );
+  };
+
   if (user) {
     return (
-      <Router>
-        <h1>InstaFood</h1>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/newPost" element={<NewPost />} />
-          <Route path="/editProfile" element={<UserInfo />} />
-          <Route path="/connect" element={<Connect />} />
-        </Routes>
-        <Logout />
-      </Router>
+      <div className="background-in-website">
+        <div className="container-in-website">
+          <Router>
+            <Navbar />
+            <Routes>
+              <Route path="/" element={<DashboardButton />} />
+              <Route path="/newPost" element={<NewPostButton />} />
+              <Route path="/editProfile" element={<UserInfoButton />} />
+              <Route path="/connect" element={<ConnectButton />} />
+            </Routes>
+            <Logout />
+          </Router>
+        </div>
+      </div>
     );
   }
 
   return (
-    <Router>
-      <h1>InstaFood</h1>
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-      </Routes>
+    <div className="container-login-page">
+      <h1 className="logo-login-page">InstaFood</h1>
+      <Router>
+      <div>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Routes>
+      </div>
     </Router>
+  </div>
   );
 }
 
