@@ -44,8 +44,8 @@ function CreateUser() {
             followRequestsReceived: [],
             following: [],
             followRequestsSent: [],
-            saved_posts: [],
-            personal_posts: [],
+            savedPosts: [],
+            personalPosts: [],
             postsToView: []
         };
 

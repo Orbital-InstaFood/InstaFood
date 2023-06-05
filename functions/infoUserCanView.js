@@ -18,12 +18,12 @@ exports.infoUserCanView = functions.https.onCall(async (request) => {
         userID: requestedUser.userID,
         followers: requestedUser.followers,
         following: requestedUser.following,
-        personal_posts_length: requestedUser.personal_posts.length,
-        personal_posts: [],
+        personalPostsLength: requestedUser.personalPosts.length,
+        personalPosts: [],
     }
 
     if (requestedUser.isPublic || requestedUser.followers.includes(userOwnID)) {
-        userInfo.personal_posts = requestedUser.personal_posts;
+        userInfo.personalPosts = requestedUser.personalPosts;
         return {
             fullReadAccess: true,
             userInfo: userInfo,

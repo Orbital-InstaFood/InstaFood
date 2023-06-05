@@ -10,7 +10,6 @@ function Likes({ postID, userOwnID, onLike }) {
     const likePost = httpsCallable(functions, 'likePost');
     const unlikePost = httpsCallable(functions, 'unlikePost');
     const [processing, setProcessing] = useState(false);
-    console.log(postID, userOwnID);
 
     useEffect(() => {
         setProcessing(true);

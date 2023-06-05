@@ -76,8 +76,8 @@ function ViewOtherUsers() {
                 onFollowRequestSent={handleFollowRequestSent}
             />
 
-            <DisplayArray array={userInfo.personal_posts} displayObjectFunc={c => {
-                return <DisplayPost post={c} userOwnID={userOwnID} />
+            <DisplayArray array={userInfo.personalPosts} displayObjectFunc={c => {
+                return <DisplayPost postID={c} userOwnID={userOwnID} />
             }} />
 
             <p>Followers:</p>

@@ -70,7 +70,7 @@ function NewPost() {
         await setDoc(postDocRef, postDoc);
 
         await updateDoc(userRef, {
-            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
+            personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
         });
 
         console.log('Post created successfully!');

@@ -7,8 +7,6 @@ import { db, auth } from '../firebaseConf';
 import CreateUser from './createUser';
 
 import DisplayPost from '../functions/DisplayPost';
-import useGetPosts from '../functions/useGetPosts';
-
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
@@ -55,8 +53,8 @@ function UserInfo() {
                 setFollowing(data.following);
                 setFollowRequestsReceived(data.followRequestsReceived);
                 setFollowRequestsSent(data.followRequestsSent);
-                setSavedPosts(data.saved_posts);
-                setPersonalPosts(data.personal_posts);
+                setSavedPosts(data.savedPosts);
+                setPersonalPosts(data.personalPosts);
 
                 setUserExists(true);
 
@@ -97,10 +95,7 @@ function UserInfo() {
         setFollowRequestsReceived(followRequestsReceived.filter((id) => id !== otherUserID));
     };
 
-    const [personalPostsContent, personalPostLoading] = useGetPosts(personalPosts);
-    const [savedPostsContent, savedPostLoading] = useGetPosts(savedPosts);
-
-    if (userExists === null || personalPostLoading || savedPostLoading) {
+    if (userExists === null) {
         return (
             <div>
                 <h2>Loading...</h2>
@@ -151,17 +146,17 @@ function UserInfo() {
                 <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
 
                 <p>Personal Posts</p>
-                <DisplayArray array={personalPostsContent} displayObjectFunc={c => {
+                <DisplayArray array={personalPosts} displayObjectFunc={c => {
                     return <DisplayPost
-                        post={c}
+                        postID={c}
                         userOwnID={userID}
                     />
                 }} />
 
                 <p>Saved Posts</p>
-                <DisplayArray array={savedPostsContent} displayObjectFunc={c => {
+                <DisplayArray array={savedPosts} displayObjectFunc={c => {
                     return <DisplayPost
-                        post={c}
+                        postID={c}
                         userOwnID={userID}
                     />
                 }} />
