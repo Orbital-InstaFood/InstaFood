@@ -46,6 +46,7 @@ function CreateUser() {
             followRequestsSent: [],
             saved_posts: [],
             personal_posts: [],
+            postsToView: []
         };
 
         const userRef = doc(db, 'users', user.uid);
