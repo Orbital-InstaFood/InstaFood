@@ -3,7 +3,7 @@ import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 import DisplayUserLink from './DisplayUserLink';
 
-function DisplayUserForConnect ({otherUserID, userOwnID, following, followRequestSent, onFollowRequestSent }) {
+function DisplayUserForConnect ({otherUserID, userOwnID, following, followRequestsSent, onFollowRequestSent }) {
 
     const makeFollowRequest = httpsCallable(functions, 'makeFollowRequest');
     const [loadingMakeFollowRequest, setLoadingMakeFollowRequest] = useState(false);
@@ -38,7 +38,7 @@ function DisplayUserForConnect ({otherUserID, userOwnID, following, followReques
         );
     }
 
-    if ( followRequestSent.includes(otherUserID)) {
+    if ( followRequestsSent.includes(otherUserID)) {
         return (
         <div>
             <p><DisplayUserLink userID={otherUserID} />: You have already sent a follow request to {otherUserID}</p>

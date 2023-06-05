@@ -73,7 +73,7 @@ function Connect() {
                     otherUserID={c}
                     userOwnID={userOwnID}
                     following={following}
-                    followRequestSent={followRequestsSent}
+                    followRequestsSent={followRequestsSent}
                     onFollowRequestSent={handleFollowRequestSent} 
                 /> } 
             />
