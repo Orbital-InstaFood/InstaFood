@@ -1,15 +1,44 @@
 import DisplayArray from "./DisplayArray";
 import displayImage from "./displayImage";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
 import Likes from "./Likes";
 import DisplayUserLink from "./DisplayUserLink";
 
+import { db } from '../firebaseConf';
+import { getDoc, doc } from "firebase/firestore";
 
-function DisplayPost({ post, userOwnID }) {
 
-    const [likes, setLikes] = useState(post.likes);
+function DisplayPost({ postID, userOwnID }) {
+
+    const [post, setPost] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    const [likes, setLikes] = useState([]);
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        async function getPost() {
+            const postRef = doc(db, 'posts', postID);
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+                setPost(postDoc.data());
+                setLoading(false);
+                setLikes(postDoc.data().likes);
+                setComments(postDoc.data().comments);
+            }
+        }
+        getPost();
+    }, [postID]);
+
+    if (loading) {
+        return (
+            <div>
+                <p>Loading...</p>
+            </div>
+        );
+    }
 
     const handleLike = (liked) => {
         if (liked) {
@@ -19,8 +48,6 @@ function DisplayPost({ post, userOwnID }) {
             setLikes(newLikes);
         }
     };
-
-    const [comments, setComments] = useState(post.comments);
 
     const handleCommentMade = (comment) => {
         setComments([...comments, comment]);
