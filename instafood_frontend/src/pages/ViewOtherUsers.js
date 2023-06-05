@@ -7,9 +7,7 @@ import { httpsCallable } from 'firebase/functions';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayPost from '../functions/DisplayPost';
-
-
-// Display a user's profile based on his userID
+import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function ViewOtherUsers() {
     const navigate = useNavigate();
@@ -17,6 +15,8 @@ function ViewOtherUsers() {
     const userUID = auth.currentUser.uid;
     const userOwnRef = doc(db, 'users', userUID);
     const [userOwnID, setUserOwnID] = useState(null);
+    const [following, setFollowing] = useState([]);
+    const [followRequestsSent, setFollowRequestsSent] = useState([]);
 
     const { userID } = useParams();
     const infoUserCanView = httpsCallable(functions, 'infoUserCanView');
@@ -27,7 +27,10 @@ function ViewOtherUsers() {
     useEffect(() => {
         async function getUserOwnID() {
             const userOwnDoc = await getDoc(userOwnRef);
+
             setUserOwnID(userOwnDoc.data().userID);
+            setFollowing(userOwnDoc.data().following);
+            setFollowRequestsSent(userOwnDoc.data().followRequestsSent);
         }
         getUserOwnID();
     }, []);
@@ -41,6 +44,10 @@ function ViewOtherUsers() {
         }
         getTheOtherUserInfo();
     }, [userID]);
+
+    const handleFollowRequestSent = (otherUserID) => {
+        setFollowRequestsSent([...followRequestsSent, otherUserID]);
+    };
 
     if (loading) {
         return (
@@ -60,6 +67,14 @@ function ViewOtherUsers() {
             <p>Username: {userInfo.username}</p>
             <p>Bio: {userInfo.bio}</p>
             <p>UserID: {userInfo.userID}</p>
+
+            <DisplayUserForConnect
+                userOwnID={userOwnID}
+                otherUserID={userID}
+                following={following}
+                followRequestsSent={followRequestsSent}
+                onFollowRequestSent={handleFollowRequestSent}
+            />
 
             <DisplayArray array={userInfo.personal_posts} displayObjectFunc={c => {
                 return <DisplayPost post={c} userOwnID={userOwnID} />
