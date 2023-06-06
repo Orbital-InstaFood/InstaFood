@@ -5,15 +5,27 @@ import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
 import Likes from "./Likes";
 import DisplayUserLink from "./DisplayUserLink";
+import DisplaySave from "./DisplaySave";
 
-import { db } from '../firebaseConf';
-import { getDoc, doc } from "firebase/firestore";
+import { db, auth } from '../firebaseConf';
+import { getDoc, doc, updateDoc } from "firebase/firestore";
 
 
 function DisplayPost({ postID, userOwnID }) {
 
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
+
+    const userOwnRef = doc(db, 'users', auth.currentUser.uid);
+    const [userOwnSavedPosts, setUserOwnSavedPosts] = useState(null);
+
+    useEffect(() => {
+        async function getUserDoc() {
+            const userDoc = await getDoc(userOwnRef);
+            setUserOwnSavedPosts(userDoc.data().savedPosts);
+        }
+        getUserDoc();
+    }, []);
 
     useEffect(() => {
         async function getPost() {
@@ -34,6 +46,23 @@ function DisplayPost({ postID, userOwnID }) {
             </div>
         );
     }
+
+    const handleSave = (saved) => {
+        let newSavedPosts;
+        if (saved) {
+            newSavedPosts = [...userOwnSavedPosts, postID];
+        } else {
+            newSavedPosts = userOwnSavedPosts.filter(savedPost => savedPost !== postID);
+        }
+        setUserOwnSavedPosts(newSavedPosts);
+
+        async function updateSavedPosts() {
+            await updateDoc(userOwnRef, {
+                savedPosts: newSavedPosts
+            });
+        }
+        updateSavedPosts();
+    };
 
     const handleLike = (liked) => {
         if (liked) {
@@ -65,9 +94,9 @@ function DisplayPost({ postID, userOwnID }) {
                 onLike={handleLike}
             />
 
-            <DisplayArray array={post.likes} displayObjectFunc={ liker => {
+            <DisplayArray array={post.likes} displayObjectFunc={liker => {
                 return <DisplayUserLink
-                        userID={liker}/>
+                    userID={liker} />
             }} />
 
             <MakeComment
@@ -86,6 +115,12 @@ function DisplayPost({ postID, userOwnID }) {
                     />
                 );
             }}
+            />
+
+            <DisplaySave
+                savedPosts={userOwnSavedPosts}
+                onSave={handleSave}
+                postID={postID}
             />
 
             <DisplayArray array={post.images} displayObjectFunc={displayImage} />
