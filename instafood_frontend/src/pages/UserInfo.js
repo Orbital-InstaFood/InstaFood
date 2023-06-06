@@ -6,7 +6,7 @@ import { db, auth } from '../firebaseConf';
 
 import CreateUser from './createUser';
 
-import displayPost from '../functions/DisplayPost';
+import DisplayPost from '../functions/DisplayPost';
 import useGetPosts from '../functions/useGetPosts';
 
 import DisplayArray from '../functions/DisplayArray';

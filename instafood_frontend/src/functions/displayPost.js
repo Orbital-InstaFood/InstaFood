@@ -1,7 +1,7 @@
 import DisplayArray from "./DisplayArray";
 import displayImage from "./displayImage";
 
-function displayPost (post) {
+function DisplayPost (post) {
     return (
         <div>
             <h3>{post.title}</h3>
@@ -11,4 +11,4 @@ function displayPost (post) {
     );
 }
 
-export default displayPost;
+export default DisplayPost;

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import getUserDoc from '../functions/getUserDoc';
+import './Dashboard.css';
 
 
 function Dashboard() {
@@ -17,9 +18,8 @@ function Dashboard() {
     },[]);
 
     return (
-        <div>
-            <p>Dashboard</p>
-            <p>Welcome, {username}</p>
+        <div className="container">
+        <p className="welcome-message">Welcome, {username}! Here's your personalised dashboard.</p>
         </div>
     );
 }
