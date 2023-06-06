@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { db, auth, storage } from '../firebaseConf';
@@ -16,6 +16,21 @@ function NewPost() {
     const [caption, setCaption] = useState('');
     const [images, setImages] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
+
+    const [categories, setCategories] = useState([]); 
+
+    useEffect(() => {
+        const fetchCategories = async () => {
+          const categoriesRef = collection(db, 'categories');
+          const categoriesSnapshot = await getDoc(categoriesRef);
+          const categoriesData = categoriesSnapshot.docs.map((doc) => ({
+            id: doc.id,
+            name: doc.data().name,
+          }));
+          setCategories(categoriesData);
+        };
+        fetchCategories();
+  }, []);
 
     function handleImageChange(e) {
         const newImages = [...images];
@@ -62,9 +77,18 @@ function NewPost() {
             post_id: postDocRef.id,
             likes: [],
             comments: [],
+            category: categories,
         };
 
         await setDoc(postDocRef, postDoc);
+        
+        const categoryRef = doc(db, 'categories', categories);
+        const categoryDoc = await getDoc(categoryRef);
+        if (categoryDoc.exists()) {
+          await updateDoc(categoryRef, {
+            posts: [...categoryDoc.data().posts, postDocRef.id],
+          });
+        }
 
         await updateDoc(userRef, {
             personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
@@ -75,61 +99,66 @@ function NewPost() {
     };
 
     return (
-        <div>
-            <h2>New Post</h2>
-            <form onSubmit={handleSubmitNewPost}>
-                <label htmlFor="title">Title</label>
-                <input
-                    type="text"
-                    id="title"
-                    required
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                />
-                <label htmlFor="caption">Caption</label>
-                <input
-                    type="text"
-                    id="caption"
-                    required
-                    value={caption}
-                    onChange={(e) => setCaption(e.target.value)}
-                />
-                <label htmlFor="images">Images</label>
-                <input
-                    type="file"
-                    id="images"
-                    multiple
-                    onChange={handleImageChange}
-                />
-                {imageObjects.length > 0 && (
-                    <div>
-                        {imageObjects.map((imageObject) => (
-                            <div key={imageObject.uniqueID}>
-                                <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
+    <div>
+      <h2>New Post</h2>
+      <form onSubmit={handleSubmitNewPost}>
+        <label htmlFor="title">Title</label>
+        <input
+          type="text"
+          id="title"
+          required
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <label htmlFor="caption">Caption</label>
+        <input
+          type="text"
+          id="caption"
+          required
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+        />
+        <label htmlFor="category">Category</label>
+        <select
+          id="category"
+          value={categories}
+          onChange={(e) => setCategories(e.target.value)}
+        >
+          <option value="">Select a category</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.name}
+            </option>
+          ))}
+        </select>
+        <label htmlFor="images">Images</label>
+        <input type="file" id="images" multiple onChange={handleImageChange} />
+        {imageObjects.length > 0 && (
+          <div>
+            {imageObjects.map((imageObject) => (
+              <div key={imageObject.uniqueID}>
+                <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
 
-                                <button
-                                    type="button"
-                                    onClick={() => {
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImageObjects(
+                      imageObjects.filter((imgObj) => imgObj !== imageObject)
+                    );
 
-                                        setImageObjects(imageObjects.filter((imgObj) => {
-                                            return imgObj !== imageObject;
-                                        }));
-
-                                        setImages(images.filter((image) => {
-                                            return image !== imageObject.content;
-                                        }));
-                                    }}
-                                >
-                                    Delete Image
-                                </button>
-                            </div>
-                        ))}
-                    </div>
-                )}
-                <button type="submit">Create Post</button>
-            </form>
-        </div>
-    );
+                    setImages(images.filter((image) => image !== imageObject.content));
+                  }}
+                >
+                  Delete Image
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        <button type="submit">Create Post</button>
+      </form>
+    </div>
+  );
 }
 
 export default NewPost;
