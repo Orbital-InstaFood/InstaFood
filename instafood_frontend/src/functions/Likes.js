@@ -27,20 +27,18 @@ function Likes({ postID, userOwnID, onLike }) {
         checkIfLiked();
     }, []);
 
-    const handleLike = async () => {
+    const handleLike = () => {
         setProcessing(true);
         setLiked(true);
-        const result = await likePost({ postID: postID, likerID: userOwnID });
-        console.log(result.data.message);
+        likePost({ postID: postID, likerID: userOwnID });
         setProcessing(false);
         onLike(true);
     }
 
-    const handleUnlike = async () => {
+    const handleUnlike = () => {
         setProcessing(true);
         setLiked(false);
-        const result = await unlikePost({ postID: postID, unlikerID: userOwnID });
-        console.log(result.data.message);
+        unlikePost({ postID: postID, unlikerID: userOwnID });
         setProcessing(false);
         onLike(false);
     }

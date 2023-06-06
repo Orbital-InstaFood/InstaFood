@@ -10,8 +10,7 @@ function DisplayComment ({ comment, userOwnID, postID, onDeleteComment }) {
 
     const handleDeleteComment = async (e) => {
         setLoadingDeleteComment(true);
-        const result = await deleteComment({ postID: postID, commentID: comment.commentID });
-        console.log(result.data.result);
+        deleteComment({ postID: postID, commentID: comment.commentID });
         onDeleteComment(comment.commentID);
         setLoadingDeleteComment(false);
     };

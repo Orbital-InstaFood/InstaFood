@@ -10,17 +10,25 @@ function MakeComment({ postID, commenterID, onCommentMade }) {
     const makeComment = httpsCallable(functions, 'makeComment');
     const [loadingSubmitComment, setLoadingSubmitComment] = useState(false);
 
-    const handleMakeComment = async (e) => {
+    const handleMakeComment = (e) => {
         setLoadingSubmitComment(true);
 
-        const result = await makeComment(
+        const comment = {
+            commenterID: commenterID,
+            commentText: commentText,
+            commentID: generateUniqueID()
+        };
+
+        makeComment(
             {
                 postID: postID,
-                commenterID: commenterID,
-                commentText: commentText,
-                commentID: generateUniqueID()
-            });
-        onCommentMade(result.data.comment);
+                commenterID: comment.commenterID,
+                commentText: comment.commentText,
+                commentID: comment.commentID
+            }
+        );
+
+        onCommentMade(comment);
         setLoadingSubmitComment(false);
         setCommentText("");
     };
