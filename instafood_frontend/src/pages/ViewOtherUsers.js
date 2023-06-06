@@ -24,26 +24,30 @@ function ViewOtherUsers() {
 
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        async function getUserOwnID() {
-            const userOwnDoc = await getDoc(userOwnRef);
+    async function getUserOwnID() {
+        const userOwnDoc = await getDoc(userOwnRef);
 
-            setUserOwnID(userOwnDoc.data().userID);
-            setFollowing(userOwnDoc.data().following);
-            setFollowRequestsSent(userOwnDoc.data().followRequestsSent);
-        }
-        getUserOwnID();
-    }, []);
+        setUserOwnID(userOwnDoc.data().userID);
+        setFollowing(userOwnDoc.data().following);
+        setFollowRequestsSent(userOwnDoc.data().followRequestsSent);
+    }
+
+    async function getTheOtherUserInfo() {
+        const result = await infoUserCanView({ userOwnID: userOwnID, requestedUserID: userID });
+        setUserInfo(result.data.userInfo);
+        setLoading(false);
+    } 
 
     useEffect(() => {
         setLoading(true);
-        async function getTheOtherUserInfo() {
-            const result = await infoUserCanView({ userOwnID: userOwnID, requestedUserID: userID });
-            setUserInfo(result.data.userInfo);
-            setLoading(false);
+
+        async function getUserOwnIDAndTheOtherUserInfo() {
+            await getUserOwnID();
+            await getTheOtherUserInfo();
         }
-        getTheOtherUserInfo();
-    }, [userID]);
+        getUserOwnIDAndTheOtherUserInfo();
+        
+    }, [userID, userOwnID]);
 
     const handleFollowRequestSent = (otherUserID) => {
         setFollowRequestsSent([...followRequestsSent, otherUserID]);
@@ -77,6 +81,7 @@ function ViewOtherUsers() {
             />
 
             <DisplayArray array={userInfo.personalPosts} displayObjectFunc={c => {
+                console.log(c);
                 return <DisplayPost postID={c} userOwnID={userOwnID} />
             }} />
 
