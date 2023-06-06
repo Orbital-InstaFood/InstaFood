@@ -15,9 +15,6 @@ function DisplayPost({ postID, userOwnID }) {
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    const [likes, setLikes] = useState([]);
-    const [comments, setComments] = useState([]);
-
     useEffect(() => {
         async function getPost() {
             const postRef = doc(db, 'posts', postID);
@@ -25,8 +22,6 @@ function DisplayPost({ postID, userOwnID }) {
             if (postDoc.exists()) {
                 setPost(postDoc.data());
                 setLoading(false);
-                setLikes(postDoc.data().likes);
-                setComments(postDoc.data().comments);
             }
         }
         getPost();
@@ -42,20 +37,20 @@ function DisplayPost({ postID, userOwnID }) {
 
     const handleLike = (liked) => {
         if (liked) {
-            setLikes([...likes, userOwnID]);
+            setPost({ ...post, likes: [...post.likes, userOwnID] });
         } else {
-            const newLikes = likes.filter(likerID => likerID !== userOwnID);
-            setLikes(newLikes);
+            const newLikes = post.likes.filter(liker => liker !== userOwnID);
+            setPost({ ...post, likes: newLikes });
         }
     };
 
     const handleCommentMade = (comment) => {
-        setComments([...comments, comment]);
+        setPost({ ...post, comments: [...post.comments, comment] });
     };
 
     const handleDeleteComment = (commentID) => {
-        const newComments = comments.filter(c => c.commentID !== commentID);
-        setComments(newComments);
+        const newComments = post.comments.filter(comment => comment.commentID !== commentID);
+        setPost({ ...post, comments: newComments });
     };
 
     return (
@@ -65,12 +60,12 @@ function DisplayPost({ postID, userOwnID }) {
             <p>Caption: {post.caption}</p>
 
             <Likes
-                postID={post.postID}
+                post={post}
                 userOwnID={userOwnID}
                 onLike={handleLike}
             />
 
-            <DisplayArray array={likes} displayObjectFunc={ liker => {
+            <DisplayArray array={post.likes} displayObjectFunc={ liker => {
                 return <DisplayUserLink
                         userID={liker}/>
             }} />
@@ -81,7 +76,7 @@ function DisplayPost({ postID, userOwnID }) {
                 onCommentMade={handleCommentMade}
             />
 
-            <DisplayArray array={comments} displayObjectFunc={comment => {
+            <DisplayArray array={post.comments} displayObjectFunc={comment => {
                 return (
                     <DisplayComment
                         comment={comment}

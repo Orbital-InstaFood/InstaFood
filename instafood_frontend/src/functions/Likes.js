@@ -1,10 +1,8 @@
 import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState, useEffect } from "react";
-import { getDoc, doc } from "firebase/firestore";
-import { db } from '../firebaseConf';
 
-function Likes({ postID, userOwnID, onLike }) {
+function Likes({ post, userOwnID, onLike }) {
     const [liked, setLiked] = useState(false);
 
     const likePost = httpsCallable(functions, 'likePost');
@@ -13,33 +11,24 @@ function Likes({ postID, userOwnID, onLike }) {
 
     useEffect(() => {
         setProcessing(true);
-        const checkIfLiked = async () => {
-            setProcessing(true);
-            const post = await getDoc(doc(db, "posts", postID));
-            const likes = post.data().likes;
-            if (likes.includes(userOwnID)) {
-                setLiked(true);
-            } else {
-                setLiked(false);
-            }
-            setProcessing(false);
+        const likes = post.likes;
+        if (likes.includes(userOwnID)) {
+            setLiked(true);
+        } else {
+            setLiked(false);
         }
-        checkIfLiked();
-    }, []);
+        setProcessing(false);
+    }, [post, userOwnID]);
 
     const handleLike = () => {
-        setProcessing(true);
         setLiked(true);
-        likePost({ postID: postID, likerID: userOwnID });
-        setProcessing(false);
+        likePost({ postID: post.postID, likerID: userOwnID });
         onLike(true);
     }
 
     const handleUnlike = () => {
-        setProcessing(true);
         setLiked(false);
-        unlikePost({ postID: postID, unlikerID: userOwnID });
-        setProcessing(false);
+        unlikePost({ postID: post.postID, unlikerID: userOwnID });
         onLike(false);
     }
 
