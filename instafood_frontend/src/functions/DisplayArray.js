@@ -24,8 +24,6 @@ function DisplayArray ( {array, displayObjectFunc} ) {
                 }
                 )}
         </div>
-
-        
     );
 }
 
