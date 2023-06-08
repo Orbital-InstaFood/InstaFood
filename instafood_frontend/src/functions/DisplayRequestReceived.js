@@ -1,6 +1,7 @@
 import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
+import DisplayUserLink from './DisplayUserLink';
 
 function DisplayRequestReceived ({otherUserID, userOwnID, onFollowRequestAnswered}) {
     const answerFollowRequest = httpsCallable(functions, 'answerFollowRequest');
@@ -25,7 +26,7 @@ function DisplayRequestReceived ({otherUserID, userOwnID, onFollowRequestAnswere
 
     return (
         <div>
-            <p>{otherUserID}</p>
+            <DisplayUserLink userID={otherUserID}/>
             <button onClick={() => handleAcceptOrReject(true)}>Accept</button>
             <button onClick={() => handleAcceptOrReject(false)}>Reject</button>
         </div>

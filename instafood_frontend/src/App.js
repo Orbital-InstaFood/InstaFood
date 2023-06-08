@@ -12,6 +12,7 @@ import Dashboard from './pages/Dashboard';
 import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
 import Connect from './pages/Connect';
+import ViewOtherUsers from './pages/ViewOtherUsers';
 import Navbar from './Navbar';
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
           <Route path="/newPost" element={<NewPost />} />
           <Route path="/editProfile" element={<UserInfo />} />
           <Route path="/connect" element={<Connect />} />
+          <Route path="/:userID" element={<ViewOtherUsers />} />
         </Routes>
         <Logout />
       </Router>
