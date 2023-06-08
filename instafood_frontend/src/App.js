@@ -12,7 +12,8 @@ import Dashboard from './pages/Dashboard';
 import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
 import Connect from './pages/Connect';
-import ViewOtherUsers from './pages/ViewOtherUsers';
+import ViewPosts from './pages/ViewPosts';
+
 import Navbar from './Navbar';
 
 import "./ButtonDesign/general.css";
@@ -62,6 +63,15 @@ function App() {
     );
   };
 
+  const ViewPostsButton = () => {
+    return (
+      <div>
+        <button className="general-button">ViewPosts</button>
+        <ViewPosts />
+      </div>
+    );
+  };
+
   if (user) {
     return (
       <div className="background-in-website">
@@ -73,6 +83,7 @@ function App() {
             <Route path="/newPost" element={<NewPostButton />} />
             <Route path="/editProfile" element={<UserInfoButton />} />
             <Route path="/connect" element={<ConnectButton />} />
+            <Route path="/viewPosts" element={<ViewPostsButton />} />
           </Routes>
           <Logout />
         </Router>

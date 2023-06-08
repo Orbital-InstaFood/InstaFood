@@ -33,7 +33,7 @@ function Dashboard() {
 
     return (
         <div className="container">
-        <p className="welcome-message">Welcome, {username}! Here's your personalised dashboard.</p>
+        <p className="welcome-message">Welcome, {userProfile.userID}! Here's your personalised dashboard.</p>
 
                 <DisplayArray array={allPosts} displayObjectFunc={c => {
                     return <DisplayPost
