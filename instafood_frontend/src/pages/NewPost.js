@@ -17,21 +17,20 @@ function NewPost() {
     const [images, setImages] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
 
-    const [categories, setCategories] = useState([]); 
+    const [allCategories, setAllCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(''); 
 
     useEffect(() => {
-        const fetchCategories = async () => {
-          const categoriesRef = collection(db, 'categories');
-          const categoriesSnapshot = await getDoc(categoriesRef);
-          const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.data().name,
-          }));
-          setCategories(categoriesData);
-        };
-        fetchCategories();
-  }, []);
-
+      const fetchCategories = async () => {
+        const categoriesRef = collection(db, 'categories');
+        const categoriesSnapshot = await getDoc(categoriesRef);
+        const categoriesData = categoriesSnapshot.docs.map(doc => doc.data().style);
+  
+        setAllCategories(categoriesData);
+      };
+      fetchCategories();
+    }, []);
+    
     function handleImageChange(e) {
         const newImages = [...images];
         const newImageObjects = [...imageObjects];
@@ -77,12 +76,12 @@ function NewPost() {
             post_id: postDocRef.id,
             likes: [],
             comments: [],
-            category: categories,
+            category: selectedCategory,
         };
 
         await setDoc(postDocRef, postDoc);
         
-        const categoryRef = doc(db, 'categories', categories);
+        const categoryRef = doc(db, 'categories', selectedCategory);
         const categoryDoc = await getDoc(categoryRef);
         if (categoryDoc.exists()) {
           await updateDoc(categoryRef, {
@@ -120,17 +119,17 @@ function NewPost() {
         />
         <label htmlFor="category">Category</label>
         <select
-          id="category"
-          value={categories}
-          onChange={(e) => setCategories(e.target.value)}
-        >
-          <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
-            </option>
-          ))}
-        </select>
+  id="category"
+  value={selectedCategory}
+  onChange={(e) => setSelectedCategory(e.target.value)}
+>
+  <option value="">Select a category</option>
+  {allCategories.map((category) => (
+    <option key={category} value={category}>
+      {category}
+    </option>
+  ))}
+</select>
         <label htmlFor="images">Images</label>
         <input type="file" id="images" multiple onChange={handleImageChange} />
         {imageObjects.length > 0 && (
