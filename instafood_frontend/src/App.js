@@ -13,6 +13,7 @@ import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
 import Connect from './pages/Connect';
 import ViewPosts from './pages/ViewPosts';
+import ViewOtherUsers from './pages/ViewOtherUsers';
 
 import Navbar from './Navbar';
 
@@ -84,6 +85,7 @@ function App() {
             <Route path="/editProfile" element={<UserInfoButton />} />
             <Route path="/connect" element={<ConnectButton />} />
             <Route path="/viewPosts" element={<ViewPostsButton />} />
+            <Route path="/:userID" element={<ViewOtherUsers />} />
           </Routes>
           <Logout />
         </Router>
