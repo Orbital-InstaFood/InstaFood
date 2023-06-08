@@ -6,14 +6,18 @@ import DisplayPost from '../functions/DisplayPost'
 function Dashboard() {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [allPosts, setAllPosts] = useState([]);
 
     useEffect(() => {
         async function getUserInfo() {
             const userDoc = await getUserDoc();
-            if (userDoc) {
-                setUserProfile(userDoc.data());
-                setLoading(false);
-            }
+            const userDocData = userDoc.data();
+            setUserProfile(userDocData);
+
+            const allPosts = userDocData.postsToView.reverse();
+            setAllPosts(allPosts);
+
+            setLoading(false);
         }
         getUserInfo();
     }, []);
@@ -27,15 +31,16 @@ function Dashboard() {
     }
 
     return (
-        <div>
+        <div >
             <p>Dashboard</p>
             <p>Welcome, {userProfile.username}!</p>
 
-            <DisplayArray array={userProfile.postsToView} displayObjectFunc={postID =>
-                <DisplayPost
-                    postID={postID}
-                    userOwnID={userProfile.userID} />}
-            />
+                <DisplayArray array={allPosts} displayObjectFunc={c => {
+                    return <DisplayPost
+                        postID={c}
+                        userOwnID={userProfile.userID} />
+                }} />
+
         </div>
     );
 }
