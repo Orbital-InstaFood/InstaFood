@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { db, auth, storage } from '../firebaseConf';
+import { db, auth, storage, functions } from '../firebaseConf';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
@@ -16,7 +17,8 @@ function NewPost() {
     const [caption, setCaption] = useState('');
     const [images, setImages] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
-
+    const addPostToFollowersToView = httpsCallable(functions, 'addPostToFollowersToView');
+    
     const [categories, setCategories] = useState([]); 
 
     useEffect(() => {
@@ -74,7 +76,7 @@ function NewPost() {
             caption: caption,
             date_created: serverTimestamp(),
             images: urls,
-            post_id: postDocRef.id,
+            postID: postDocRef.id,
             likes: [],
             comments: [],
             category: categories,
@@ -91,10 +93,16 @@ function NewPost() {
         }
 
         await updateDoc(userRef, {
-            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
+            personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
         });
 
         console.log('Post created successfully!');
+
+        addPostToFollowersToView({
+            postID: postDocRef.id,
+            creatorUID: user.uid
+        });
+
         navigate('/');
     };
 

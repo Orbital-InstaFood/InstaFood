@@ -1,6 +1,7 @@
 import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
+import DisplayUserLink from './DisplayUserLink';
 
 function DisplayFollower ( {otherUserID, userOwnID, onFollowerRemoved } ) {
     const removeFollower = httpsCallable(functions, 'removeFollower');
@@ -25,7 +26,7 @@ function DisplayFollower ( {otherUserID, userOwnID, onFollowerRemoved } ) {
 
     return (
         <div>
-            <p>{otherUserID}</p>
+            <DisplayUserLink userID={otherUserID} />
             <button onClick={() => handleRemoveFollower()}>Remove follower?</button>
         </div>
     );

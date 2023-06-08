@@ -7,10 +7,8 @@ import { db, auth } from '../firebaseConf';
 import CreateUser from './createUser';
 
 import DisplayPost from '../functions/DisplayPost';
-import useGetPosts from '../functions/useGetPosts';
-
 import DisplayArray from '../functions/DisplayArray';
-import displayUser from '../functions/displayUser';
+import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
 import DisplayFollowing from '../functions/DisplayFollowing';
 import DisplayFollower from '../functions/DisplayFollower';
@@ -55,8 +53,8 @@ function UserInfo() {
                 setFollowing(data.following);
                 setFollowRequestsReceived(data.followRequestsReceived);
                 setFollowRequestsSent(data.followRequestsSent);
-                setSavedPosts(data.saved_posts);
-                setPersonalPosts(data.personal_posts);
+                setSavedPosts(data.savedPosts);
+                setPersonalPosts(data.personalPosts);
 
                 setUserExists(true);
 
@@ -93,14 +91,11 @@ function UserInfo() {
     const handleFollowRequestAnswered = (otherUserID, accept) => {
         if (accept) {
             setFollowers([...followers, otherUserID]);
-        } 
+        }
         setFollowRequestsReceived(followRequestsReceived.filter((id) => id !== otherUserID));
     };
 
-    const [personalPostsContent, personalPostLoading] = useGetPosts(personalPosts);
-    const [savedPostsContent, savedPostLoading] = useGetPosts(savedPosts);
-
-    if (userExists === null || personalPostLoading || savedPostLoading ) {
+    if (userExists === null) {
         return (
             <div>
                 <h2>Loading...</h2>
@@ -124,44 +119,44 @@ function UserInfo() {
                 <p>User ID: {userID}</p>
 
                 <p>Followers</p>
-                <DisplayArray array={followers} displayObjectFunc={ c => {
-                    return <DisplayFollower 
-                       otherUserID={c}
-                       userOwnID={userID} 
-                       onFollowerRemoved={handleFollowerRemoved} />
+                <DisplayArray array={followers} displayObjectFunc={c => {
+                    return <DisplayFollower
+                        otherUserID={c}
+                        userOwnID={userID}
+                        onFollowerRemoved={handleFollowerRemoved} />
                 }} />
 
                 <p>Following</p>
-                <DisplayArray array={following} displayObjectFunc={ c => {
-                    return <DisplayFollowing 
-                       otherUserID={c} 
-                       userOwnID={userID} 
-                       onFollowingRemoved={ handleFollowingRemoved } />
+                <DisplayArray array={following} displayObjectFunc={c => {
+                    return <DisplayFollowing
+                        otherUserID={c}
+                        userOwnID={userID}
+                        onFollowingRemoved={handleFollowingRemoved} />
                 }} />
 
                 <p>Follow Requests Received</p>
-                <DisplayArray array={followRequestsReceived} displayObjectFunc={ c => {
-                    return <DisplayRequestReceived 
-                       otherUserID={c} 
-                       userOwnID={userID} 
-                       onFollowRequestAnswered={handleFollowRequestAnswered}/>
+                <DisplayArray array={followRequestsReceived} displayObjectFunc={c => {
+                    return <DisplayRequestReceived
+                        otherUserID={c}
+                        userOwnID={userID}
+                        onFollowRequestAnswered={handleFollowRequestAnswered} />
                 }} />
 
                 <p>Follow Requests Sent</p>
-                <DisplayArray array={followRequestsSent} displayObjectFunc={displayUser} />
+                <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
 
                 <p>Personal Posts</p>
-                <DisplayArray array={personalPostsContent} displayObjectFunc={c => {
+                <DisplayArray array={personalPosts} displayObjectFunc={c => {
                     return <DisplayPost
-                        post={c}
+                        postID={c}
                         userOwnID={userID}
                     />
                 }} />
 
                 <p>Saved Posts</p>
-                <DisplayArray array={savedPostsContent} displayObjectFunc={c => {
+                <DisplayArray array={savedPosts} displayObjectFunc={c => {
                     return <DisplayPost
-                        post={c}
+                        postID={c}
                         userOwnID={userID}
                     />
                 }} />

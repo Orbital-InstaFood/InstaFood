@@ -48,7 +48,6 @@ function Connect() {
     useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
         const filterOwnID = possibleMatches.filter(c => c !== userOwnID);
-        console.log(possibleMatches);
         setListOfPossibleMatches(filterOwnID);
     }, [input]);
 
@@ -74,7 +73,7 @@ function Connect() {
                     otherUserID={c}
                     userOwnID={userOwnID}
                     following={following}
-                    followRequestSent={followRequestsSent}
+                    followRequestsSent={followRequestsSent}
                     onFollowRequestSent={handleFollowRequestSent} 
                 /> } 
             />
