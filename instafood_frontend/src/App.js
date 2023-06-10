@@ -8,6 +8,7 @@ import Login from './authentication/login';
 import Signup from './authentication/signup';
 import Logout from './authentication/logout';
 import SignInAfterEmailVerification from './authentication/signInAfterEmailVerification';
+import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard';
 import UserInfo from './pages/UserInfo';
@@ -35,7 +36,8 @@ function App() {
           <Route path="/newPost" element={<NewPost />} />
           <Route path="/editProfile" element={<UserInfo />} />
           <Route path="/connect" element={<Connect />} />
-          <Route path="/:userID" element={<ViewOtherUsers />} />
+          <Route exact path="/:userID" element={<ViewOtherUsers />} />
+
         </Routes>
         <Logout />
       </Router>
@@ -48,6 +50,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/forgotPassword" element={<ForgotPassword />} />
         <Route path="/signInAfterEmailVerification" element={<SignInAfterEmailVerification />} />
       </Routes>
     </Router>
