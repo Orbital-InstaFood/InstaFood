@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { auth } from "../firebaseConf";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import SendEmailVerification from "./sendEmailVerification";
 import "./login.css";
 
 function Login() {
@@ -13,13 +14,18 @@ function Login() {
         e.preventDefault();
 
         signInWithEmailAndPassword(auth, email, password)
-            .then((userCredential) => {
+
+            .then( async (userCredential) => {
                 // Check that email address is verified
-                if (!userCredential.user.emailVerified) {
-                    alert("Please verify your email address before logging in.");
+                const user = userCredential.user;
+                if (!user.emailVerified) {
+                    if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
+                        await SendEmailVerification(email, password);
+                    } 
                     signOut(auth);
                 }
             })
+
             .catch((error) => {
                 if (error.code === "auth/invalid-email") {
                     alert("Invalid email address.");
@@ -52,6 +58,8 @@ function Login() {
             <button onClick={handleLogin}>Login</button>
             <div>
                 <Link to="/signup">Create Account</Link>
+                <br />
+                <Link to="/forgotPassword">Forgot Password?</Link>
             </div>
         </div>
     );
