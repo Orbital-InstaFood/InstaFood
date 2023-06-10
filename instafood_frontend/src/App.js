@@ -7,6 +7,7 @@ import { auth } from './firebaseConf';
 import Login from './authentication/login';
 import Signup from './authentication/signup';
 import Logout from './authentication/logout';
+import SignInAfterEmailVerification from './authentication/signInAfterEmailVerification';
 
 import Dashboard from './pages/Dashboard';
 import UserInfo from './pages/UserInfo';
@@ -24,7 +25,7 @@ function App() {
     });
   }, []);
 
-  if (user) {
+  if (user && user.emailVerified) {
     return (
       <Router>
         <h1>InstaFood</h1>
@@ -47,6 +48,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/signInAfterEmailVerification" element={<SignInAfterEmailVerification />} />
       </Routes>
     </Router>
   );
