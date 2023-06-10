@@ -1,9 +1,10 @@
 import { auth } from "../firebaseConf";
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { useEffect } from "react";
 
 import { useNavigate } from "react-router-dom";
 
-function SignInAfterEmailVerification () {
+function SignInAfterEmailVerification() {
     const navigate = useNavigate();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -13,38 +14,37 @@ function SignInAfterEmailVerification () {
     // If user opens link on a different device, they will be prompted to sign in again
     // If user opens link on the same device, they will be signed in automatically
 
-    signInWithEmailAndPassword(auth, userEmail, password)
-        .then((userCredential) => {
-            // Check that email address is verified
-            if (!userCredential.user.emailVerified ) {
-                alert("Please verify your email address before logging in.");
-                signOut(auth);
-            }
-            
-            navigate("/");
-        })
-        .catch((error) => {
-            if (error.code === "auth/invalid-email") {
-                alert("Invalid email address.");
-            }
+    useEffect(() => {
+        signInWithEmailAndPassword(auth, userEmail, password)
+            .then((userCredential) => {
+                // Check that email address is verified
+                if (!userCredential.user.emailVerified) {
+                    alert("Please verify your email address before logging in.");
+                    signOut(auth);
+                }
 
-            if (error.code === "auth/user-not-found") {
-                alert("You do not have an account. Please create an account.");
-            }
+            })
+            .catch((error) => {
+                if (error.code === "auth/invalid-email") {
+                    alert("Invalid email address.");
+                }
 
-            if (error.code === "auth/wrong-password") {
-                alert("Incorrect password.");
-            }
+                if (error.code === "auth/user-not-found") {
+                    alert("You do not have an account. Please create an account.");
+                }
 
-            // Check userEmail or password is null
-            if (userEmail === null || password === null) {
-                alert("Please sign in again.");
-            }
+                if (error.code === "auth/wrong-password") {
+                    alert("Incorrect password.");
+                }
 
-            navigate("/");
-        });
+                // Check userEmail or password is null
+                if (userEmail === null || password === null) {
+                    alert("Please sign in again.");
+                }
 
-    return null;
+            });
+        navigate("/");
+    }, []);
 }
 
 export default SignInAfterEmailVerification;
