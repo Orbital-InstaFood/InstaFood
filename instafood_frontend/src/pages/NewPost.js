@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { db, auth, storage } from '../firebaseConf';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
+import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 import {categoriesData} from '../theme/categoriesData.js';
@@ -72,14 +72,15 @@ function NewPost() {
         await setDoc(postDocRef, postDoc);
 
         await updateDoc(userRef, {
-            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
+            personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
         });
         
         const categorisedPostsRef = doc(db, 'categorisedPosts', selectedCategory);
         const categorisedPostsDoc = await getDoc(categorisedPostsRef);
+        
         if (categorisedPostsDoc.exists()) {
           await updateDoc(categorisedPostsRef, {
-            post_id_array: [...categorisedPostsDoc.data().post_id_array, postDocRef.id]
+            post_id_array: arrayUnion(postDocRef.id)
           });
         } else {
           await setDoc(categorisedPostsRef, {
