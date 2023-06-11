@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { db, auth, storage, functions } from '../firebaseConf';
+import { db, auth, storage } from '../firebaseConf';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
-import { httpsCallable } from 'firebase/functions';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
+import {categoriesData} from '../theme/categoriesData.js';
 
 function NewPost() {
     const navigate = useNavigate();
@@ -17,23 +17,9 @@ function NewPost() {
     const [caption, setCaption] = useState('');
     const [images, setImages] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
-    const addPostToFollowersToView = httpsCallable(functions, 'addPostToFollowersToView');
+
+    const [selectedCategory, setSelectedCategory] = useState(''); 
     
-    const [categories, setCategories] = useState([]); 
-
-    useEffect(() => {
-        const fetchCategories = async () => {
-          const categoriesRef = collection(db, 'categories');
-          const categoriesSnapshot = await getDoc(categoriesRef);
-          const categoriesData = categoriesSnapshot.docs.map((doc) => ({
-            id: doc.id,
-            name: doc.data().name,
-          }));
-          setCategories(categoriesData);
-        };
-        fetchCategories();
-  }, []);
-
     function handleImageChange(e) {
         const newImages = [...images];
         const newImageObjects = [...imageObjects];
@@ -76,33 +62,32 @@ function NewPost() {
             caption: caption,
             date_created: serverTimestamp(),
             images: urls,
-            postID: postDocRef.id,
+            post_id: postDocRef.id,
             likes: [],
             comments: [],
-            category: categories,
+            category: selectedCategory,
         };
 
+
         await setDoc(postDocRef, postDoc);
+
+        await updateDoc(userRef, {
+            personal_posts: [...userDoc.data().personal_posts, postDocRef.id]
+        });
         
-        const categoryRef = doc(db, 'categories', categories);
-        const categoryDoc = await getDoc(categoryRef);
-        if (categoryDoc.exists()) {
-          await updateDoc(categoryRef, {
-            posts: [...categoryDoc.data().posts, postDocRef.id],
+        const categorisedPostsRef = doc(db, 'categorisedPosts', selectedCategory);
+        const categorisedPostsDoc = await getDoc(categorisedPostsRef);
+        if (categorisedPostsDoc.exists()) {
+          await updateDoc(categorisedPostsRef, {
+            post_id_array: [...categorisedPostsDoc.data().post_id_array, postDocRef.id]
+          });
+        } else {
+          await setDoc(categorisedPostsRef, {
+            post_id_array: [postDocRef.id]
           });
         }
 
-        await updateDoc(userRef, {
-            personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
-        });
-
         console.log('Post created successfully!');
-
-        addPostToFollowersToView({
-            postID: postDocRef.id,
-            creatorUID: user.uid
-        });
-
         navigate('/');
     };
 
@@ -129,13 +114,13 @@ function NewPost() {
         <label htmlFor="category">Category</label>
         <select
           id="category"
-          value={categories}
-          onChange={(e) => setCategories(e.target.value)}
-        >
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        > 
           <option value="">Select a category</option>
-          {categories.map((category) => (
-            <option key={category.id} value={category.id}>
-              {category.name}
+          {categoriesData.map((category,index) => (
+            <option key={index} value={index}>
+              {category}
             </option>
           ))}
         </select>

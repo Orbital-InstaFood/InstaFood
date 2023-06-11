@@ -13,6 +13,7 @@ function ViewPosts() {
     <div>
       <h1>View Posts</h1>
       
+      
       <input 
         type="text"
         placeholder="Search categories"
