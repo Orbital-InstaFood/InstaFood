@@ -7,6 +7,7 @@ function Navbar() {
             <Link to="/newPost">New Post  |</Link>
             <Link to="/editProfile">Profile  |</Link>
             <Link to="/connect">Connect  |</Link>
+            <Link to="/viewPosts">View Posts</Link>
         </div>
     );
 }

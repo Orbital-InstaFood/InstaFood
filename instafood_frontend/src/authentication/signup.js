@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { auth } from "../firebaseConf";
 import { signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword} from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 export default function SignUp() {
 
@@ -27,7 +27,6 @@ export default function SignUp() {
 
         createUserWithEmailAndPassword(auth, email, password)
             .then(async () => {
-                const user = auth.currentUser;
 
                 await SendEmailVerification(email, password);
                 signOut(auth);

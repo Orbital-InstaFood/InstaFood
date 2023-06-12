@@ -65,7 +65,7 @@ function Login() {
     }
 
     return (
-        <div className="login-container">
+        <div>
             <input
                 type="email"
                 placeholder="Email"
@@ -91,7 +91,7 @@ function Login() {
                 <button onClick={handleLoginWithGoogle}>CONTINUE WITH GOOGLE</button>
             </div>
 
-            <div className="login-footer">
+            <div>
                 <p> Don't have an account? <Link to="/signup">SIGN UP FOR INSTAFOOD</Link></p>
             </div>
 

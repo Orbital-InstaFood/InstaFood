@@ -4,7 +4,7 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db, functions } from "../firebaseConf";
 import { httpsCallable } from "firebase/functions";
 
-export default function SignUpWithGoogle() {
+export default function CreateProfile() {
     const user = auth.currentUser;
     const [username, setUserName] = useState("");
     const [bio, setBio] = useState("");
