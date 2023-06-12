@@ -1,23 +1,33 @@
 import { useEffect, useState } from 'react';
-import getUserDoc from '../functions/getUserDoc';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayPost from '../functions/DisplayPost'
+import { auth, db } from '../firebaseConf';
+import { doc, getDoc } from 'firebase/firestore';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
     const [allPosts, setAllPosts] = useState([]);
 
+    const navigate = useNavigate();
+
     useEffect(() => {
         async function getUserInfo() {
-            const userDoc = await getUserDoc();
-            const userDocData = userDoc.data();
-            setUserProfile(userDocData);
+            const user = auth.currentUser;
+            const userRef = doc(db, "users", user.uid);
 
-            const allPosts = userDocData.postsToView.reverse();
-            setAllPosts(allPosts);
-
-            setLoading(false);
+            const userDoc = await getDoc(userRef);
+            if (!userDoc.exists()) {
+                navigate("/createProfile");
+                return;
+            } else {
+                const userDocData = userDoc.data();
+                setUserProfile(userDocData);
+                const allPosts = userDocData.postsToView.reverse();
+                setAllPosts(allPosts);
+                setLoading(false);
+            }
         }
         getUserInfo();
     }, []);

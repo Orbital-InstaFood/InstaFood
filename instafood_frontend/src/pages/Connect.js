@@ -11,7 +11,7 @@ function Connect() {
 
     const user = auth.currentUser;
 
-    const getListOfUserIDs = httpsCallable(functions, 'getListOfUserIDs');
+    const userIDsRef = doc(db, "lists", "userIDs");
     const [userIDs, setUserIDs] = useState([]);
     const [loadingUserIDs, setLoadingUserIDs] = useState(true);
 
@@ -38,8 +38,9 @@ function Connect() {
 
     useEffect(() => {
         async function getUserIDs() {
-            const result = await getListOfUserIDs({ ownUserID: userOwnID });
-            setUserIDs(result.data.listOfUserIDs);
+            const snapshot = await getDoc(userIDsRef);
+            const userIDs = snapshot.data().userIDs;
+            setUserIDs(userIDs);
             setLoadingUserIDs(false);
         }
         getUserIDs();
