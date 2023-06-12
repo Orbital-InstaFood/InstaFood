@@ -1,98 +1,106 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { db, auth, storage } from '../firebaseConf';
+import { db, auth, storage, functions } from '../firebaseConf';
+import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
-import {categoriesData} from '../theme/categoriesData.js';
+import { categoriesData } from '../theme/categoriesData.js';
 
 function NewPost() {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const user = auth.currentUser;
+  const user = auth.currentUser;
 
-    const [title, setTitle] = useState('');
-    const [caption, setCaption] = useState('');
-    const [images, setImages] = useState([]);
-    const [imageObjects, setImageObjects] = useState([]);
+  const addPostToFollowersToView = httpsCallable(functions, 'addPostToFollowersToView');
 
-    const [selectedCategory, setSelectedCategory] = useState(''); 
-    
-    function handleImageChange(e) {
-        const newImages = [...images];
-        const newImageObjects = [...imageObjects];
+  const [title, setTitle] = useState('');
+  const [caption, setCaption] = useState('');
+  const [images, setImages] = useState([]);
+  const [imageObjects, setImageObjects] = useState([]);
 
-        for (const image of e.target.files) {
-            newImages.push(image);
-            newImageObjects.push({
-                content: image,
-                uniqueID: generateUniqueID()
-            })
-        }
+  const [selectedCategory, setSelectedCategory] = useState('');
 
-        setImages(newImages);
-        setImageObjects(newImageObjects);
+  function handleImageChange(e) {
+    const newImages = [...images];
+    const newImageObjects = [...imageObjects];
 
-        e.target.value = null;
+    for (const image of e.target.files) {
+      newImages.push(image);
+      newImageObjects.push({
+        content: image,
+        uniqueID: generateUniqueID()
+      })
+    }
+
+    setImages(newImages);
+    setImageObjects(newImageObjects);
+
+    e.target.value = null;
+  };
+
+  const handleSubmitNewPost = async (e) => {
+    e.preventDefault();
+
+    const userRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userRef);
+    const userUniqueID = userDoc.data().userID;
+
+    const postDocRef = doc(collection(db, 'posts'));
+
+    let urls = [];
+
+    for (const imageObject of imageObjects) {
+      const imageRef = ref(storage, `/${userUniqueID}/${postDocRef.id}/${imageObject.content.name}/${imageObject.uniqueID}`);
+      const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
+      const url = await getDownloadURL(snapshot.ref);
+      urls.push(url);
+    }
+
+    const postDoc = {
+      title: title,
+      creator: userUniqueID,
+      caption: caption,
+      date_created: serverTimestamp(),
+      images: urls,
+      postID: postDocRef.id,
+      likes: [],
+      comments: [],
+      category: selectedCategory,
     };
 
-    const handleSubmitNewPost = async (e) => {
-        e.preventDefault();
 
-        const userRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userRef);
-        const userUniqueID = userDoc.data().userID;
+    await setDoc(postDocRef, postDoc);
 
-        const postDocRef = doc(collection(db, 'posts'));
+    await updateDoc(userRef, {
+      personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
+    });
 
-        let urls = [];
+    addPostToFollowersToView({
+      postID: postDocRef.id,
+      creatorUID: user.uid
+    });
 
-        for (const imageObject of imageObjects) {
-            const imageRef = ref(storage, `/${userUniqueID}/${postDocRef.id}/${imageObject.content.name}/${imageObject.uniqueID}`);
-            const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
-            const url = await getDownloadURL(snapshot.ref);
-            urls.push(url);
-        }
+    const categorisedPostsRef = doc(db, 'categorisedPosts', selectedCategory);
+    const categorisedPostsDoc = await getDoc(categorisedPostsRef);
 
-        const postDoc = {
-            title: title,
-            creator: userUniqueID,
-            caption: caption,
-            date_created: serverTimestamp(),
-            images: urls,
-            post_id: postDocRef.id,
-            likes: [],
-            comments: [],
-            category: selectedCategory,
-        };
+    if (categorisedPostsDoc.exists()) {
+      await updateDoc(categorisedPostsRef, {
+        post_id_array: arrayUnion(postDocRef.id)
+      });
+    } else {
+      await setDoc(categorisedPostsRef, {
+        post_id_array: [postDocRef.id]
+      });
+    }
 
+    console.log('Post created successfully!');
+    navigate('/');
+  };
 
-        await setDoc(postDocRef, postDoc);
-
-        await updateDoc(userRef, {
-            personalPosts: [...userDoc.data().personalPosts, postDocRef.id]
-        });
-        
-        const categorisedPostsRef = doc(db, 'categorisedPosts', selectedCategory);
-        const categorisedPostsDoc = await getDoc(categorisedPostsRef);
-        
-        if (categorisedPostsDoc.exists()) {
-          await updateDoc(categorisedPostsRef, {
-            post_id_array: arrayUnion(postDocRef.id)
-          });
-        } else {
-          await setDoc(categorisedPostsRef, {
-            post_id_array: [postDocRef.id]
-          });
-        }
-
-        console.log('Post created successfully!');
-        navigate('/');
-    };
-
-    return (
+  return (
     <div>
       <h2>New Post</h2>
       <form onSubmit={handleSubmitNewPost}>
@@ -117,9 +125,9 @@ function NewPost() {
           id="category"
           value={selectedCategory}
           onChange={(e) => setSelectedCategory(e.target.value)}
-        > 
+        >
           <option value="">Select a category</option>
-          {categoriesData.map((category,index) => (
+          {categoriesData.map((category, index) => (
             <option key={index} value={index}>
               {category}
             </option>
