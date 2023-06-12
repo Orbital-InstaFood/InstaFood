@@ -1,17 +1,16 @@
 import { useEffect, useState } from 'react';
-import { db, auth, functions } from '../firebaseConf';
+import { db, auth } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 
 import textSearch from '../functions/textSearch';
 import DisplayArray from '../functions/DisplayArray';
-import { httpsCallable } from 'firebase/functions';
 import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function Connect() {
 
     const user = auth.currentUser;
 
-    const getListOfUserIDs = httpsCallable(functions, 'getListOfUserIDs');
+    const userIDsRef = doc(db, "lists", "userIDs");
     const [userIDs, setUserIDs] = useState([]);
     const [loadingUserIDs, setLoadingUserIDs] = useState(true);
 
@@ -38,8 +37,9 @@ function Connect() {
 
     useEffect(() => {
         async function getUserIDs() {
-            const result = await getListOfUserIDs({ ownUserID: userOwnID });
-            setUserIDs(result.data.listOfUserIDs);
+            const snapshot = await getDoc(userIDsRef);
+            const userIDs = snapshot.data().userIDs;
+            setUserIDs(userIDs);
             setLoadingUserIDs(false);
         }
         getUserIDs();

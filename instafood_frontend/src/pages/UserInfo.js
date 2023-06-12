@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConf';
 
-import CreateUser from './createUser';
-
 import DisplayPost from '../functions/DisplayPost';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
@@ -77,7 +75,7 @@ function UserInfo() {
         });
 
         console.log('User updated successfully!');
-        navigate('/');
+        navigate('/dashboard');
     };
 
     const handleFollowerRemoved = (otherUserID) => {
@@ -100,12 +98,6 @@ function UserInfo() {
             <div>
                 <h2>Loading...</h2>
             </div>
-        );
-    }
-
-    if (!userExists) {
-        return (
-            <CreateUser />
         );
     }
 

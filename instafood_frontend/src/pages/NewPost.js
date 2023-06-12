@@ -96,14 +96,14 @@ function NewPost() {
       });
     }
 
-    console.log('Post created successfully!');
-    navigate('/');
+    navigate('/dashboard');
   };
-
+  
   return (
     <div>
       <h2>New Post</h2>
       <form onSubmit={handleSubmitNewPost}>
+
         <label htmlFor="title">Title</label>
         <input
           type="text"
@@ -112,6 +112,7 @@ function NewPost() {
           value={title}
           onChange={(e) => setTitle(e.target.value)}
         />
+
         <label htmlFor="caption">Caption</label>
         <input
           type="text"
@@ -120,6 +121,7 @@ function NewPost() {
           value={caption}
           onChange={(e) => setCaption(e.target.value)}
         />
+
         <label htmlFor="category">Category</label>
         <select
           id="category"
@@ -133,8 +135,15 @@ function NewPost() {
             </option>
           ))}
         </select>
+
         <label htmlFor="images">Images</label>
-        <input type="file" id="images" multiple onChange={handleImageChange} />
+        <input
+          type="file"
+          id="images"
+          multiple
+          onChange={handleImageChange}
+        />
+
         {imageObjects.length > 0 && (
           <div>
             {imageObjects.map((imageObject) => (
@@ -144,19 +153,20 @@ function NewPost() {
                 <button
                   type="button"
                   onClick={() => {
-                    setImageObjects(
-                      imageObjects.filter((imgObj) => imgObj !== imageObject)
-                    );
 
-                    setImages(images.filter((image) => image !== imageObject.content));
+                    setImageObjects(imageObjects.filter((imgObj) => {
+                      return imgObj !== imageObject;
+                    }));
+
+                    setImages(images.filter((image) => {
+                      return image !== imageObject.content;
+                    }));
                   }}
                 >
                   Delete Image
                 </button>
-              </div>
-            ))}
-          </div>
-        )}
+              </div>))}
+          </div>)}
         <button type="submit">Create Post</button>
       </form>
     </div>

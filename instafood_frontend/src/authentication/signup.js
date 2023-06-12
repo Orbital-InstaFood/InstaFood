@@ -1,52 +1,88 @@
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../firebaseConf";
+import { signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword} from "firebase/auth";
+import SendEmailVerification from "./sendEmailVerification";
 import { useState } from "react";
 
-import { auth } from "../firebaseConf";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+export default function SignUp() {
 
-function Signup() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
     const navigate = useNavigate();
 
+    const handleLoginWithGoogle = (e) => {
+        e.preventDefault();
+
+        const provider = new GoogleAuthProvider();
+        signInWithPopup(auth, provider)
+            .then((result) => {
+                navigate("/dashboard");
+            })
+    }
+
     const handleSignup = (e) => {
         e.preventDefault();
 
         createUserWithEmailAndPassword(auth, email, password)
-            .then(
-                navigate("/editProfile")
-            )
+            .then(async () => {
+
+                await SendEmailVerification(email, password);
+                signOut(auth);
+                navigate("/");
+            })
+
             .catch((error) => {
-                const errorMessage = error.message;
-                return alert(errorMessage);
+                if (error.code === "auth/email-already-in-use") {
+                    alert("Email already in use. Please use a different email address.");
+                }
+
+                if (error.code === "auth/invalid-email") {
+                    alert("Invalid email address.");
+                }
+
+                if (error.code === "auth/weak-password") {
+                    alert("Password must be at least 6 characters.");
+                }
+
+                if (error.code === "auth/missing-password") {
+                    alert("Please enter a password.");
+                }
+
+                navigate("/signup");
             });
     }
-
     return (
         <div>
             <div>
+                <label>Email</label>
                 <input
                     type="email"
-                    placeholder="Email"
+                    required
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
+                <label>Password</label>
                 <input
                     type="password"
-                    placeholder="Password"
+                    required
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
-                <button onClick={handleSignup}>Sign Up</button>
+            </div>
+            <button onClick={handleSignup}>SIGN UP</button>
+
+            <div>
+                <p>
+                    OR
+                </p>
+                <button onClick={handleLoginWithGoogle}>CONTINUE WITH GOOGLE</button>
             </div>
 
             <div>
-                <Link to="/">Return to Login</Link>
+                <p> Already have an account? <Link to="/">LOG IN</Link></p>
             </div>
         </div>
-
     );
 }
-
-export default Signup;

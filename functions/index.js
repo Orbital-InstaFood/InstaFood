@@ -1,8 +1,6 @@
 const { initializeApp } = require("firebase-admin/app");
 initializeApp();
 
-const addUserID = require("./addUserID");
-const getListOfUserIDs = require("./getListOfUserIDs");
 const makeFollowRequest = require("./makeFollowRequest");
 const answerFollowRequest = require("./answerFollowRequest");
 const unfollow = require("./unfollow");
@@ -13,9 +11,8 @@ const likePost = require("./likePost");
 const unlikePost = require("./unlikePost");
 const infoUserCanView = require("./infoUserCanView");
 const addPostToFollowersToView = require("./addPostToFollowersToView");
+const createUserProfile = require("./createUserProfile");
 
-exports.addUserID = addUserID.addUserID;
-exports.getListOfUserIDs = getListOfUserIDs.getListOfUserIDs;
 exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
 exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
 exports.unfollow = unfollow.unfollow;
@@ -26,3 +23,4 @@ exports.likePost = likePost.likePost;
 exports.unlikePost = unlikePost.unlikePost;
 exports.infoUserCanView = infoUserCanView.infoUserCanView;
 exports.addPostToFollowersToView = addPostToFollowersToView.addPostToFollowersToView;
+exports.createUserProfile = createUserProfile.createUserProfile;
