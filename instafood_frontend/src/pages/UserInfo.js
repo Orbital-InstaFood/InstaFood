@@ -75,7 +75,7 @@ function UserInfo() {
         });
 
         console.log('User updated successfully!');
-        navigate('/');
+        navigate('/dashboard');
     };
 
     const handleFollowerRemoved = (otherUserID) => {

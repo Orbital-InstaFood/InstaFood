@@ -80,7 +80,7 @@ function NewPost() {
             creatorUID: user.uid
         });
 
-        navigate('/');
+        navigate('/dashboard');
     };
 
     return (

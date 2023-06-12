@@ -15,7 +15,7 @@ async function SendEmailVerification (email, password) {
 
     sendEmailVerification(auth.currentUser, actionCodeSettings)
         .then(() => {
-            alert("Email verification sent. Please check your email and follow the instructions to verify your email address.");
+            alert("Email verification sent. Please check your email and follow the instructions to verify your email address, or sign in with your Google account directly.");
         })
         .catch((error) => {
             console.log(error);

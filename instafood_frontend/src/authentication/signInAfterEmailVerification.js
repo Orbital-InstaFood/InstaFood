@@ -21,6 +21,9 @@ function SignInAfterEmailVerification() {
                 if (!userCredential.user.emailVerified) {
                     alert("Please verify your email address before logging in.");
                     signOut(auth);
+                    navigate("/");
+                } else {
+                    navigate("/dashboard");
                 }
 
             })
@@ -41,9 +44,8 @@ function SignInAfterEmailVerification() {
                 if (userEmail === null || password === null) {
                     alert("Please sign in again.");
                 }
-
+                navigate("/");
             });
-        navigate("/");
     }, []);
 }
 
