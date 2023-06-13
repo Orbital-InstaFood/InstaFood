@@ -25,17 +25,7 @@ import PageNotFound from './pages/404';
 
 function App() {
   const [user, setUser] = useState(null);
-
-  function NavbarConditional() {
-    const location = useLocation();
-    const { pathname } = location;
   
-    if (pathname === '/createProfile') {
-      return null; 
-    }
-    return <Navbar />;
-  }
-
   useEffect(() => {
     auth.onAuthStateChanged((user) => {
       setUser(user);
@@ -46,7 +36,7 @@ function App() {
     <Router>
       <h1>InstaFood</h1>
 
-      {user && user.emailVerified && <NavbarConditional />}
+      {user && user.emailVerified && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Login />} />

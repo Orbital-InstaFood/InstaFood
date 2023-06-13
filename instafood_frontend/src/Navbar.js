@@ -1,6 +1,15 @@
 import { Link } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
 function Navbar() {
+
+    const location = useLocation();
+    const { pathname } = location;
+
+    if (pathname === '/createProfile') {
+        return null;
+    }
+
     return (
         <div>
             <Link to="/dashboard">Dashboard  |</Link>
