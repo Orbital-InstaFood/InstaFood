@@ -6,6 +6,9 @@ function Navbar() {
     const location = useLocation();
     const { pathname } = location;
 
+    // Prevent users from navigating to other pages
+    // Which require profile information
+    // Before they have created a profile
     if (pathname === '/createProfile') {
         return null;
     }
