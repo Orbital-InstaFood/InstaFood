@@ -1,7 +1,14 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { auth } from "../firebaseConf";
-import { signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
+import {
+  signInWithEmailAndPassword,
+  signOut,
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  sendPasswordResetEmail
+} from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
 
 const useAuth = () => {
@@ -97,14 +104,41 @@ const useAuth = () => {
     e.preventDefault();
 
     signOut(auth)
-        .then(() => {
-            navigate('/');
-        })
+      .then(() => {
+        navigate('/');
+      })
 
-        .catch((error) => {
-            return alert(error.message);
-        });
-}
+      .catch((error) => {
+        return alert(error.message);
+      });
+  }
+
+  const handleSendPasswordResetEmail = (e) => {
+    e.preventDefault();
+
+    const continueUrl = "http://localhost:3000/";
+
+    const actionCodeSettings = {
+      url: continueUrl,
+      handleCodeInApp: true,
+    };
+
+    sendPasswordResetEmail(auth, email, actionCodeSettings)
+      .then(() => {
+        alert("Password reset email sent.");
+        navigate("/");
+      })
+      
+      .catch((error) => {
+        if (error.code === "auth/invalid-email") {
+          alert("Invalid email address.");
+        }
+
+        if (error.code === "auth/user-not-found") {
+          alert("You do not have an account. Please create an account.");
+        }
+      });
+  }
 
   return {
     email,
@@ -115,6 +149,7 @@ const useAuth = () => {
     handleLogin,
     handleSignup,
     handleLogout,
+    handleSendPasswordResetEmail
   };
 };
 
