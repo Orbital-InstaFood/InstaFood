@@ -1,0 +1,121 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { auth } from "../firebaseConf";
+import { signInWithEmailAndPassword, signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword } from "firebase/auth";
+import SendEmailVerification from "./sendEmailVerification";
+
+const useAuth = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const unsubsribe = auth.onAuthStateChanged((user) => {
+
+      if (user && user.emailVerified) {
+        navigate("/dashboard");
+      }
+
+    });
+    return () => unsubsribe();
+  }, []);
+
+  const handleGoogle = (e) => {
+    e.preventDefault();
+
+    const provider = new GoogleAuthProvider();
+    signInWithPopup(auth, provider)
+      .then(() => {
+        navigate("/dashboard");
+      });
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        const user = userCredential.user;
+        if (!user.emailVerified) {
+          if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
+            await SendEmailVerification(email, password);
+          }
+          signOut(auth);
+          navigate("/");
+        } else {
+          navigate("/dashboard");
+        }
+      })
+
+      .catch((error) => {
+        if (error.code === "auth/invalid-email") {
+          alert("Invalid email address.");
+        }
+
+        if (error.code === "auth/user-not-found") {
+          alert("You do not have an account. Please create an account.");
+        }
+
+        if (error.code === "auth/wrong-password") {
+          alert("Incorrect password.");
+        }
+      });
+  };
+
+  const handleSignup = (e) => {
+    e.preventDefault();
+
+    createUserWithEmailAndPassword(auth, email, password)
+      .then(async () => {
+        await SendEmailVerification(email, password);
+        signOut(auth);
+        navigate("/");
+      })
+
+      .catch((error) => {
+        if (error.code === "auth/email-already-in-use") {
+          alert("Email already in use. Please use a different email address.");
+        }
+
+        if (error.code === "auth/invalid-email") {
+          alert("Invalid email address.");
+        }
+
+        if (error.code === "auth/weak-password") {
+          alert("Password must be at least 6 characters.");
+        }
+
+        if (error.code === "auth/missing-password") {
+          alert("Please enter a password.");
+        }
+
+        navigate("/signup");
+      });
+  }
+
+  const handleLogout = (e) => {
+    e.preventDefault();
+
+    signOut(auth)
+        .then(() => {
+            navigate('/');
+        })
+
+        .catch((error) => {
+            return alert(error.message);
+        });
+}
+
+  return {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    handleGoogle,
+    handleLogin,
+    handleSignup,
+    handleLogout,
+  };
+};
+
+export default useAuth;
