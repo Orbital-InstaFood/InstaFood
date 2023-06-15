@@ -3,18 +3,16 @@ import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
 import DisplayUserLink from './DisplayUserLink';
 
-function DisplayUserForConnect({ otherUserID, userOwnID, following, followRequestsSent, onFollowRequestSent }) {
+function DisplayUserForConnect({ otherUserID, userOwnID, following, followRequestsSent }) {
 
     const makeFollowRequest = httpsCallable(functions, 'makeFollowRequest');
     const [loadingMakeFollowRequest, setLoadingMakeFollowRequest] = useState(false);
 
-    const handleFollowRequest = (e) => {
+    const handleFollowRequest = async (e) => {
         e.preventDefault();
         setLoadingMakeFollowRequest(true);
-
-        makeFollowRequest({ requesterUserID: userOwnID, requestedUserID: otherUserID });
+        await makeFollowRequest({ requesterUserID: userOwnID, requestedUserID: otherUserID });
         setLoadingMakeFollowRequest(false);
-        onFollowRequestSent(otherUserID);
 
     };
 

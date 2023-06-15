@@ -1,24 +1,26 @@
 import { useEffect, useState } from 'react';
 
-import textSearch from '../functions/textSearch';
-import DisplayArray from '../functions/DisplayArray';
-import DisplayUserForConnect from '../functions/DisplayUserForConnect';
+import textSearch from '../../functions/textSearch';
 
-import listenerImplementer from '../listeners/ListenerImplementer';
+import listenerImplementer from '../../listeners/ListenerImplementer';
 
-function Connect() {
+function useConnectLogic() {
 
+    // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
     const [listOfUserIDsListener, setListOfUserIDsListener] = useState(null);
 
+    // State for subscriptions to fields in the user document
     const [followRequestsSent, setFollowRequestsSent] = useState([]);
     const [userOwnID, setUserOwnID] = useState('');
     const [following, setFollowing] = useState([]);
 
+    // State for subscriptions to userIDs in the listOfUserIDs document
     const [userIDs, setUserIDs] = useState([]);
 
-    const [loading, setLoading] = useState(true);
+    const [loadingForSubscriptions, setLoadingForSubscriptions] = useState(true);
 
+    // State for search bar
     const [input, setInput] = useState('');
     const [listOfPossibleMatches, setListOfPossibleMatches] = useState([]);
 
@@ -30,6 +32,11 @@ function Connect() {
         setListOfUserIDsListener(listOfUserIDsListener);
     }
 
+    /**
+     * Subscribes to relevant fields in the user document and the list of userIDs.
+     * 
+     * @returns {function} unsubscribeFromAllFields
+     */
     function setupSubscriptions() {
         const unsubscribeFromFollowing =
             userDocListener.subscribeToField('following',
@@ -69,7 +76,7 @@ function Connect() {
         // Only set up subscriptions when both listeners are ready
         if (userDocListener && listOfUserIDsListener) {
             const unsubscribeFromAllFields = setupSubscriptions();
-            setLoading(false);
+            setLoadingForSubscriptions(false);
 
             // Unsubscribe from all fields when component unmounts
             return () => {
@@ -80,38 +87,20 @@ function Connect() {
 
     useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
-        const filterOwnID = possibleMatches.filter(c => c !== userOwnID);
-        setListOfPossibleMatches(filterOwnID);
+        const filteredMatchesWithoutUserOwnID = possibleMatches.filter(c => c !== userOwnID);
+        setListOfPossibleMatches(filteredMatchesWithoutUserOwnID);
     }, [input]);
 
-    return (
-        <div>
-            <h2>Connect</h2>
-
-            {loading &&
-                <p>Loading...</p>
-            }
-
-            {!loading &&
-                <>
-                    <label>Search for a user by his/her userID</label>
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                    />
-                    <DisplayArray array={listOfPossibleMatches} displayObjectFunc={c =>
-                        <DisplayUserForConnect
-                            otherUserID={c}
-                            userOwnID={userOwnID}
-                            following={following}
-                            followRequestsSent={followRequestsSent}
-                        />}
-                    />
-                </>
-            }
-        </div>
-    );
+    return {
+        loadingForSubscriptions,
+        input,
+        setInput,
+        listOfPossibleMatches,
+        userOwnID,
+        following,
+        followRequestsSent,
+    }
 }
 
-export default Connect;
+export default useConnectLogic;
+

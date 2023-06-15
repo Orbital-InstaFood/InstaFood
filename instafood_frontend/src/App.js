@@ -14,7 +14,7 @@ import Dashboard from './pages/Dashboard';
 import CreateProfile from './pages/CreateProfile';
 import UserInfo from './pages/UserInfo';
 import NewPost from './pages/NewPost';
-import Connect from './pages/Connect';
+import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
 import ViewOtherUsers from './pages/ViewOtherUsers';
 
@@ -50,7 +50,7 @@ function App() {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/newPost" element={<NewPost />} />
             <Route path="/editProfile" element={<UserInfo />} />
-            <Route path="/connect" element={<Connect />} />
+            <Route path="/connect" element={<ConnectUI />} />
             <Route path="/viewPosts" element={<ViewPosts />} />
             <Route path="/:userID" element={<ViewOtherUsers />} />
           </>
