@@ -12,7 +12,7 @@ import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard';
 import CreateProfile from './pages/CreateProfile';
-import UserInfo from './pages/UserInfo';
+import UserInfo from './pages/Profile/UserInfo';
 import NewPost from './pages/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
