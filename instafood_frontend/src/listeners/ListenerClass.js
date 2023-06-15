@@ -14,12 +14,15 @@ class Listener {
         const snapshot = await getDoc(this.ref);
         this.document = snapshot.data();
         this.loading = false;
-        this.notifySubscribers();
 
         this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
             this.document = latestSnapshot.data();
             this.notifySubscribers();
         });
+    }
+
+    getCurrentDocument() {
+        return this.document;
     }
 
     stopSnapshotListener() {
