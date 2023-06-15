@@ -17,7 +17,7 @@ function Navbar() {
         <div>
             <Link to="/dashboard">Dashboard  |</Link>
             <Link to="/newPost">New Post  |</Link>
-            <Link to="/editProfile">Profile  |</Link>
+            <Link to="/viewProfile">Profile  |</Link>
             <Link to="/connect">Connect  |</Link>
             <Link to="/viewPosts">View Posts</Link>
         </div>

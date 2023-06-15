@@ -17,6 +17,7 @@ import NewPost from './pages/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
 import ViewOtherUsers from './pages/ViewOtherUsers';
+import EditProfile from './pages/Profile/EditProfile';
 
 import Navbar from './Navbar';
 
@@ -49,7 +50,8 @@ function App() {
             <Route path="/createProfile" element={<CreateProfile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/newPost" element={<NewPost />} />
-            <Route path="/editProfile" element={<UserInfo />} />
+            <Route path="/viewProfile" element={<UserInfo />} />
+            <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
             <Route path="/viewPosts" element={<ViewPosts />} />
             <Route path="/:userID" element={<ViewOtherUsers />} />

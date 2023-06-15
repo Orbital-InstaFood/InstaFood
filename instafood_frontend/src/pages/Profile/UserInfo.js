@@ -1,8 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../../firebaseConf';
+import { useNavigate, Link } from 'react-router-dom';
 
 import DisplayPost from '../../functions/DisplayPost';
 import DisplayArray from '../../functions/DisplayArray';
@@ -18,7 +15,6 @@ Edits of followers, following to be updated in the backend database
 */
 
 function UserInfo() {
-    const navigate = useNavigate();
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -36,8 +32,6 @@ function UserInfo() {
     const [personalPosts, setPersonalPosts] = useState([]);
 
     const [loading, setLoading] = useState(true);
-
-    const [userWantsToEdit, setUserWantsToEdit] = useState(false);
 
     async function setupListeners() {
         const userDocListener = await listenerImplementer.getUserDocListener();
@@ -93,28 +87,18 @@ function UserInfo() {
     useEffect(() => {
         // Check that the listener is fully set up before initializing the user info and subscriptions
         if (userDocListener) {
+
             initializeUserInfo();
             const unsubscribeFromAllFields = setupSubscriptions();
             setLoading(false);
+
+            // Return the unsubscribe function to ensure that the subscriptions are removed when the component is unmounted
             return () => {
                 unsubscribeFromAllFields();
             }
+
         }
     }, [userDocListener]);
-
-    const handleSubmitUserInfo = async (e) => {
-        e.preventDefault();
-
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-
-        await updateDoc(userRef, {
-            username: username,
-            bio: bio,
-            isPrivate: isPrivate,
-        });
-
-        navigate('/dashboard');
-    };
 
     if (loading) {
         return (
@@ -124,104 +108,58 @@ function UserInfo() {
         );
     }
 
-    if (!userWantsToEdit) {
-        return (
-            <div>
-                <h2>User Information</h2>
-                <p>Username: {username}</p>
-                <p>Bio: {bio}</p>
-                <p>Private: {isPrivate.toString()}</p>
-                <p>User ID: {userID}</p>
-
-                <p>Followers</p>
-                <DisplayArray array={followers} displayObjectFunc={c => {
-                    return <DisplayFollower
-                        otherUserID={c}
-                        userOwnID={userID}
-                    />
-                }} />
-
-                <p>Following</p>
-                <DisplayArray array={following} displayObjectFunc={c => {
-                    return <DisplayFollowing
-                        otherUserID={c}
-                        userOwnID={userID}
-                    />
-                }} />
-
-                <p>Follow Requests Received</p>
-                <DisplayArray array={followRequestsReceived} displayObjectFunc={c => {
-                    return <DisplayRequestReceived
-                        otherUserID={c}
-                        userOwnID={userID}
-                    />
-                }} />
-
-                <p>Follow Requests Sent</p>
-                <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
-
-                <p>Personal Posts</p>
-                <DisplayArray array={personalPosts} displayObjectFunc={c => {
-                    return <DisplayPost
-                        postID={c}
-                        userOwnID={userID}
-                    />
-                }} />
-
-                <p>Saved Posts</p>
-                <DisplayArray array={savedPosts} displayObjectFunc={c => {
-                    return <DisplayPost
-                        postID={c}
-                        userOwnID={userID}
-                    />
-                }} />
-
-                <button
-                    onClick={() => {
-                        setUserWantsToEdit(true);
-                    }}
-                >
-                    Edit User Information
-                </button>
-            </div>
-        );
-    }
-
     return (
         <div>
-            <h2>Edit User Information</h2>
+            <h2>User Information</h2>
+            <p>Username: {username}</p>
+            <p>Bio: {bio}</p>
+            <p>Private: {isPrivate.toString()}</p>
+            <p>User ID: {userID}</p>
 
-            <div>
-                <label>Username</label>
-                <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUserName(e.target.value)}
+            <Link to='/editProfile'>Edit Profile</Link>
+
+            <p>Followers</p>
+            <DisplayArray array={followers} displayObjectFunc={c => {
+                return <DisplayFollower
+                    otherUserID={c}
+                    userOwnID={userID}
                 />
-            </div>
+            }} />
 
-            <div>
-                <label>Bio</label>
-                <input
-                    type="text"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+            <p>Following</p>
+            <DisplayArray array={following} displayObjectFunc={c => {
+                return <DisplayFollowing
+                    otherUserID={c}
+                    userOwnID={userID}
                 />
-            </div>
+            }} />
 
-            <div>
-                <label>Set as private</label>
-                <input
-                    type="checkbox"
-                    required
-                    checked={isPrivate}
-                    onChange={(e) => setIsPrivate(e.target.checked)}
+            <p>Follow Requests Received</p>
+            <DisplayArray array={followRequestsReceived} displayObjectFunc={c => {
+                return <DisplayRequestReceived
+                    otherUserID={c}
+                    userOwnID={userID}
                 />
-            </div>
+            }} />
 
-            <button onClick={handleSubmitUserInfo}>Submit</button>
+            <p>Follow Requests Sent</p>
+            <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
 
+            <p>Personal Posts</p>
+            <DisplayArray array={personalPosts} displayObjectFunc={c => {
+                return <DisplayPost
+                    postID={c}
+                    userOwnID={userID}
+                />
+            }} />
+
+            <p>Saved Posts</p>
+            <DisplayArray array={savedPosts} displayObjectFunc={c => {
+                return <DisplayPost
+                    postID={c}
+                    userOwnID={userID}
+                />
+            }} />
         </div>
     );
 }

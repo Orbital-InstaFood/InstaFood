@@ -62,7 +62,7 @@ function ViewOtherUsers() {
     }
 
     if (userOwnID === userID) {
-        navigate('/editProfile');
+        navigate('/viewProfile');
     }
 
     return (
