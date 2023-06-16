@@ -1,5 +1,17 @@
 import { onSnapshot, getDoc } from 'firebase/firestore';
 
+/**
+ * This class is responsible for creating listeners and managing subscriptions to fields in documents.
+ * Use the ListenerImplementer class to maintain a single instance of this class. Do not initialize this class directly.
+ * 
+ * @class Listener
+ * @param {DocumentReference} ref - A reference to the document to listen to
+ * 
+ * @method startSnapshotListener - Starts listening to the document. This method must be called before any other methods.
+ * @method getCurrentDocument - Returns the current document. Returns null if the document does not exist.
+ * @method stopSnapshotListener - Stops listening to the document.
+ * @method subscribeToField - Subscribes to a field in the document. The callback is called whenever the field changes.
+ */
 class Listener {
     constructor(ref) {
         this.ref = ref;
@@ -17,7 +29,7 @@ class Listener {
             this.document = snapshot.data();
             this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
                 this.document = latestSnapshot.data();
-                this.notifySubscribers();
+                this._notifySubscribers();
             });
         }
     }
@@ -41,11 +53,15 @@ class Listener {
         callback(currentValue);
 
         return () => {
-            this.unsubscribeFromField(field, callback);
+            this._unsubscribeFromField(field, callback);
         }
     }
 
-    notifySubscribers() {
+    /**
+     * This method is called whenever the document changes to trigger the callbacks.
+     * @private
+     */
+    _notifySubscribers() {
         for (const field in this.fieldSubscriptions) {
             const callbacksBySubscribers = this.fieldSubscriptions[field];
             for (const callback of callbacksBySubscribers) {
@@ -54,7 +70,12 @@ class Listener {
         }
     }
 
-    unsubscribeFromField(field, callback) {
+    /**
+     * This method is called when a subscriber unsubscribes from a field.
+     * Do not call this method directly. Use the return value of subscribeToField() instead.
+     * @private
+     */
+    _unsubscribeFromField(field, callback) {
         const callbacksBySubscribers = this.fieldSubscriptions[field];
         const index = callbacksBySubscribers.indexOf(callback);
         this.fieldSubscriptions[field].splice(index, 1);
