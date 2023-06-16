@@ -11,7 +11,7 @@ import SignInAfterEmailVerification from './authentication/signInAfterEmailVerif
 import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard';
-import CreateProfile from './pages/CreateProfile';
+import CreateProfile from './pages/Profile/CreateProfile';
 import UserInfo from './pages/Profile/UserInfo';
 import NewPost from './pages/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
