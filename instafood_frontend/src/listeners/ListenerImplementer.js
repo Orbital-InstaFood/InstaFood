@@ -3,41 +3,40 @@ import { doc } from "firebase/firestore";
 import { db, auth } from "../firebaseConf";
 
 class ListenerImplementer {
-
     constructor() {
-        this.userDocListener = null;
-        this.listOfUserIDsListener = null;
+        this.listeners = {};
+    }
+
+    async getListener(docRef) {
+        const listenerKey = docRef.id;
+
+        if (!this.listeners[listenerKey]) {
+            const listener = new Listener(docRef);
+
+            try {
+                await listener.startSnapshotListener();
+                this.listeners[listenerKey] = listener;
+            } catch (error) {
+                console.log(error);
+            }
+        }
+
+        return this.listeners[listenerKey];
     }
 
     async getPostListener(postID) {
-        const postRef = doc(db, 'posts', postID);
-        const postListener = new Listener(postRef);
-        await postListener.startSnapshotListener()
-            .catch((error) => {
-                console.log("Error starting post listener: ", error);
-                this.postListener = null;
-            });
-        return postListener;
+        const postRef = doc(db, "posts", postID);
+        return this.getListener(postRef);
     }
 
     async getUserDocListener() {
-        if (!this.userDocListener) {
-            const userRef = doc(db, 'users', auth.currentUser.uid);
-            const userDocListener = new Listener(userRef);
-            await userDocListener.startSnapshotListener()
-            this.userDocListener = userDocListener;
-        }
-        return this.userDocListener;
+        const userRef = doc(db, "users", auth.currentUser.uid);
+        return this.getListener(userRef);
     }
 
     async getListOfUserIDsListener() {
-        if (!this.listOfUserIDsListener) {
-            const userIDsRef = doc(db, "lists", "userIDs");
-            const listOfUserIDsListener = new Listener(userIDsRef);
-            await listOfUserIDsListener.startSnapshotListener();
-            this.listOfUserIDsListener = listOfUserIDsListener;
-        }
-        return this.listOfUserIDsListener;
+        const userIDsRef = doc(db, "lists", "userIDs");
+        return this.getListener(userIDsRef);
     }
 }
 
