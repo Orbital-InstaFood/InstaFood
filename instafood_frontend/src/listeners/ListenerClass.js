@@ -4,7 +4,6 @@ class Listener {
     constructor(ref) {
         this.ref = ref;
         this.document = null;
-        this.loading = true;
         this.fieldSubscriptions = {};
         this.unsubscribeFromListener = null;
     }
@@ -12,13 +11,15 @@ class Listener {
     async startSnapshotListener() {
         // Read the document once to initialize the property
         const snapshot = await getDoc(this.ref);
-        this.document = snapshot.data();
-        this.loading = false;
-
-        this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
-            this.document = latestSnapshot.data();
-            this.notifySubscribers();
-        });
+        if (!snapshot.exists()) {
+            throw new Error("Document does not exist");
+        } else {
+            this.document = snapshot.data();
+            this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
+                this.document = latestSnapshot.data();
+                this.notifySubscribers();
+            });
+        }
     }
 
     getCurrentDocument() {
@@ -28,7 +29,6 @@ class Listener {
     stopSnapshotListener() {
         this.unsubscribeFromListener();
     }
-
 
     subscribeToField(field, callback) {
         if (!this.fieldSubscriptions[field]) {
@@ -43,7 +43,6 @@ class Listener {
         return () => {
             this.unsubscribeFromField(field, callback);
         }
-
     }
 
     notifySubscribers() {

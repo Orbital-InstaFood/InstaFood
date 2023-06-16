@@ -3,15 +3,20 @@ import { doc } from "firebase/firestore";
 import { db, auth } from "../firebaseConf";
 
 class ListenerImplementer {
+
     constructor() {
         this.userDocListener = null;
         this.listOfUserIDsListener = null;
     }
 
     async getPostListener(postID) {
-        const postRef = doc (db, 'posts', postID);
+        const postRef = doc(db, 'posts', postID);
         const postListener = new Listener(postRef);
-        await postListener.startSnapshotListener();
+        await postListener.startSnapshotListener()
+            .catch((error) => {
+                console.log("Error starting post listener: ", error);
+                this.postListener = null;
+            });
         return postListener;
     }
 
@@ -19,9 +24,9 @@ class ListenerImplementer {
         if (!this.userDocListener) {
             const userRef = doc(db, 'users', auth.currentUser.uid);
             const userDocListener = new Listener(userRef);
-            await userDocListener.startSnapshotListener();
+            await userDocListener.startSnapshotListener()
             this.userDocListener = userDocListener;
-        } 
+        }
         return this.userDocListener;
     }
 
