@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import DisplayPost from '../../functions/DisplayPost';
-import DisplayArray from '../../functions/DisplayArray';
 import DisplayUserLink from '../../functions/DisplayUserLink';
 import DisplayRequestReceived from './DisplayRequestReceived';
 import DisplayFollowing from './DisplayFollowing';
@@ -73,10 +72,18 @@ function UserInfo() {
                     setFollowRequestsReceived(followRequestsReceived);
                 });
 
+        const unsubscribeFromSavedPosts =
+            userDocListener.subscribeToField('savedPosts',
+                (savedPosts) => {
+                    setSavedPosts(savedPosts);
+                });
+
+
         return () => {
             unsubscribeFromFollowers();
             unsubscribeFromFollowing();
             unsubscribeFromFollowRequestsReceived();
+            unsubscribeFromSavedPosts();
         }
     };
 
@@ -113,53 +120,55 @@ function UserInfo() {
             <h2>User Information</h2>
             <p>Username: {username}</p>
             <p>Bio: {bio}</p>
-            <p>Private: {isPrivate.toString()}</p>
             <p>User ID: {userID}</p>
 
             <Link to='/editProfile'>Edit Profile</Link>
 
             <p>Followers</p>
-            <DisplayArray array={followers} displayObjectFunc={c => {
+            {followers.map(followerID => {
                 return <DisplayFollower
-                    otherUserID={c}
+                    otherUserID={followerID}
                     userOwnID={userID}
                 />
-            }} />
+            })}
 
             <p>Following</p>
-            <DisplayArray array={following} displayObjectFunc={c => {
+            {following.map(followingID => {
                 return <DisplayFollowing
-                    otherUserID={c}
+                    otherUserID={followingID}
                     userOwnID={userID}
                 />
-            }} />
+            })}
 
             <p>Follow Requests Received</p>
-            <DisplayArray array={followRequestsReceived} displayObjectFunc={c => {
+            {followRequestsReceived.map(followRequestReceivedID => {
                 return <DisplayRequestReceived
-                    otherUserID={c}
+                    otherUserID={followRequestReceivedID}
                     userOwnID={userID}
                 />
-            }} />
+            })}
 
             <p>Follow Requests Sent</p>
-            <DisplayArray array={followRequestsSent} displayObjectFunc={DisplayUserLink} />
+            {followRequestsSent.map(followRequestSentID => {
+                return <DisplayUserLink
+                    userID={followRequestSentID}
+                />
+            })}
 
             <p>Personal Posts</p>
-            <DisplayArray array={personalPosts} displayObjectFunc={c => {
+            {personalPosts.map(postID => {
                 return <DisplayPost
-                    postID={c}
-                    userOwnID={userID}
-                />
-            }} />
+                    postID={postID}
+                    userOwnID={userID} />
+            })}
 
             <p>Saved Posts</p>
-            <DisplayArray array={savedPosts} displayObjectFunc={c => {
+            {savedPosts.map(postID => {
                 return <DisplayPost
-                    postID={c}
-                    userOwnID={userID}
-                />
-            }} />
+                    postID={postID}
+                    userOwnID={userID} />
+            })}
+
         </div>
     );
 }
