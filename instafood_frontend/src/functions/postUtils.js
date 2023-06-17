@@ -1,7 +1,7 @@
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../firebaseConf';
 
-const getPostsByPostIds = async (postIds) => {
+export const getPostsByPostIds = async (postIds) => {
   const posts = [];
 
   for (const postId of postIds) {
@@ -17,4 +17,7 @@ const getPostsByPostIds = async (postIds) => {
   return posts;
 };
 
-export default getPostsByPostIds;
+export const getPostsByCaption = async (postCaptions) => {
+  const posts = [];
+
+}

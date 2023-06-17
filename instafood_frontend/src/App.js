@@ -20,7 +20,7 @@ import ViewOtherUsers from './pages/ViewOtherUsers';
 
 import Navbar from './Navbar';
 
-import "./ButtonDesign/general.css";
+import "./theme/ButtonDesign/general.css";
 import PageNotFound from './pages/404';
 
 function App() {
