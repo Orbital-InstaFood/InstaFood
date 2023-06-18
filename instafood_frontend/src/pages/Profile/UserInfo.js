@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import DisplayPost from '../../functions/DisplayPost';
+import DisplayPost from '../../functions/Post/DisplayPost';
 import DisplayUserLink from '../../functions/DisplayUserLink';
 import DisplayRequestReceived from './DisplayRequestReceived';
 import DisplayFollowing from './DisplayFollowing';
 import DisplayFollower from './DisplayFollower';
 
 import listenerImplementer from '../../listeners/ListenerImplementer';
+
+import userDocEditor from '../../editor/userDocEditor';
 
 /*
 Edits of followers, following to be updated in the backend database 
@@ -18,96 +20,40 @@ function UserInfo() {
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
 
-    // State for subscriptions to fields in the user document
-    const [username, setUserName] = useState('');
-    const [bio, setBio] = useState('');
-    const [isPrivate, setIsPrivate] = useState(false);
-    const [userID, setUserID] = useState('');
-    const [followers, setFollowers] = useState([]);
-    const [following, setFollowing] = useState([]);
-    const [followRequestsReceived, setFollowRequestsReceived] = useState([]);
-    const [followRequestsSent, setFollowRequestsSent] = useState([]);
-    const [savedPosts, setSavedPosts] = useState([]);
-    const [personalPosts, setPersonalPosts] = useState([]);
+    // State for user info
+    const [userDoc, setUserDoc] = useState(null);
+    const [UserDocEditor, setUserDocEditor] = useState(null); 
 
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
     async function setupListeners() {
         const userDocListener = await listenerImplementer.getUserDocListener();
         setUserDocListener(userDocListener);
     }
 
-    function initializeUserInfo() {
-        const userDoc = userDocListener.getCurrentDocument();
+    function initializeUserDocAndEditor() {
+        const userDoc = userDocListener.getCurrentDocument();  
+        setUserDoc(userDoc);
 
-        setUserName(userDoc.username);
-        setBio(userDoc.bio);
-        setIsPrivate(userDoc.isPrivate);
-        setUserID(userDoc.userID);
-        setFollowers(userDoc.followers);
-        setFollowing(userDoc.following);
-        setFollowRequestsReceived(userDoc.followRequestsReceived);
-        setFollowRequestsSent(userDoc.followRequestsSent);
-        setSavedPosts(userDoc.savedPosts);
-        setPersonalPosts(userDoc.personalPosts);
-
+        const UserDocEditor = new userDocEditor(userDoc, setUserDoc);
+        setUserDocEditor(UserDocEditor);
     }
-
-    function setupSubscriptions() {
-        const unsubscribeFromFollowers =
-            userDocListener.subscribeToField('followers',
-                (followers) => {
-                    setFollowers(followers);
-                });
-
-        const unsubscribeFromFollowing =
-            userDocListener.subscribeToField('following',
-                (following) => {
-                    setFollowing(following);
-                });
-
-        const unsubscribeFromFollowRequestsReceived =
-            userDocListener.subscribeToField('followRequestsReceived',
-                (followRequestsReceived) => {
-                    setFollowRequestsReceived(followRequestsReceived);
-                });
-
-        const unsubscribeFromSavedPosts =
-            userDocListener.subscribeToField('savedPosts',
-                (savedPosts) => {
-                    setSavedPosts(savedPosts);
-                });
-
-
-        return () => {
-            unsubscribeFromFollowers();
-            unsubscribeFromFollowing();
-            unsubscribeFromFollowRequestsReceived();
-            unsubscribeFromSavedPosts();
-        }
-    };
 
     useEffect(() => {
         setupListeners();
     }, []);
 
     useEffect(() => {
-        // Check that the listener is fully set up before initializing the user info and subscriptions
+
+        // Check that the listener is fully set up before initializing userDoc and UserDocEditor
         if (userDocListener) {
-
-            initializeUserInfo();
-            const unsubscribeFromAllFields = setupSubscriptions();
-            setLoading(false);
-
-            // Return the unsubscribe function to ensure that the subscriptions are removed when the component is unmounted
-            return () => {
-                unsubscribeFromAllFields();
-            }
-
+            initializeUserDocAndEditor();
+            setIsLoading(false);
         }
+
     }, [userDocListener]);
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div>
                 <h2>Loading...</h2>
@@ -118,55 +64,55 @@ function UserInfo() {
     return (
         <div>
             <h2>User Information</h2>
-            <p>Username: {username}</p>
-            <p>Bio: {bio}</p>
-            <p>User ID: {userID}</p>
+            <p>Username: {userDoc.username}</p>
+            <p>Bio: {userDoc.bio}</p>
+            <p>User ID: {userDoc.userID}</p>
 
             <Link to='/editProfile'>Edit Profile</Link>
 
             <p>Followers</p>
-            {followers.map(followerID => {
+            {userDoc.followers.map(followerID => {
                 return <DisplayFollower
                     otherUserID={followerID}
-                    userOwnID={userID}
+                    removeFollower={UserDocEditor.removeFollower}
                 />
             })}
 
             <p>Following</p>
-            {following.map(followingID => {
+            {userDoc.following.map(followingID => {
                 return <DisplayFollowing
                     otherUserID={followingID}
-                    userOwnID={userID}
+                    unfollow={UserDocEditor.unfollow}
                 />
             })}
 
             <p>Follow Requests Received</p>
-            {followRequestsReceived.map(followRequestReceivedID => {
+            {userDoc.followRequestsReceived.map(followRequestReceivedID => {
                 return <DisplayRequestReceived
                     otherUserID={followRequestReceivedID}
-                    userOwnID={userID}
+                    answerFollowRequest={UserDocEditor.answerFollowRequest}
                 />
             })}
 
             <p>Follow Requests Sent</p>
-            {followRequestsSent.map(followRequestSentID => {
+            {userDoc.followRequestsSent.map(followRequestSentID => {
                 return <DisplayUserLink
                     userID={followRequestSentID}
                 />
             })}
 
             <p>Personal Posts</p>
-            {personalPosts.map(postID => {
+            {userDoc.personalPosts.map(postID => {
                 return <DisplayPost
                     postID={postID}
-                    userOwnID={userID} />
+                    userOwnID={userDoc.userID} />
             })}
 
             <p>Saved Posts</p>
-            {savedPosts.map(postID => {
+            {userDoc.savedPosts.map(postID => {
                 return <DisplayPost
                     postID={postID}
-                    userOwnID={userID} />
+                    userOwnID={userDoc.userID} />
             })}
 
         </div>
