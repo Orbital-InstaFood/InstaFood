@@ -5,6 +5,7 @@ import {categoriesData} from '../theme/categoriesData.js';
 //import categorySearch from '../functions/CategorySearch';
 //import CaptionSearch from '../functions/CaptionSearch';
 import { getPostsByPostIds }from '../functions/postUtils';
+import { rankPosts } from '../functions/RankPost';
 
 function ViewPosts() {
   const [searchCategory, setSearchCategory] = useState('');
@@ -18,9 +19,10 @@ function ViewPosts() {
     const postIds = categorisedPostsDoc.data()?.post_id_array || [];
 
     const posts = await getPostsByPostIds(postIds);
-    setSearchResults(posts);
+    const rankedPosts = rankPosts(posts);
+    setSearchResults(rankedPosts);
 
-    console.log(posts); // Array of posts with their information
+    console.log(rankedPosts); // Array of posts with their information
     
   };
 
