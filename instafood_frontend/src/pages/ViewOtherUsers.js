@@ -6,7 +6,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
-import DisplayPost from '../functions/DisplayPost';
+import DisplayPost from '../functions/Post/DisplayPost';
 import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function ViewOtherUsers() {
