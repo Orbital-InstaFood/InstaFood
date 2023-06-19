@@ -22,7 +22,10 @@ function UserInfo() {
 
     // State for user info
     const [userDoc, setUserDoc] = useState(null);
-    const [UserDocEditor, setUserDocEditor] = useState(null); 
+    const [UserDocEditor, setUserDocEditor] = useState(null);
+
+    // State for subscriptions
+    const [savedPosts, setSavedPosts] = useState([]);
 
     const [isLoading, setIsLoading] = useState(true);
 
@@ -31,8 +34,20 @@ function UserInfo() {
         setUserDocListener(userDocListener);
     }
 
+    function setupSubscriptions() {
+        const unsubscribeFromSavedPosts =
+            userDocListener.subscribeToField('savedPosts',
+                (savedPosts) => {
+                    setSavedPosts(savedPosts);
+                });
+
+        return () => {
+            unsubscribeFromSavedPosts();
+        }
+    }
+
     function initializeUserDocAndEditor() {
-        const userDoc = userDocListener.getCurrentDocument();  
+        const userDoc = userDocListener.getCurrentDocument();
         setUserDoc(userDoc);
 
         const UserDocEditor = new userDocEditor(userDoc, setUserDoc);
@@ -45,10 +60,17 @@ function UserInfo() {
 
     useEffect(() => {
 
-        // Check that the listener is fully set up before initializing userDoc and UserDocEditor
+        // Check that the listener is fully set up before setting up subscriptions,
+        // and initializing userDoc and UserDocEditor
         if (userDocListener) {
+            const unsubscribeFromSavedPosts = setupSubscriptions();
             initializeUserDocAndEditor();
             setIsLoading(false);
+
+            return () => {
+                unsubscribeFromSavedPosts();
+            }
+            
         }
 
     }, [userDocListener]);
@@ -105,14 +127,20 @@ function UserInfo() {
             {userDoc.personalPosts.map(postID => {
                 return <DisplayPost
                     postID={postID}
-                    userOwnID={userDoc.userID} />
+                    userOwnID={userDoc.userID}
+                    isAPersonalPost={true}
+                    isASavedPost={false}
+                    />
             })}
 
             <p>Saved Posts</p>
-            {userDoc.savedPosts.map(postID => {
+            {savedPosts.map(postID => {
                 return <DisplayPost
                     postID={postID}
-                    userOwnID={userDoc.userID} />
+                    userOwnID={userDoc.userID}
+                    isAPersonalPost={false}
+                    isASavedPost={true}
+                    />
             })}
 
         </div>

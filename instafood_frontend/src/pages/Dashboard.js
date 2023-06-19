@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
-import DisplayPost from '../functions/DisplayPost'
+import DisplayPost from '../functions/Post/DisplayPost'
 import './Dashboard.css';
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
+
+import listenerImplementer from '../listeners/ListenerImplementer';
 
 function Dashboard() {
     const [userProfile, setUserProfile] = useState(null);
@@ -14,6 +16,10 @@ function Dashboard() {
     const [loadedPosts, setLoadedPosts] = useState([]);
     const [hasMorePosts, setHasMorePosts] = useState(true);
     const numOfPostsToLoad = 2;
+
+    const [userDocListener, setUserDocListener] = useState(null);
+    const [savedPosts, setSavedPosts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
 
     const navigate = useNavigate();
 
@@ -46,6 +52,44 @@ function Dashboard() {
         getUserInfo();
     }, []);
 
+
+    useEffect(() => {
+        setupListeners();
+    }, []);
+
+    useEffect(() => {
+
+        // Check that the listener is fully set up before setting up subscriptions,
+        // and initializing userDoc and UserDocEditor
+        if (userDocListener) {
+            const unsubscribeFromSavedPosts = setupSubscriptions();
+            setIsLoading(false);
+
+            return () => {
+                unsubscribeFromSavedPosts();
+            }
+            
+        }
+
+    }, [userDocListener]);
+
+    async function setupListeners() {
+        const userDocListener = await listenerImplementer.getUserDocListener();
+        setUserDocListener(userDocListener);
+    }
+
+    function setupSubscriptions() {
+        const unsubscribeFromSavedPosts =
+            userDocListener.subscribeToField('savedPosts',
+                (savedPosts) => {
+                    setSavedPosts(savedPosts);
+                });
+
+        return () => {
+            unsubscribeFromSavedPosts();
+        }
+    }
+
     function loadMorePosts() {
         const numOfPostsLoaded = loadedPosts.length;
         if (numOfPostsLoaded + numOfPostsToLoad > allPosts.length) {
@@ -56,7 +100,7 @@ function Dashboard() {
         }
     }
 
-    if (loading) {
+    if (loading || isLoading) {
         return (
             <div>
                 <p>Loading...</p>
@@ -64,18 +108,10 @@ function Dashboard() {
         );
     }
 
-    if (loadedPosts.length === 0) {
-        return (
-            <div className="container">
-                <p className="welcome-message">Welcome, {userProfile.userID}!</p>
-            </div>
-        );
-    }
-
     return (
         <div className="container">
             <p className="welcome-message">Welcome, {userProfile.userID}!</p>
-            <InfiniteScroll
+            { (loadedPosts.length !== 0 ) && <InfiniteScroll
                 dataLength={loadedPosts.length}
                 next={loadMorePosts}
                 hasMore={hasMorePosts}
@@ -85,12 +121,17 @@ function Dashboard() {
 
                 {loadedPosts.map(postID => {
                     return <DisplayPost
+                    key={postID}
                         postID={postID}
-                        userOwnID={userProfile.userID} />
+                        userOwnID={userProfile.userID} 
+                        isAPersonalPost={false}
+                        isASavedPost={savedPosts.includes(postID)}
+                    />
                 }
                 )}
 
             </InfiniteScroll>
+            }
         </div>
     );
 }
