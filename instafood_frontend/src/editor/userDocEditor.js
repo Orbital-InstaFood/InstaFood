@@ -37,7 +37,6 @@ class userDocEditor {
         this.removeFollower = this.removeFollower.bind(this);
         this.unfollow = this.unfollow.bind(this);
         this.answerFollowRequest = this.answerFollowRequest.bind(this);
-        this.unsaveAPost = this.unsaveAPost.bind(this);
     }
 
     /**
@@ -106,31 +105,6 @@ class userDocEditor {
         // Operations on the database
         const answerFollowRequestFn = httpsCallable(functions, 'answerFollowRequest');
         answerFollowRequestFn ({ followerUserID: otherUserID, followedUserID: this.state.userID, accept: isAccepted });
-
-    }
-
-    /**
-     * 
-     * @param {string} postID 
-     */
-    unsaveAPost (postID) {
-
-        let newSavedPosts = null;
-
-        // Operations on the state
-        this.setState( (prevState) => {
-            newSavedPosts = prevState.savedPosts.filter(savedPost => savedPost !== postID);
-            return {
-                ...prevState,
-                savedPosts: newSavedPosts
-            };
-        });
-
-        // Operations on the database
-        const userOwnRef = doc(db, 'users', auth.currentUser.uid);
-        updateDoc(userOwnRef, {
-            savedPosts: newSavedPosts
-        });
 
     }
 
