@@ -1,4 +1,4 @@
-import { FieldValue, doc, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore";
+import { doc, updateDoc, arrayRemove, arrayUnion} from "firebase/firestore";
 import { auth, db } from "../../firebaseConf";
 
 export default function saveOrUnsaveAPost (postID, isSaved) {

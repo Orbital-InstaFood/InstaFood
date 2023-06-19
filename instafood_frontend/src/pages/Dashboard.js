@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import DisplayPost from '../functions/Post/DisplayPost'
+import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
@@ -120,7 +120,7 @@ function Dashboard() {
             >
 
                 {loadedPosts.map(postID => {
-                    return <DisplayPost
+                    return <DisplayPostUI
                     key={postID}
                         postID={postID}
                         userOwnID={userProfile.userID} 

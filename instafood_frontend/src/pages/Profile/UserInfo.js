@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import DisplayPost from '../../functions/Post/DisplayPost';
+import DisplayPostUI from '../../functions/Post/DisplayPostUI';
 import DisplayUserLink from '../../functions/DisplayUserLink';
 import DisplayRequestReceived from './DisplayRequestReceived';
 import DisplayFollowing from './DisplayFollowing';
@@ -125,7 +125,7 @@ function UserInfo() {
 
             <p>Personal Posts</p>
             {userDoc.personalPosts.map(postID => {
-                return <DisplayPost
+                return <DisplayPostUI
                     postID={postID}
                     userOwnID={userDoc.userID}
                     isAPersonalPost={true}
@@ -135,7 +135,7 @@ function UserInfo() {
 
             <p>Saved Posts</p>
             {savedPosts.map(postID => {
-                return <DisplayPost
+                return <DisplayPostUI
                     postID={postID}
                     userOwnID={userDoc.userID}
                     isAPersonalPost={false}

@@ -1,55 +1,26 @@
 import DisplayArray from "../DisplayArray";
-import displayImage from "../displayImage";
-import { useEffect, useState } from "react";
 import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
 import Likes from "./Likes";
 import DisplayUserLink from "../DisplayUserLink";
 import DisplaySave from "./DisplaySave";
+import displayImage from "../displayImage";
 
-import listenerImplementer from "../../listeners/ListenerImplementer";
-import postDocEditor from "../../editor/postDocEditor";
+import useDisplayPostLogic from "./useDisplayPostLogic";
 
-function DisplayPost({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
+function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
-    const [postListener, setPostListener] = useState(null);
-
-    const [postDoc, setPostDoc] = useState(null);
-    const [PostDocEditor, setPostDocEditor] = useState(null);
-
-    const [isLoading, setIsLoading] = useState(true);
-
-    async function setupListeners() {
-        const postListener = await listenerImplementer.getPostListener(postID);
-        setPostListener(postListener);
-    }
-
-    function initializePostDocAndEditor() {
-        const postDoc = postListener.getCurrentDocument();
-        setPostDoc(postDoc);
-
-        const PostDocEditor = new postDocEditor(postDoc, setPostDoc);
-        setPostDocEditor(PostDocEditor);
-    }
-
-    useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-
-        // Check that the listener is fully set up before initializing userDoc and UserDocEditor
-        if (postListener) {
-            initializePostDocAndEditor();
-            setIsLoading(false);
-        }
-
-    }, [postListener]);
+    const {
+        postDoc,
+        PostDocEditor,
+        isLoading,
+        postListener,
+    } = useDisplayPostLogic({ postID, userOwnID});
 
     if (isLoading) {
         return (
             <div>
-                <h2>Loading...</h2>
+                <p>Loading...</p>
             </div>
         );
     }
@@ -102,4 +73,4 @@ function DisplayPost({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     );
 }
 
-export default DisplayPost;
+export default DisplayPostUI;
