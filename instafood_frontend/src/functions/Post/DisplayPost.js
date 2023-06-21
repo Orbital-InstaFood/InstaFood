@@ -1,13 +1,13 @@
-import DisplayArray from "./DisplayArray";
-import displayImage from "./displayImage";
+import DisplayArray from "../DisplayArray";
+import displayImage from "../displayImage";
 import { useEffect, useState } from "react";
-import DisplayComment from "./DisplayComment";
-import MakeComment from "./MakeComment";
-import Likes from "./Likes";
-import DisplayUserLink from "./DisplayUserLink";
-import DisplaySave from "./DisplaySave";
+import DisplayComment from "../DisplayComment";
+import MakeComment from "../MakeComment";
+import Likes from "../Likes";
+import DisplayUserLink from "../DisplayUserLink";
+import DisplaySave from "../DisplaySave";
 
-import { db, auth } from '../firebaseConf';
+import { db, auth } from '../../firebaseConf';
 import { getDoc, doc, updateDoc } from "firebase/firestore";
 
 

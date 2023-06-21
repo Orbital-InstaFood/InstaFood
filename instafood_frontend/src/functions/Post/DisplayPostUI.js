@@ -1,9 +1,9 @@
 import DisplayArray from "../DisplayArray";
-import DisplayComment from "./DisplayComment";
-import MakeComment from "./MakeComment";
-import Likes from "./Likes";
+import DisplayComment from "../DisplayComment";
+import MakeComment from "../MakeComment";
+import Likes from "../Likes";
 import DisplayUserLink from "../DisplayUserLink";
-import DisplaySave from "./DisplaySave";
+import DisplaySave from "../DisplaySave";
 import displayImage from "../displayImage";
 
 import useDisplayPostLogic from "./useDisplayPostLogic";
