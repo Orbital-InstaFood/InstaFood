@@ -2,16 +2,13 @@ import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
 
 /**
- * This class provides methods to edit a post document,
- * making instant changes to state variables.
+ * This class provides methods to edit a post document that is stored in a state variable
+ * making instant changes to the UI.
  * It also invokes the corresponding cloud functions to make changes to the database, 
- * but does not wait for the response.
+ * but does not wait for the response,
+ * thus the UI is updated instantly and the database is updated in the background.
  * 
- * Note: The post document is meant to provide initial information to the editor.
- * The document that is edited is the one in the state variable.
- * Thus, the post document passed to the constructor will not be updated.
- * 
- * @param {Object} postDoc - The post document that provides initial information
+ * @param {string} postID - The ID of the post document
  * @param {Function} setPostDoc - The function that sets the state variable
  * @returns {Object} - An object with methods to edit the post document
  * 
@@ -22,8 +19,8 @@ import { httpsCallable } from 'firebase/functions';
  */
 class postDocEditor {
 
-    constructor(postDoc, setPostDoc, userOwnID ) {
-        this.postDoc = postDoc;
+    constructor(postID, setPostDoc, userOwnID ) {
+        this.postID = postID;
         this.setPostDoc = setPostDoc;
         this.userOwnID = userOwnID;
         this._bindFunctions();
@@ -65,10 +62,10 @@ class postDocEditor {
         // Operations on the database
         if (isLiked) {
             const likePost = httpsCallable(functions, 'likePost');
-            likePost({ postID: this.postDoc.postID, likerID: this.userOwnID});
+            likePost({ postID: this.postID, likerID: this.userOwnID});
         } else {
             const unlikePost = httpsCallable(functions, 'unlikePost');
-            unlikePost({ postID: this.postDoc.postID, unlikerID: this.userOwnID});
+            unlikePost({ postID: this.postID, unlikerID: this.userOwnID});
         }
 
     }
@@ -89,7 +86,7 @@ class postDocEditor {
         // Operations on the database
         const makeCommentFn = httpsCallable(functions, 'makeComment');
         makeCommentFn({
-            postID: this.postDoc.postID,
+            postID: this.postID,
             commenterID: comment.commenterID,
             commentText: comment.commentText,
             commentID: comment.commentID
@@ -112,7 +109,7 @@ class postDocEditor {
 
         // Operations on the database
         const deleteCommentFn = httpsCallable(functions, 'deleteComment');
-        deleteCommentFn({ postID: this.postDoc.postID, commentID: commentID });
+        deleteCommentFn({ postID: this.postID, commentID: commentID });
 
     }
 }
