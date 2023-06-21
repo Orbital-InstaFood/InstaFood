@@ -6,6 +6,20 @@ import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 
+/**
+ * 
+ * @returns Dashboard page
+ * 
+ * @description
+ * This page displays posts that the user has access to, 
+ * specifically posts created by the user's followings after he has followed that following.
+ * 
+ * @todo
+ * - Refine search functionality
+ * - Add rankPosts functionality
+ * 
+ */
+
 function Dashboard() {
     const [userProfile, setUserProfile] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -50,14 +64,13 @@ function Dashboard() {
                             }
                             return true;
                         });
-        
+                        setSearchResults([]);
                         if (filteredPosts.length < numOfPostsToLoad) {
                             setSearchResults(filteredPosts);
                         } else {
                             setSearchResults(filteredPosts.slice(0, numOfPostsToLoad));
                         }
-                    } else {
-                        // If no search input, display posts in reverse order
+                    } else { // If no search input, display posts in reverse order
                         setSearchResults([]);
                         if (allPosts.length < numOfPostsToLoad) {
                             setLoadedPosts(allPosts);
