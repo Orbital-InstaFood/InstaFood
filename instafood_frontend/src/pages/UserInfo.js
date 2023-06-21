@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConf';
 
-import DisplayPost from '../functions/Post/DisplayPost';
+import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic.js';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
@@ -139,7 +139,7 @@ function UserInfo() {
 
                 <p>Personal Posts</p>
                 <DisplayArray array={personalPosts} displayObjectFunc={c => {
-                    return <DisplayPost
+                    return <useDisplayPostLogic
                         postID={c}
                         userOwnID={userID}
                     />
@@ -147,7 +147,7 @@ function UserInfo() {
 
                 <p>Saved Posts</p>
                 <DisplayArray array={savedPosts} displayObjectFunc={c => {
-                    return <DisplayPost
+                    return <useDisplayPostLogic
                         postID={c}
                         userOwnID={userID}
                     />

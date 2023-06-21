@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic.js';
+import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic';
 import './Dashboard.css';
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
@@ -31,7 +31,6 @@ function Dashboard() {
 
     const [searchCaption, setSearchCaption] = useState([]);
     const [searchCategory, setSearchCategory] = useState([]);
-    const [searchResults, setSearchResults] = useState([]);
 
     const navigate = useNavigate();
 
@@ -52,39 +51,38 @@ function Dashboard() {
                 const allPosts = userDocData.postsToView.reverse();
                 setAllPosts(allPosts);
 
-                async function handleSearch() {
-                    if (searchCategory || searchCaption) {
-                        // Filter posts based on search category and caption
-                        const filteredPosts = allPosts.filter((post) => {
-                            if (searchCategory && !post.category.includes(searchCategory)) {
-                                return false;
-                            }
-                            if (searchCaption && !post.caption.toLowerCase().includes(searchCaption.toLowerCase())) {
-                                return false;
-                            }
-                            return true;
-                        });
-                        setSearchResults([]);
-                        if (filteredPosts.length < numOfPostsToLoad) {
-                            setSearchResults(filteredPosts);
-                        } else {
-                            setSearchResults(filteredPosts.slice(0, numOfPostsToLoad));
-                        }
-                    } else { // If no search input, display posts in reverse order
-                        setSearchResults([]);
-                        if (allPosts.length < numOfPostsToLoad) {
-                            setLoadedPosts(allPosts);
-                        } else {
-                            setLoadedPosts(allPosts.slice(0, numOfPostsToLoad));
-                        }
-                    }
-                }
-
                 setLoading(false);
             }
         }
         getUserInfo();
-    }, [searchCategory, searchCaption]);
+    }, []);
+
+    async function handleSearch() {
+        if (searchCategory || searchCaption) {  // Filter posts based on search category and caption
+            const filteredPosts = allPosts.filter((post) => {
+                if (searchCategory && !post.category.includes(searchCategory)) {
+                    return false;
+                }
+                if (searchCaption && !post.caption.toLowerCase().includes(searchCaption.toLowerCase())) {
+                    return false;
+                }
+                return true;
+            });
+            setSearchResults([]);
+            if (filteredPosts.length < numOfPostsToLoad) {
+                setLoadedPosts(filteredPosts);
+            } else {
+                setLoadedPosts(filteredPosts.slice(0, numOfPostsToLoad));
+            }
+        } else { // If no search input, display posts in reverse order
+            setSearchResults([]);
+            if (allPosts.length < numOfPostsToLoad) {
+                setLoadedPosts(allPosts);
+            } else {
+                setLoadedPosts(allPosts.slice(0, numOfPostsToLoad));
+            }
+        }
+    }
 
     function loadMorePosts() {
         const numOfPostsLoaded = loadedPosts.length;
@@ -137,8 +135,8 @@ function Dashboard() {
                 loader={<p>Loading...</p>}
                 endMessage={<p>No more posts to load.</p>}
             >
-                {searchResults.length > 0 ? (
-                    searchResults.map((post) => (
+                {loadedPosts.length > 0 ? (
+                    loadedPosts.map((post) => (
                         <useDisplayPostLogic
                             key={post.postID}
                             postID={post.postID}

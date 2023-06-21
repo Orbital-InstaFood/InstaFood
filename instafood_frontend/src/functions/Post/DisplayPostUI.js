@@ -1,5 +1,5 @@
 import DisplayArray from "../DisplayArray";
-import DisplayComment from "../DisplayComment";
+import DisplayComment from "./DisplayComment"
 import MakeComment from "../MakeComment";
 import Likes from "../Likes";
 import DisplayUserLink from "../DisplayUserLink";

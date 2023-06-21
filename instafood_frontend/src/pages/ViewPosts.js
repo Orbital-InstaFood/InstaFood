@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { collection, doc, getDocs, getDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebaseConf';
 import {categoriesData} from '../theme/categoriesData.js';
@@ -39,17 +39,8 @@ function ViewPosts() {
     const postIds = categorisedPostsDoc.data()?.post_id_array || [];
 
     const posts = await getPostsByPostIds(postIds);
-    // const rankedPosts = rankPosts(posts);
     setSearchResults(posts);
-    setLoadedPosts([]);
-    if (posts.length < numOfPostsToLoad) {
-      setLoadedPosts(posts);
-    }
-    else {
-      setLoadedPosts(posts.slice(0, numOfPostsToLoad));
-    }
-    setLoading(false);
-
+    // const rankedPosts = rankPosts(posts);
     console.log(posts); // Array of posts with their information
     
   };
@@ -65,16 +56,7 @@ function ViewPosts() {
         const documentData = doc.data();
         results.push(documentData);
       });
-      setLoadedPosts([])
       setSearchResults(results);
-      
-      if (results.length < numOfPostsToLoad) {
-        setLoadedPosts(results);
-      }
-      else { 
-        setLoadedPosts(results.slice(0, numOfPostsToLoad));
-      }
-      setLoading(false);
 
     })
     .catch((error) => {
@@ -82,6 +64,16 @@ function ViewPosts() {
     });
   };
 
+  useEffect(() => {
+    setLoadedPosts([]);
+    if (searchResults.length < numOfPostsToLoad) {
+      setLoadedPosts(searchResults);
+    } else {
+      setLoadedPosts(searchResults.slice(0, numOfPostsToLoad));
+    }
+    setLoading(false);
+  }, [searchResults]);
+  
   function loadMorePosts() {
     if (loadedPosts.length >= searchResults.length) {
       setHasMorePosts(false);
@@ -125,12 +117,12 @@ function ViewPosts() {
         loader={<h4>Loading...</h4>}
         endMessage={<p>No more posts</p>}
         >
-        {searchResults.map((post) => (
+        {loadedPosts.map((post) => (
         <div key={post.post_id}>
           <h2>{post.title}</h2>
           <p>{post.caption}</p>
-          {post.images.map((image) => (
-          <img key={image} src={image} alt="Post Image" />
+          {post.images.length > 0 && post.images.map((image) => (
+            <img key={image} src={image} alt="Post Image" />
           ))}
           <p>Likes: {post.likes.length}</p>
           <p>Comments: {post.comments.length}</p>
@@ -155,11 +147,11 @@ function ViewPosts() {
         loader={<h4>Loading...</h4>}
         endMessage={<p>No more posts</p>}
         >
-        {searchResults.map((post) => (
+        {loadedPosts.map((post) => (
         <div key={post.post_id}>
           <h2>{post.title}</h2>
           <p>{post.caption}</p>
-          {post.images.map((image) => (
+          {post.images.length > 0 && post.images.map((image) => (
           <img key={image} src={image} alt="Post Image" />
           ))}
           <p>Likes: {post.likes.length}</p>
