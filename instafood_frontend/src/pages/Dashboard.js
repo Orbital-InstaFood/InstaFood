@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import DisplayPost from '../functions/useDisplayPostLogic.js'
+import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic.js';
 import './Dashboard.css';
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
@@ -139,7 +139,7 @@ function Dashboard() {
             >
                 {searchResults.length > 0 ? (
                     searchResults.map((post) => (
-                        <DisplayPost
+                        <useDisplayPostLogic
                             key={post.postID}
                             postID={post.postID}
                             userOwnID={userProfile.userID}
@@ -147,7 +147,7 @@ function Dashboard() {
                     ))
                 ) : (
                     loadedPosts.map((postID) => (
-                        <DisplayPost
+                        <useDisplayPostLogic
                             key={postID}
                             postID={postID}
                             userOwnID={userProfile.userID}

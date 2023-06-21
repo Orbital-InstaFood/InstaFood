@@ -6,7 +6,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
-import DisplayPost from '../functions/Post/DisplayPost';
+import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic.js';
 import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function ViewOtherUsers() {
@@ -82,7 +82,7 @@ function ViewOtherUsers() {
 
             <DisplayArray array={userInfo.personalPosts} displayObjectFunc={c => {
                 console.log(c);
-                return <DisplayPost postID={c} userOwnID={userOwnID} />
+                return <useDisplayPostLogic postID={c} userOwnID={userOwnID} />
             }} />
 
             <p>Followers:</p>
