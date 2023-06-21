@@ -87,9 +87,7 @@ class postDocEditor {
         const makeCommentFn = httpsCallable(functions, 'makeComment');
         makeCommentFn({
             postID: this.postID,
-            commenterID: comment.commenterID,
-            commentText: comment.commentText,
-            commentID: comment.commentID
+            comment: comment
         });
 
     }
