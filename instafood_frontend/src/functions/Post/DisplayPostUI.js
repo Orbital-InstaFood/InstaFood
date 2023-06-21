@@ -1,4 +1,3 @@
-import DisplayArray from "../DisplayArray";
 import DisplayComment from "./DisplayComment";
 import MakeComment from "./MakeComment";
 import Likes from "./Likes";
@@ -67,7 +66,9 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                 />
             )}
 
-            <DisplayArray array={postDoc.images} displayObjectFunc={displayImage} />
+            {postDoc.images.map(image => {
+                return displayImage(image);
+            })}
 
         </div>
     );
