@@ -1,6 +1,7 @@
 const functions = require("firebase-functions/v2");
 const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
+const admin = require("firebase-admin");
 
 exports.deleteComment = functions.https.onCall(async (request) => {
     const postID = request.data.postID;
@@ -10,7 +11,11 @@ exports.deleteComment = functions.https.onCall(async (request) => {
     const postDoc = await postRef.get();
     const post = postDoc.data();
 
-    const newComments = post.comments.filter( c => c.commentID !== commentID );
-    await postRef.update({ comments: newComments });
+    const commentToDelete = post.comments.find(comment => comment.commentID === commentID);
+
+    await postRef.update({
+        comments: admin.firestore.FieldValue.arrayRemove(commentToDelete)
+    });
+    
     return { result: "success" };
 });
