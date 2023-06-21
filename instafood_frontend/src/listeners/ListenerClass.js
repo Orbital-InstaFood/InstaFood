@@ -43,14 +43,18 @@ class Listener {
     }
 
     subscribeToField(field, callback) {
+        // Call the callback immediately with the current value
+        const currentValue = this.document[field];
+        callback(currentValue);
+
+        if (!currentValue) {
+            return;
+        }
+
         if (!this.fieldSubscriptions[field]) {
             this.fieldSubscriptions[field] = [];
         }
         this.fieldSubscriptions[field].push(callback);
-
-        // Call the callback immediately with the current value
-        const currentValue = this.document[field];
-        callback(currentValue);
 
         return () => {
             this._unsubscribeFromField(field, callback);
