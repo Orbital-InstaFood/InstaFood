@@ -6,26 +6,32 @@ const engagementWeight = 0.5;
 const popularityWeight = 0.5;
 
 exports.rankPosts = functions.https.onCall(async (data, context) => {
-  const rankedPosts = [...posts];
+  const { rankedPosts } = data;
+
   async function getPosts() {
+    const postRef = db.collection('posts').doc(postID);
+    const postDoc = await postRef.get();
+    const userRef = db.collection('users').doc(post.creator);
+    const userDoc = await userRef.get();
+    const userFollowers = userDoc.data().followers;
+    
     rankedPosts.forEach((post, index) => {
-      const { posts } = data;
-      const postRef = db.collection('posts').doc(postID);
-      const postDoc = await postRef.get();
-      
-      const post = postDoc.data();
-      const userRef = db.collection('users').doc(post.creator);
-      const userDoc = await userRef.get();
-      const userFollowers = userDoc.data().followers;
       const engagementScore = post.likes + post.comments + post.shares;
       const popularityScore = userFollowers;
-      const rankScore =  engagementScore * engagementWeight + popularityScore * popularityWeight
+      const rankScore = engagementScore * engagementWeight + popularityScore * popularityWeight;
+
       rankedPosts[index].rankScore = rankScore;
     });
+
     rankedPosts.sort((a, b) => b.rankScore - a.rankScore);
-  return { rankedPosts };
+    return { rankedPosts };
   }
+
+  // Call the getPosts function and return the result
+  const result = await getPosts();
+  return result;
 });
+
 /*
   const sortedPosts = await Promise.all(posts.map(async (post) => {
     const userRef = db.collection('users').doc(post.creator);
