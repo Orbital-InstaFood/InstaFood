@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../firebaseConf';
 
-import DisplayPost from '../functions/DisplayPost';
+import DisplayPost from '../functions/Post/DisplayPost';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
 import DisplayRequestReceived from '../functions/DisplayRequestReceived';
