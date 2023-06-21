@@ -1,6 +1,5 @@
-import { functions, auth, db } from '../firebaseConf'
+import { functions } from '../firebaseConf'
 import { httpsCallable } from 'firebase/functions';
-import { doc, updateDoc } from 'firebase/firestore';
 
 /**
  * This class is created to edit a local copy of the user document. 
@@ -12,7 +11,7 @@ import { doc, updateDoc } from 'firebase/firestore';
  * minimising lags due to cold starts.
  * 
  * @class userDocEditor
- * @param {Object} initialState - The initial user document data
+ * @param {string} userID - The ID of the user 
  * @param {Function} setState - The setState function to update the local copy 
  * 
  * @method removeFollower - Removes a follower from the user document
@@ -23,8 +22,8 @@ import { doc, updateDoc } from 'firebase/firestore';
  */
 class userDocEditor {
 
-    constructor(initialState, setState) {
-        this.state = initialState;
+    constructor(userID, setState) {
+        this.userID = userID;
         this.setState = setState;
         this._bindFunctions();
     }
@@ -55,7 +54,7 @@ class userDocEditor {
 
         // Operations on the database
         const removeFollowerFn = httpsCallable(functions, 'removeFollower');
-        removeFollowerFn ({ followerUserID: followerID, followedUserID: this.state.userID });
+        removeFollowerFn ({ followerUserID: followerID, followedUserID: this.userID });
 
     }
 
@@ -76,7 +75,7 @@ class userDocEditor {
 
         // Operations on the database
         const unfollowFn = httpsCallable(functions, 'unfollow');
-        unfollowFn ({ otherUserID: followedID, userOwnID: this.state.userID });
+        unfollowFn ({ otherUserID: followedID, userOwnID: this.userID });
 
     }
 
@@ -104,7 +103,7 @@ class userDocEditor {
 
         // Operations on the database
         const answerFollowRequestFn = httpsCallable(functions, 'answerFollowRequest');
-        answerFollowRequestFn ({ followerUserID: otherUserID, followedUserID: this.state.userID, accept: isAccepted });
+        answerFollowRequestFn ({ followerUserID: otherUserID, followedUserID: this.userID, accept: isAccepted });
 
     }
 

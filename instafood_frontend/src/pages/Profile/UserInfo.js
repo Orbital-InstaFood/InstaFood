@@ -50,7 +50,7 @@ function UserInfo() {
         const userDoc = userDocListener.getCurrentDocument();
         setUserDoc(userDoc);
 
-        const UserDocEditor = new userDocEditor(userDoc, setUserDoc);
+        const UserDocEditor = new userDocEditor(userDoc.userID, setUserDoc);
         setUserDocEditor(UserDocEditor);
     }
 
