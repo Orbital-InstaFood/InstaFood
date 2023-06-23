@@ -40,13 +40,6 @@ exports.createUserProfile = functions.https.onCall(async (request) => {
         postsToView: []
     };
 
-    // Check if profile already exists
-    const userRef = db.collection('users').doc(UID);
-    const userDocExists = (await userRef.get()).exists;
-    if (userDocExists) {
-        return { userDocExists: true };
-    }
-
     await db.collection('users').doc(UID).set(userDoc);
     
     await db.collection("lists").doc("userIDs").update ({
@@ -59,7 +52,7 @@ exports.createUserProfile = functions.https.onCall(async (request) => {
         }
     );
 
-    return { userDocExists: false };
+    return { result: "Success!!" };
 
 });
 

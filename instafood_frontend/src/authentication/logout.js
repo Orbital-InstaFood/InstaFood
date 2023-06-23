@@ -1,25 +1,9 @@
-import { auth } from '../firebaseConf';
-import { signOut } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
+import useAuth from './authLogic';
 import "./logout.css";
 
-function Logout() {
+export default function Logout() {
 
-    const navigate = useNavigate();
-
-    const handleLogout = (e) => {
-        e.preventDefault();
-
-        signOut(auth).then(() => {
-            // Sign-out successful.
-            console.log("Sign-out successful.");
-            navigate('/');
-        }).catch((error) => {
-            // An error happened.
-            console.log(error);
-            return alert(error.message);
-        });
-    }
+    const { handleLogout } = useAuth();
 
     return (
         <div>
@@ -27,6 +11,4 @@ function Logout() {
         </div>
     );
 }
-
-export default Logout;
 

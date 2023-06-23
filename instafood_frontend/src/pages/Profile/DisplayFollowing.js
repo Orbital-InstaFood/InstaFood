@@ -1,18 +1,14 @@
-import { functions } from '../firebaseConf'
-import { httpsCallable } from 'firebase/functions';
 import { useState } from 'react';
-import DisplayUserLink from './DisplayUserLink';
+import DisplayUserLink from '../../functions/DisplayUserLink';
 
-function DisplayFollowing ( {otherUserID, userOwnID, onFollowingRemoved}) {
-    const unfollow = httpsCallable(functions, 'unfollow');
+function DisplayFollowing ( {otherUserID, unfollow }) {
     const [unfollowIsBeingProcessed, setUnfollowIsBeingProcessed] = useState(false); 
 
     const handleUnfollow = async () => {
         setUnfollowIsBeingProcessed(true);
-        const result = await unfollow({ otherUserID: otherUserID, userOwnID: userOwnID });
-        console.log(result.data.result);
+        unfollow(otherUserID);
+
         setUnfollowIsBeingProcessed(false);
-        onFollowingRemoved(otherUserID);
     }
 
     if (unfollowIsBeingProcessed) {
