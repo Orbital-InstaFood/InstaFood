@@ -121,7 +121,7 @@ function Dashboard() {
                 loader={<p>Loading...</p>}
                 endMessage={<p>No more posts to load.</p>}
             >
-                {loadedPosts.length > 0 ? (
+                {(
                     loadedPosts.map((post) => (
                         <DisplayPostUI
                             key={post.postID}
