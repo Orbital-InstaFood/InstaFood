@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic';
+import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
@@ -68,14 +68,14 @@ function Dashboard() {
                 }
                 return true;
             });
-            setSearchResults([]);
+            setLoadedPosts([]);
             if (filteredPosts.length < numOfPostsToLoad) {
                 setLoadedPosts(filteredPosts);
             } else {
                 setLoadedPosts(filteredPosts.slice(0, numOfPostsToLoad));
             }
         } else { // If no search input, display posts in reverse order
-            setSearchResults([]);
+            setLoadedPosts([]);
             if (allPosts.length < numOfPostsToLoad) {
                 setLoadedPosts(allPosts);
             } else {
@@ -94,21 +94,7 @@ function Dashboard() {
         }
     }
 
-    if (loading) {
-        return (
-            <div>
-                <p>Loading...</p>
-            </div>
-        );
-    }
-
-    if (loadedPosts.length === 0) {
-        return (
-            <div className="container">
-                <p className="welcome-message">Welcome, {userProfile.userID}!</p>
-            </div>
-        );
-    }
+    
 
     return (
         <div className="container">
@@ -137,18 +123,22 @@ function Dashboard() {
             >
                 {loadedPosts.length > 0 ? (
                     loadedPosts.map((post) => (
-                        <useDisplayPostLogic
+                        <DisplayPostUI
                             key={post.postID}
                             postID={post.postID}
                             userOwnID={userProfile.userID}
+                            isAPersonalPost={post.isAPersonalPost}
+                            isASavedPost={post.isASavedPost}
                         />
                     ))
                 ) : (
                     loadedPosts.map((postID) => (
-                        <useDisplayPostLogic
+                        <DisplayPostUI
                             key={postID}
                             postID={postID}
                             userOwnID={userProfile.userID}
+                            isAPersonalPost={false}
+                            isASavedPost={false}
                         />
                     ))
                 )}
