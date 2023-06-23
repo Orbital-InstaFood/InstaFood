@@ -1,120 +1,89 @@
-import { functions } from '../firebaseConf'
-import { httpsCallable } from 'firebase/functions';
+import { onSnapshot, getDoc } from 'firebase/firestore';
 
 /**
- * This class provides methods to edit a post document,
- * making instant changes to state variables.
- * It also invokes the corresponding cloud functions to make changes to the database, 
- * but does not wait for the response.
+ * This class is responsible for creating listeners and managing subscriptions to fields in documents.
+ * Use the ListenerImplementer class to maintain a single instance of this class. Do not initialize this class directly.
  * 
- * Note: The post document is meant to provide initial information to the editor.
- * The document that is edited is the one in the state variable.
- * Thus, the post document passed to the constructor will not be updated.
+ * @class Listener
+ * @param {DocumentReference} ref - A reference to the document to listen to
  * 
- * @param {Object} postDoc - The post document that provides initial information
- * @param {Function} setPostDoc - The function that sets the state variable
- * @returns {Object} - An object with methods to edit the post document
- * 
- * @method likeOrDislike - Adds or removes the user's like from the post document
- * @method makeComment - Adds a comment to the post document
- * @method deleteComment - Removes a comment from the post document
- * 
+ * @method startSnapshotListener - Starts listening to the document. This method must be called before any other methods.
+ * @method getCurrentDocument - Returns the current document. Returns null if the document does not exist.
+ * @method stopSnapshotListener - Stops listening to the document.
+ * @method subscribeToField - Subscribes to a field in the document. The callback is called whenever the field changes.
  */
-class postDocEditor {
-
-    constructor(postDoc, setPostDoc, userOwnID ) {
-        this.postDoc = postDoc;
-        this.setPostDoc = setPostDoc;
-        this.userOwnID = userOwnID;
-        this._bindFunctions();
+class Listener {
+    constructor(ref) {
+        this.ref = ref;
+        this.document = null;
+        this.fieldSubscriptions = {};
+        this.unsubscribeFromListener = null;
     }
 
-    /**
-     * Binds the functions to the class instance
-     * @private
-     */
-    _bindFunctions() {
-        this.likeOrDislike = this.likeOrDislike.bind(this);
-        this.makeComment = this.makeComment.bind(this);
-        this.deleteComment = this.deleteComment.bind(this);
-    }
-
-    /**
-     * @param {boolean} isLiked 
-     */
-    likeOrDislike(isLiked) {
-
-        // Operations on the state
-        this.setPostDoc((prevState) => {
-
-            let newLikes = null;
-
-            if (isLiked) {
-                newLikes = [...prevState.likes, this.userOwnID];
-            } else {
-                newLikes = prevState.likes.filter(like => like !== this.userOwnID);
-            }
-
-            return {
-                ...prevState,
-                likes: newLikes
-            };
-
-        });
-
-        // Operations on the database
-        if (isLiked) {
-            const likePost = httpsCallable(functions, 'likePost');
-            likePost({ postID: this.postDoc.postID, likerID: this.userOwnID});
+    async startSnapshotListener() {
+        // Read the document once to initialize the property
+        const snapshot = await getDoc(this.ref);
+        if (!snapshot.exists()) {
+            throw new Error("Document does not exist");
         } else {
-            const unlikePost = httpsCallable(functions, 'unlikePost');
-            unlikePost({ postID: this.postDoc.postID, unlikerID: this.userOwnID});
+            this.document = snapshot.data();
+            this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
+                this.document = latestSnapshot.data();
+                this._notifySubscribers();
+            });
+        }
+    }
+
+    getCurrentDocument() {
+        return this.document;
+    }
+
+    stopSnapshotListener() {
+        this.unsubscribeFromListener();
+    }
+
+    subscribeToField(field, callback) {
+        // Call the callback immediately with the current value
+        const currentValue = this.document[field];
+        callback(currentValue);
+
+        if (!currentValue) {
+            return;
         }
 
+        if (!this.fieldSubscriptions[field]) {
+            this.fieldSubscriptions[field] = [];
+        }
+        this.fieldSubscriptions[field].push(callback);
+
+        return () => {
+            this._unsubscribeFromField(field, callback);
+        }
     }
 
     /**
-     * @param {object} comment 
+     * This method is called whenever the document changes to trigger the callbacks.
+     * @private
      */
-    makeComment(comment) {
-
-        // Operations on the state
-        this.setPostDoc((prevState) => {
-            return {
-                ...prevState,
-                comments: [...prevState.comments, comment]
-            };
-        });
-
-        // Operations on the database
-        const makeCommentFn = httpsCallable(functions, 'makeComment');
-        makeCommentFn({
-            postID: this.postDoc.postID,
-            commenterID: comment.commenterID,
-            commentText: comment.commentText,
-            commentID: comment.commentID
-        });
-
+    _notifySubscribers() {
+        for (const field in this.fieldSubscriptions) {
+            const callbacksBySubscribers = this.fieldSubscriptions[field];
+            for (const callback of callbacksBySubscribers) {
+                callback(this.document[field]);
+            }
+        }
     }
 
     /**
-     * @param {string} commentID 
+     * This method is called when a subscriber unsubscribes from a field.
+     * Do not call this method directly. Use the return value of subscribeToField() instead.
+     * @private
      */
-    deleteComment(commentID) {
-
-        // Operations on the state
-        this.setPostDoc((prevState) => {
-            return {
-                ...prevState,
-                comments: prevState.comments.filter(comment => comment.commentID !== commentID)
-            };
-        });
-
-        // Operations on the database
-        const deleteCommentFn = httpsCallable(functions, 'deleteComment');
-        deleteCommentFn({ postID: this.postDoc.postID, commentID: commentID });
-
+    _unsubscribeFromField(field, callback) {
+        const callbacksBySubscribers = this.fieldSubscriptions[field];
+        const index = callbacksBySubscribers.indexOf(callback);
+        this.fieldSubscriptions[field].splice(index, 1);
     }
 }
 
-export default postDocEditor;
+export default Listener;

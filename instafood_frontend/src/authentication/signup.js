@@ -1,58 +1,17 @@
 import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConf";
-import { signOut, GoogleAuthProvider, signInWithPopup, createUserWithEmailAndPassword} from "firebase/auth";
-import SendEmailVerification from "./sendEmailVerification";
-import { useState } from "react";
+import  useAuth  from "./authLogic";
 
 export default function SignUp() {
 
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+    const {
+        email,
+        setEmail,
+        password,
+        setPassword,
+        handleSignup,
+        handleGoogle,
+    } = useAuth();
 
-    const navigate = useNavigate();
-
-    const handleLoginWithGoogle = (e) => {
-        e.preventDefault();
-
-        const provider = new GoogleAuthProvider();
-        signInWithPopup(auth, provider)
-            .then((result) => {
-                navigate("/dashboard");
-            })
-    }
-
-    const handleSignup = (e) => {
-        e.preventDefault();
-
-        createUserWithEmailAndPassword(auth, email, password)
-            .then(async () => {
-
-                await SendEmailVerification(email, password);
-                signOut(auth);
-                navigate("/");
-            })
-
-            .catch((error) => {
-                if (error.code === "auth/email-already-in-use") {
-                    alert("Email already in use. Please use a different email address.");
-                }
-
-                if (error.code === "auth/invalid-email") {
-                    alert("Invalid email address.");
-                }
-
-                if (error.code === "auth/weak-password") {
-                    alert("Password must be at least 6 characters.");
-                }
-
-                if (error.code === "auth/missing-password") {
-                    alert("Please enter a password.");
-                }
-
-                navigate("/signup");
-            });
-    }
     return (
         <div>
             <div>
@@ -77,7 +36,7 @@ export default function SignUp() {
                 <p>
                     OR
                 </p>
-                <button onClick={handleLoginWithGoogle}>CONTINUE WITH GOOGLE</button>
+                <button onClick={handleGoogle}>CONTINUE WITH GOOGLE</button>
             </div>
 
             <div>

@@ -21,7 +21,7 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
         const postDoc = postListener.getCurrentDocument();
         setPostDoc(postDoc);
 
-        const PostDocEditor = new postDocEditor(postDoc, setPostDoc, userOwnID);
+        const PostDocEditor = new postDocEditor(postID, setPostDoc, userOwnID);
         setPostDocEditor(PostDocEditor);
     }
 

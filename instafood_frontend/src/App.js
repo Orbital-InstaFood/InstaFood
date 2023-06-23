@@ -11,12 +11,13 @@ import SignInAfterEmailVerification from './authentication/signInAfterEmailVerif
 import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard';
-import CreateProfile from './pages/CreateProfile';
-import UserInfo from './pages/UserInfo';
+import CreateProfile from './pages/Profile/CreateProfile';
+import UserInfo from './pages/Profile/UserInfo';
 import NewPost from './pages/NewPost';
-import Connect from './pages/Connect';
+import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
 import ViewOtherUsers from './pages/ViewOtherUsers';
+import EditProfile from './pages/Profile/EditProfile';
 
 import Navbar from './Navbar';
 
@@ -26,27 +27,18 @@ import PageNotFound from './pages/404';
 function App() {
   const [user, setUser] = useState(null);
 
-  function NavbarConditional() {
-    const location = useLocation();
-    const { pathname } = location;
-  
-    if (pathname === '/createProfile') {
-      return null; 
-    }
-    return <Navbar />;
-  }
-
   useEffect(() => {
-    auth.onAuthStateChanged((user) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
       setUser(user);
     });
+    return () => unsubscribe();
   }, []);
 
   return (
     <Router>
       <h1>InstaFood</h1>
 
-      {user && user.emailVerified && <NavbarConditional />}
+      {user && user.emailVerified && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Login />} />
@@ -58,8 +50,9 @@ function App() {
             <Route path="/createProfile" element={<CreateProfile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/newPost" element={<NewPost />} />
-            <Route path="/editProfile" element={<UserInfo />} />
-            <Route path="/connect" element={<Connect />} />
+            <Route path="/viewProfile" element={<UserInfo />} />
+            <Route path="/editProfile" element={<EditProfile />} />
+            <Route path="/connect" element={<ConnectUI />} />
             <Route path="/viewPosts" element={<ViewPosts />} />
             <Route path="/:userID" element={<ViewOtherUsers />} />
           </>

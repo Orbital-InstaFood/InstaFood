@@ -6,7 +6,7 @@ import { getDoc, doc } from 'firebase/firestore';
 import { httpsCallable } from 'firebase/functions';
 import DisplayArray from '../functions/DisplayArray';
 import DisplayUserLink from '../functions/DisplayUserLink';
-import useDisplayPostLogic from '../functions/Post/useDisplayPostLogic.js';
+import DisplayPostUI from '../functions/Post/DisplayPostUI';
 import DisplayUserForConnect from '../functions/DisplayUserForConnect';
 
 function ViewOtherUsers() {
@@ -62,7 +62,7 @@ function ViewOtherUsers() {
     }
 
     if (userOwnID === userID) {
-        navigate('/editProfile');
+        navigate('/viewProfile');
     }
 
     return (
@@ -82,7 +82,7 @@ function ViewOtherUsers() {
 
             <DisplayArray array={userInfo.personalPosts} displayObjectFunc={c => {
                 console.log(c);
-                return <useDisplayPostLogic postID={c} userOwnID={userOwnID} />
+                return <DisplayPostUI postID={c} userOwnID={userOwnID} />
             }} />
 
             <p>Followers:</p>
