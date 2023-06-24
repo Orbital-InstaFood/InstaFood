@@ -1,15 +1,13 @@
 import { useEffect, useState } from 'react';
 import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
-import { auth, db } from '../firebaseConf';
+import { db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import listenerImplementer from '../listeners/ListenerImplementer';
 
 /**
- * 
- * @returns Dashboard page
  * 
  * @description
  * This page displays posts that the user has access to, 
@@ -41,11 +39,11 @@ function Dashboard() {
     // State variables for infinite scroll
     const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
     const [hasMorePosts, setHasMorePosts] = useState(true);
-    const numOfPostsToLoad = 2;
+    const numOfPostsToLoad = 1;
 
     // State variables for search functionality
-    const [searchCaption, setSearchCaption] = useState([]);
-    const [searchCategory, setSearchCategory] = useState([]);
+    const [searchCaption, setSearchCaption] = useState('');
+    const [searchCategory, setSearchCategory] = useState('');
     
     // State variables for subscriptions
     const [userDocListener, setUserDocListener] = useState(null);
@@ -96,13 +94,16 @@ function Dashboard() {
      * This function initialises the user document
      * It then retrieves all the posts that the user has access to
      */
-    function initialiseUserDoc() {
+    function initialisations() {
+
+        // Initialise userDoc and userProfile
         const userDoc = userDocListener.getCurrentDocument();
         setUserProfile(userDoc);
 
-        const allPosts = userDoc.postsToView.reverse();
-        setIDsOfAllPosts(allPosts);
-        setIDsOfPostsToDisplay(allPosts);
+        // Initialise IDsOfAllPosts and IDsOfPostsToDisplay
+        const allPosts = userDoc.postsToView;
+        setIDsOfAllPosts(allPosts.reverse());   
+        setIDsOfPostsToDisplay(allPosts.reverse());
 
         setIsLoadingForUserDoc(false);
     }
@@ -131,7 +132,7 @@ function Dashboard() {
     useEffect(() => {
 
         if (userDocListener) {
-            initialiseUserDoc();
+            initialisations();
             const unsubscribeFromSavedPosts = setupSubscriptions();
             setIsLoadingForSubscriptions(false);
 
@@ -145,8 +146,12 @@ function Dashboard() {
      * This function handles the search functionality
      * It filters the posts based on the search category and caption
      * It then sets the posts to display to the filtered posts
+     * 
+     * @todo
+     * - Refine search functionality & utilise lazy loading
      */
      async function handleSearch() {
+        setHasMorePosts(true);
         if (searchCategory || searchCaption) {
           const filteredPosts = [];
           for (let i = 0; i < IDsOfAllPosts.length; i++) {
@@ -156,12 +161,11 @@ function Dashboard() {
             if (postDoc.exists()) {
               const post = postDoc.data();
               if (
-                (searchCategory && !post.category.includes(searchCategory)) ||
-                (searchCaption && !post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
+                (searchCategory && post.category.includes(searchCategory)) ||
+                (searchCaption && post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
               ) {
-                continue;
+                filteredPosts.push(postID);
               }
-              filteredPosts.push(postID);
             }
           }
           setIDsOfPostsToDisplay(filteredPosts);
@@ -177,13 +181,13 @@ function Dashboard() {
      * It is also run when the component first mounts
      */
     useEffect(() => {
+        setHasMorePosts(true);
         if (IDsOfPostsToDisplay.length < numOfPostsToLoad) {
             setIDsOfLoadedPosts(IDsOfPostsToDisplay);
         } else {
             setIDsOfLoadedPosts(IDsOfPostsToDisplay.slice(0, numOfPostsToLoad));
         }
     }, [IDsOfPostsToDisplay]);
-
 
     /**
      * This function loads more posts to display
