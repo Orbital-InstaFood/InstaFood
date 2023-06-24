@@ -27,7 +27,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     return (
         <div className="postContainer">
-            <h2>Creator: {postDoc.creator}</h2>
+            <h3>Creator: {postDoc.creator}</h3>
             <h3>Title: {postDoc.title}</h3>
             <p>Caption: {postDoc.caption}</p>
 
