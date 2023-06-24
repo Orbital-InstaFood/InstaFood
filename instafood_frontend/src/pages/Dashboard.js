@@ -146,25 +146,30 @@ function Dashboard() {
      * It filters the posts based on the search category and caption
      * It then sets the posts to display to the filtered posts
      */
-    // async function handleSearch() {
-    //     if (searchCategory || searchCaption) {
-
-    //         const filteredPosts = allPosts.filter((postID) => {
-    //             if (searchCategory && !post.category.includes(searchCategory)) {
-    //                 return false;
-    //             }
-    //             if (searchCaption && !post.caption.toLowerCase().includes(searchCaption.toLowerCase())) {
-    //                 return false;
-    //             }
-    //             return true;
-    //         });
-
-    //         setPostsToDisplay(filteredPosts);
-
-    //     } else { 
-    //         setPostsToDisplay(allPosts);
-    //     }
-    // }
+     async function handleSearch() {
+        if (searchCategory || searchCaption) {
+          const filteredPosts = [];
+          for (let i = 0; i < IDsOfAllPosts.length; i++) {
+            const postID = IDsOfAllPosts[i];
+            const postRef = doc(db, 'posts', postID);
+            const postDoc = await getDoc(postRef);
+            if (postDoc.exists()) {
+              const post = postDoc.data();
+              if (
+                (searchCategory && !post.category.includes(searchCategory)) ||
+                (searchCaption && !post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
+              ) {
+                continue;
+              }
+              filteredPosts.push(postID);
+            }
+          }
+          setIDsOfPostsToDisplay(filteredPosts);
+        } else {
+        setIDsOfPostsToDisplay(IDsOfAllPosts);
+        }
+      }
+      
 
     /**
      * This useEffect is for setting the loaded posts to display
@@ -207,7 +212,7 @@ function Dashboard() {
         <div className="container">
             <p className="welcome-message">Welcome, {userProfile.userID}!</p>
 
-            {/* <div className="search-bar">
+            { <div className="search-bar">
                 <input
                     type='text'
                     placeholder='Search by category'
@@ -221,7 +226,7 @@ function Dashboard() {
                     onChange={(e) => setSearchCaption(e.target.value)}
                 />
                 <button onClick={handleSearch}>Search</button>
-            </div> */}
+            </div> }
 
             { (IDsOfLoadedPosts.length !== 0 ) && <InfiniteScroll
                 dataLength={IDsOfLoadedPosts.length}
