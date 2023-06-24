@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
+import { categoriesData } from '../theme/categoriesData.js';
+
 import { db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -44,7 +46,7 @@ function Dashboard() {
     // State variables for search functionality
     const [searchCaption, setSearchCaption] = useState('');
     const [searchCategory, setSearchCategory] = useState('');
-    
+
     // State variables for subscriptions
     const [userDocListener, setUserDocListener] = useState(null);
     const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
@@ -68,7 +70,7 @@ function Dashboard() {
      * It is a helper function for setupListeners()
      * @param {Listener} userDocListener
      */
-    function _validateUserDoc (userDocListener) {
+    function _validateUserDoc(userDocListener) {
         if (!userDocListener) {
             navigate("/createProfile");
             setIsValidUser(false);
@@ -102,8 +104,9 @@ function Dashboard() {
 
         // Initialise IDsOfAllPosts and IDsOfPostsToDisplay
         const allPosts = userDoc.postsToView;
-        setIDsOfAllPosts(allPosts.reverse());   
-        setIDsOfPostsToDisplay(allPosts.reverse());
+        const reversedAllPosts = [...allPosts].reverse();
+        setIDsOfAllPosts(reversedAllPosts);
+        setIDsOfPostsToDisplay(reversedAllPosts);
 
         setIsLoadingForUserDoc(false);
     }
@@ -150,30 +153,30 @@ function Dashboard() {
      * @todo
      * - Refine search functionality & utilise lazy loading
      */
-     async function handleSearch() {
+    async function handleSearch() {
         setHasMorePosts(true);
         if (searchCategory || searchCaption) {
-          const filteredPosts = [];
-          for (let i = 0; i < IDsOfAllPosts.length; i++) {
-            const postID = IDsOfAllPosts[i];
-            const postRef = doc(db, 'posts', postID);
-            const postDoc = await getDoc(postRef);
-            if (postDoc.exists()) {
-              const post = postDoc.data();
-              if (
-                (searchCategory && post.category.includes(searchCategory)) ||
-                (searchCaption && post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
-              ) {
-                filteredPosts.push(postID);
-              }
+            const filteredPosts = [];
+            for (let i = 0; i < IDsOfAllPosts.length; i++) {
+                const postID = IDsOfAllPosts[i];
+                const postRef = doc(db, 'posts', postID);
+                const postDoc = await getDoc(postRef);
+                if (postDoc.exists()) {
+                    const post = postDoc.data();
+                    if (
+                        (searchCategory && post.category.includes(searchCategory)) ||
+                        (searchCaption && post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
+                    ) {
+                        filteredPosts.push(postID);
+                    }
+                }
             }
-          }
-          setIDsOfPostsToDisplay(filteredPosts);
+            setIDsOfPostsToDisplay(filteredPosts);
         } else {
-        setIDsOfPostsToDisplay(IDsOfAllPosts);
+            setIDsOfPostsToDisplay(IDsOfAllPosts);
         }
-      }
-      
+    }
+
 
     /**
      * This useEffect is for setting the loaded posts to display
@@ -216,23 +219,32 @@ function Dashboard() {
         <div className="container">
             <p className="welcome-message">Welcome, {userProfile.userID}!</p>
 
-            { <div className="search-bar">
-                <input
-                    type='text'
-                    placeholder='Search by category'
+            {<div className="search-bar">
+                <p>Search for posts by category or caption. Leaving both fields blank will show all posts.</p>
+                <select
+                    id='category'
                     value={searchCategory}
                     onChange={(e) => setSearchCategory(e.target.value)}
-                />
+                >
+                    <option value="">Search a category</option>
+                    {categoriesData.map((category, index) => (
+                        <option key={index} value={index}>
+                            {category}
+                        </option>
+                    ))}
+                </select>
                 <input
                     type="text"
                     placeholder="Search by caption"
                     value={searchCaption}
                     onChange={(e) => setSearchCaption(e.target.value)}
                 />
-                <button onClick={handleSearch}>Search</button>
-            </div> }
+                <div>
+                    <button onClick={handleSearch}>Search</button>
+                </div>
+            </div>}
 
-            { (IDsOfLoadedPosts.length !== 0 ) && <InfiniteScroll
+            {(IDsOfLoadedPosts.length !== 0) && <InfiniteScroll
                 dataLength={IDsOfLoadedPosts.length}
                 next={_loadMorePosts}
                 hasMore={hasMorePosts}
@@ -242,7 +254,7 @@ function Dashboard() {
                 {IDsOfLoadedPosts.map(postID => {
                     return <DisplayPostUI
                         postID={postID}
-                        userOwnID={userProfile.userID} 
+                        userOwnID={userProfile.userID}
                         isAPersonalPost={false}
                         isASavedPost={IDsOfSavedPosts.includes(postID)}
                     />
