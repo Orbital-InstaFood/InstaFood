@@ -1,25 +1,54 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import './Navbar.css';
+import useAuth from './authentication/authLogic';
+
+const links = [
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/newPost', label: 'New Post' },
+    { path: '/viewProfile', label: 'Profile' },
+    { path: '/connect', label: 'Connect' },
+    { path: '/viewPosts', label: 'View Posts' }
+];
 
 function Navbar() {
-
     const location = useLocation();
     const { pathname } = location;
+    const { handleLogout } = useAuth();
 
-    // Prevent users from navigating to other pages
-    // Which require profile information
-    // Before they have created a profile
+    const Logout = () => {
+        return (
+            <div className="logout-container">
+                <Link
+                    to={'/'}
+                    onClick={handleLogout}
+                >
+                    Logout
+                </Link>
+            </div>
+        );
+    };
+
     if (pathname === '/createProfile') {
-        return null;
+        return <div className='navbar'>
+            <Logout />
+        </div>;
     }
 
     return (
-        <div>
-            <Link to="/dashboard">Dashboard  |</Link>
-            <Link to="/newPost">New Post  |</Link>
-            <Link to="/viewProfile">Profile  |</Link>
-            <Link to="/connect">Connect  |</Link>
-            <Link to="/viewPosts">View Posts</Link>
+        <div className="navbar">
+            <div className="links-container">
+                {links.map((link, index) => (
+                    <Link
+                        to={link.path}
+                        key={index}
+                        className={`navbar-link ${pathname === link.path ? 'active' : ''}`}
+                    >
+                        {link.label}
+                    </Link>
+                ))}
+            </div>
+            <Logout />
         </div>
     );
 }

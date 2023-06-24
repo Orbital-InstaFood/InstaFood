@@ -1,0 +1,25 @@
+.comment-form {
+    width: 100%;
+    padding: 8px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+  
+  .comment-form input[type="text"] {
+    width: 100%;
+    padding: 4px;
+    border: none;
+  }
+  
+  .comment-form button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 1rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
