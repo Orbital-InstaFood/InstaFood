@@ -11,9 +11,9 @@ function Likes({ likes, userOwnID, likeOrDislike }) {
     return (
         <div>
             {hasLiked ? (
-                <button onClick={() => likeOrDislike(false)}>Dislike</button>
+                <button onClick={() => likeOrDislike(false)}>You liked this post. Cancel Like? </button>
             ) : (
-                <button onClick={() => likeOrDislike(true)}>Like</button>
+                <button onClick={() => likeOrDislike(true)}>Love this post? </button>
             )}
         </div>
     );

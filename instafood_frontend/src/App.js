@@ -1,12 +1,11 @@
 import './App.css';
-import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 import { auth } from './firebaseConf';
 
 import Login from './authentication/login';
 import SignUp from './authentication/signup';
-import Logout from './authentication/logout';
 import SignInAfterEmailVerification from './authentication/signInAfterEmailVerification';
 import ForgotPassword from './authentication/forgotPassword';
 
@@ -60,8 +59,6 @@ function App() {
           : null}
           <Route path="*" element={<PageNotFound />} />
       </Routes>
-
-      {user && user.emailVerified && <Logout /> }
     </Router>
   );
 }
