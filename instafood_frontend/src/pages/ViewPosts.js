@@ -110,26 +110,7 @@ function ViewPosts() {
         </select>
         
         <button onClick={handleCategorySearch}>Search</button>
-        <InfiniteScroll
-        dataLength={loadedPosts.length}
-        next={loadMorePosts}
-        hasMore={hasMorePosts}
-        loader={<h4>Loading...</h4>}
-        endMessage={<p>No more posts</p>}
-        >
-        {loadedPosts.map((post) => (
-        <div key={post.post_id}>
-          <h2>{post.title}</h2>
-          <p>{post.caption}</p>
-          {post.images.length > 0 && post.images.map((image) => (
-            <img key={image} src={image} alt="Post Image" />
-          ))}
-          <p>Likes: {post.likes.length}</p>
-          <p>Comments: {post.comments.length}</p>
-          </div>
-        ))}
-
-        </InfiniteScroll>
+        
         <br />
 
         <input
