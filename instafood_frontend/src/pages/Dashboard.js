@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
+import {categoriesData} from '../theme/categoriesData.js';
+
 import { auth, db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
@@ -213,12 +215,18 @@ function Dashboard() {
             <p className="welcome-message">Welcome, {userProfile.userID}!</p>
 
             { <div className="search-bar">
-                <input
-                    type='text'
-                    placeholder='Search by category'
+                <select
+                    id = 'category'
                     value={searchCategory}
                     onChange={(e) => setSearchCategory(e.target.value)}
-                />
+                >
+                    <option value="">Search a category</option>
+                    {categoriesData.map((category,index) => (
+                    <option key={index} value={index}>
+                        {category}
+                        </option>
+                        ))}
+                        </select>
                 <input
                     type="text"
                     placeholder="Search by caption"
