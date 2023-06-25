@@ -103,8 +103,6 @@ function UserInfo() {
             <p>Bio: {userDoc.bio}</p>
             <p>User ID: {userDoc.userID}</p>
 
-            <Link to='/editProfile'>Edit Profile</Link>
-
             <p>{userDoc.followers.length} Followers</p>
             {userDoc.followers.map(followerID => {
                 return <DisplayFollower
