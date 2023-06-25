@@ -5,10 +5,10 @@ import useAuth from './authentication/authLogic';
 
 const links = [
     { path: '/dashboard', label: 'Dashboard' },
-    { path: '/newPost', label: 'New Post' },
+    { path: '/newPost', label: 'Create' },
     { path: '/viewProfile', label: 'Profile' },
     { path: '/connect', label: 'Connect' },
-    { path: '/viewPosts', label: 'View Posts' }
+    { path: '/viewPosts', label: 'Explore' }
 ];
 
 function Navbar() {

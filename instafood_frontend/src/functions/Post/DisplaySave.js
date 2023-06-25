@@ -12,11 +12,15 @@ function DisplaySave({ postID, isASavedPost }) {
     return (
         isSaved ? (
             <div>
-                <button onClick={() => saveOrUnsaveAPost(postID, false)}>You saved this post. Remove from your collection?</button>
+                <button 
+                className="unsave-button"
+                onClick={() => saveOrUnsaveAPost(postID, false)}>You saved this post. Remove from your collection?</button>
             </div>
         ) : (
             <div>
-                <button onClick={() => saveOrUnsaveAPost(postID, true)}>Save this post to your collection?</button>
+                <button 
+                className="save-button"
+                onClick={() => saveOrUnsaveAPost(postID, true)}>Save this post to your collection?</button>
             </div>
         )
     );

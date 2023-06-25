@@ -1,5 +1,5 @@
 .comment-form {
-    width: 100%;
+    width: 80%;
     padding: 8px;
     font-size: 1rem;
     border: 1px solid #ccc;
@@ -12,14 +12,19 @@
     border: none;
   }
   
-  .comment-form button {
+  .comment-button {
     margin-top: 10px;
-    padding: 8px 16px;
-    font-size: 1rem;
-    background-color: #4CAF50;
+    padding: 3px 10px; /* Adjust the padding to your desired size */
+    font-size: 0.9rem; /* Adjust the font size to your desired size */
+    background-color: #009dff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
   }
+
+  .comment-button:hover {
+    background-color: #2d00f6;
+  }
+  
   

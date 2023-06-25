@@ -9,6 +9,8 @@ import { doc, setDoc, collection, updateDoc, serverTimestamp, getDoc, arrayUnion
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 import { categoriesData } from '../theme/categoriesData.js';
 
+import './NewPost.css'
+
 function NewPost() {
   const navigate = useNavigate();
 
@@ -98,28 +100,19 @@ function NewPost() {
 
     navigate('/dashboard');
   };
-  
+
   return (
-    <div>
-      <h2>New Post</h2>
-      <form onSubmit={handleSubmitNewPost}>
+    <div className="container">
+      <form className="form" onSubmit={handleSubmitNewPost}>
 
         <label htmlFor="title">Title</label>
         <input
+        className='title-input'
           type="text"
           id="title"
           required
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-        />
-
-        <label htmlFor="caption">Caption</label>
-        <input
-          type="text"
-          id="caption"
-          required
-          value={caption}
-          onChange={(e) => setCaption(e.target.value)}
         />
 
         <label htmlFor="category">Category</label>
@@ -136,6 +129,16 @@ function NewPost() {
           ))}
         </select>
 
+        <label htmlFor="caption">Caption / Recipe Details</label>
+        <input
+        className='caption-input'
+          type="text"
+          id="caption"
+          required
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+        />
+
         <label htmlFor="images">Images</label>
         <input
           type="file"
@@ -147,13 +150,12 @@ function NewPost() {
         {imageObjects.length > 0 && (
           <div>
             {imageObjects.map((imageObject) => (
-              <div key={imageObject.uniqueID}>
+              <div key={imageObject.uniqueID} className="image-preview">
                 <img src={URL.createObjectURL(imageObject.content)} alt="preview" />
 
                 <button
                   type="button"
                   onClick={() => {
-
                     setImageObjects(imageObjects.filter((imgObj) => {
                       return imgObj !== imageObject;
                     }));
@@ -165,12 +167,16 @@ function NewPost() {
                 >
                   Delete Image
                 </button>
-              </div>))}
-          </div>)}
-        <button type="submit">Create Post</button>
+              </div>
+            ))}
+          </div>
+        )}
+<button type="submit" className="create-post-button">Create Post</button>
+
       </form>
     </div>
-  );
+
+  )
 }
 
 export default NewPost;

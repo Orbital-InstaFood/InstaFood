@@ -32,7 +32,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
             <p>Caption: {postDoc.caption}</p>
 
             <div>
-                <h4>Likes: {postDoc.likes.length}</h4>
+                <h4>{postDoc.likes.length} Likes</h4>
                 {postDoc.likes.map(likerID => {
                     return (
                         <DisplayUserLink
@@ -52,7 +52,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
             <br />
             <div>
-                <h4>Comments: {postDoc.comments.length}</h4>
+                <h4>{postDoc.comments.length} Comments</h4>
 
                 {postDoc.comments.map(comment => {
                     return (
