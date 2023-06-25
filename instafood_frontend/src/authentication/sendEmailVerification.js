@@ -3,7 +3,7 @@ import { sendEmailVerification } from "firebase/auth";
 
 async function SendEmailVerification (email, password) {
 
-    const continueUrl = "http://localhost:3000/signInAfterEmailVerification";
+    const continueUrl = "https://orbital-386a9.web.app/signInAfterEmailVerification";
     const params = new URLSearchParams();
     params.append("userEmail", email);
     params.append("password", password);

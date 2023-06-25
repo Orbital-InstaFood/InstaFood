@@ -116,7 +116,7 @@ const useAuth = () => {
   const handleSendPasswordResetEmail = (e) => {
     e.preventDefault();
 
-    const continueUrl = "http://localhost:3000/";
+    const continueUrl = "https://orbital-386a9.web.app";
 
     const actionCodeSettings = {
       url: continueUrl,
