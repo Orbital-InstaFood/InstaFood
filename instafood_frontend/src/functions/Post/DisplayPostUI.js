@@ -5,6 +5,8 @@ import DisplayUserLink from "../DisplayUserLink";
 import DisplaySave from "./DisplaySave";
 import displayImage from "../displayImage";
 
+import { categoriesData } from "../../theme/categoriesData";
+
 import useDisplayPostLogic from "./useDisplayPostLogic";
 import "./DisplayPostUI.css";
 
@@ -30,6 +32,10 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
             <h3>Creator: {postDoc.creator}</h3>
             <h3>Title: {postDoc.title}</h3>
             <p>Caption: {postDoc.caption}</p>
+
+            {postDoc.category && (
+                <p>Category: {categoriesData[postDoc.category]}</p>
+            )}
 
             <div>
                 <h4>{postDoc.likes.length} Likes</h4>
