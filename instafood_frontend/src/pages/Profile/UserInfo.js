@@ -70,7 +70,7 @@ function UserInfo() {
             return () => {
                 unsubscribeFromSavedPosts();
             }
-            
+
         }
 
     }, [userDocListener]);
@@ -85,14 +85,27 @@ function UserInfo() {
 
     return (
         <div>
-            <h2>User Information</h2>
-            <p>Username: {userDoc.username}</p>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <h3 style={{ marginRight: '20px' }}>{userDoc.username}</h3>
+                <Link
+                    to="/editProfile"
+                    style={{
+                        padding: '5px 10px',
+                        backgroundColor: 'red',
+                        color: 'white',
+                        textDecoration: 'none',
+                        borderRadius: '1px',
+                    }}
+                >
+                    Edit Profile
+                </Link>
+            </div>
             <p>Bio: {userDoc.bio}</p>
             <p>User ID: {userDoc.userID}</p>
 
             <Link to='/editProfile'>Edit Profile</Link>
 
-            <p>Followers</p>
+            <p>{userDoc.followers.length} Followers</p>
             {userDoc.followers.map(followerID => {
                 return <DisplayFollower
                     otherUserID={followerID}
@@ -100,7 +113,7 @@ function UserInfo() {
                 />
             })}
 
-            <p>Following</p>
+            <p>{userDoc.following.length} Following</p>
             {userDoc.following.map(followingID => {
                 return <DisplayFollowing
                     otherUserID={followingID}
@@ -108,7 +121,7 @@ function UserInfo() {
                 />
             })}
 
-            <p>Follow Requests Received</p>
+            <p>{userDoc.followRequestsReceived.length} Follow Requests Received</p>
             {userDoc.followRequestsReceived.map(followRequestReceivedID => {
                 return <DisplayRequestReceived
                     otherUserID={followRequestReceivedID}
@@ -116,31 +129,31 @@ function UserInfo() {
                 />
             })}
 
-            <p>Follow Requests Sent</p>
+            <p>{userDoc.followRequestsSent.length} Follow Requests Sent</p>
             {userDoc.followRequestsSent.map(followRequestSentID => {
                 return <DisplayUserLink
                     userID={followRequestSentID}
                 />
             })}
 
-            <p>Personal Posts</p>
+            <p>{userDoc.personalPosts.length} Posts</p>
             {userDoc.personalPosts.map(postID => {
                 return <DisplayPostUI
                     postID={postID}
                     userOwnID={userDoc.userID}
                     isAPersonalPost={true}
                     isASavedPost={false}
-                    />
+                />
             })}
 
-            <p>Saved Posts</p>
+            <p>{savedPosts.length} Saved Posts</p>
             {savedPosts.map(postID => {
                 return <DisplayPostUI
                     postID={postID}
                     userOwnID={userDoc.userID}
                     isAPersonalPost={false}
                     isASavedPost={true}
-                    />
+                />
             })}
 
         </div>

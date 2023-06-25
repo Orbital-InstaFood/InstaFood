@@ -39,43 +39,64 @@
     margin-top: 1rem;
   }
   
-  .postContainer .comment-form textarea {
-    width: 100%;
-    height: 80px;
-    padding: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    resize: vertical;
-  }
-  
-  .postContainer .comment-form button {
-    margin-top: 5px;
-    padding: 5px 10px;
-    font-size: 1rem;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-  
-  .postContainer .comment {
-    margin-top: 1rem;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: #fff;
-  }
-  
   .postContainer .save-button {
     margin-top: 1rem;
-    padding: 5px 10px;
-    font-size: 1rem;
-    background-color: #4CAF50;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    background-color: #0099ff;
     color: white;
     border: none;
     border-radius: 4px;
     cursor: pointer;
+  }
+
+  .postContainer .save-button:hover {
+    background-color: #062e56;
+  }
+
+  .postContainer .unsave-button {
+    margin-top: 1rem;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    background-color: #fc9300;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .postContainer .unsave-button:hover {
+    background-color: #ca2500;
+  }
+
+  .postContainer .like-button {
+    margin-top: 1rem;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    background-color: #d762b4;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .postContainer .like-button:hover {
+    background-color: #a82b7a;
+  }
+
+  .postContainer .unlike-button {
+    margin-top: 1rem;
+    padding: 4px 8px;
+    font-size: 0.9rem;
+    background-color: #a64ebe;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .postContainer .unlike-button:hover {
+    background-color: #6e2b7a;
   }
   
   .postContainer img {

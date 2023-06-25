@@ -29,7 +29,8 @@ function MakeComment({ commenterID, makeComment }) {
                     onChange={e => setCommentText(e.target.value)}
                 />
             </label>
-            <button onClick={() => {
+            <button className="comment-button"
+            onClick={() => {
                 handleMakeComment();
             }
             }>

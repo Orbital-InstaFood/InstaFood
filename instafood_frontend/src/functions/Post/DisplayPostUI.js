@@ -5,6 +5,8 @@ import DisplayUserLink from "../DisplayUserLink";
 import DisplaySave from "./DisplaySave";
 import displayImage from "../displayImage";
 
+import { categoriesData } from "../../theme/categoriesData";
+
 import useDisplayPostLogic from "./useDisplayPostLogic";
 import "./DisplayPostUI.css";
 
@@ -31,8 +33,12 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
             <h3>Title: {postDoc.title}</h3>
             <p>Caption: {postDoc.caption}</p>
 
+            {postDoc.category && (
+                <p>Category: {categoriesData[postDoc.category]}</p>
+            )}
+
             <div>
-                <h4>Likes: {postDoc.likes.length}</h4>
+                <h4>{postDoc.likes.length} Likes</h4>
                 {postDoc.likes.map(likerID => {
                     return (
                         <DisplayUserLink
@@ -52,7 +58,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
             <br />
             <div>
-                <h4>Comments: {postDoc.comments.length}</h4>
+                <h4>{postDoc.comments.length} Comments</h4>
 
                 {postDoc.comments.map(comment => {
                     return (
