@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { generateUniqueID } from "web-vitals/dist/modules/lib/generateUniqueID";
 
+import "./MakeComment.css";
+
 function MakeComment({ commenterID, makeComment }) {
 
     const [commentText, setCommentText] = useState("");
 
     const handleMakeComment = (e) => {
 
-        makeComment( {
+        makeComment({
             commenterID: commenterID,
             commentText: commentText,
             commentID: generateUniqueID()
@@ -21,6 +23,7 @@ function MakeComment({ commenterID, makeComment }) {
             <label>
                 Give your comment:
                 <input
+                    className="comment-form"
                     type="text"
                     value={commentText}
                     onChange={e => setCommentText(e.target.value)}

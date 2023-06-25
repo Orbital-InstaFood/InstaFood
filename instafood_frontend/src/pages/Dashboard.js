@@ -1,88 +1,125 @@
 import { useEffect, useState } from 'react';
 import DisplayPostUI from '../functions/Post/DisplayPostUI'
 import './Dashboard.css';
-import { auth, db } from '../firebaseConf';
+import { categoriesData } from '../theme/categoriesData.js';
+
+import { db } from '../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import InfiniteScroll from 'react-infinite-scroll-component';
-
 import listenerImplementer from '../listeners/ListenerImplementer';
+
+/**
+ * 
+ * @description
+ * This page displays posts that the user has access to, 
+ * specifically posts created by the user's followings after he has followed that following.
+ * 
+ * @todo
+ * - Refine search functionality
+ * - Add rankPosts functionality
+ * 
+ */
 
 function Dashboard() {
     const [userProfile, setUserProfile] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [allPosts, setAllPosts] = useState([]);
+    const [isLoadingForUserDoc, setIsLoadingForUserDoc] = useState(true);
 
-    const [loadedPosts, setLoadedPosts] = useState([]);
+    // isValidUser is true if the user has a valid profile, and false otherwise
+    // It is used to determine whether to display the dashboard or the create profile page
+    const [isValidUser, setIsValidUser] = useState(true);
+
+    // allPosts is the array of all posts that the user has access to at the dashboard
+    // It should not be modified once initialized
+    const [IDsOfAllPosts, setIDsOfAllPosts] = useState([]);
+
+    // postsToDisplay is the array of posts that the user sees on the dashboard
+    // It is a subset of allPosts, and is modified when the user searches for posts
+    // based on caption or category
+    const [IDsOfPostsToDisplay, setIDsOfPostsToDisplay] = useState([]);
+
+    // State variables for infinite scroll
+    const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
     const [hasMorePosts, setHasMorePosts] = useState(true);
-    const numOfPostsToLoad = 2;
+    const numOfPostsToLoad = 1;
 
+    // State variables for search functionality
+    const [searchCaption, setSearchCaption] = useState('');
+    const [searchCategory, setSearchCategory] = useState('');
+
+    // State variables for subscriptions
     const [userDocListener, setUserDocListener] = useState(null);
-    const [savedPosts, setSavedPosts] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
+    const [isLoadingForSubscriptions, setIsLoadingForSubscriptions] = useState(true);
 
     const navigate = useNavigate();
 
-    useEffect(() => {
-        async function getUserInfo() {
-            const user = auth.currentUser;
+    /**
+     * This function sets up the listener for the user document
+     * Also checks if the user has a user document via validateUserDoc()
+     */
+    async function setupListeners() {
+        const userDocListener = await listenerImplementer.getUserDocListener();
+        _validateUserDoc(userDocListener);
+        setUserDocListener(userDocListener);
+    }
 
-            const userRef = doc(db, "users", user.uid);
-            const userDoc = await getDoc(userRef);
-
-            if (!userDoc.exists()) {
-                navigate("/createProfile");
-                return;
-            } else {
-                const userDocData = userDoc.data();
-                setUserProfile(userDocData);
-
-                const allPosts = userDocData.postsToView.reverse();
-                setAllPosts(allPosts);
-
-                if (allPosts.length < numOfPostsToLoad) {
-                    setLoadedPosts(allPosts);
-                } else {
-                    setLoadedPosts(allPosts.slice(0, numOfPostsToLoad));
-                }
-
-                setLoading(false);
-            }
+    /**
+     * This function checks if the user has a user document
+     * If not, it redirects the user to the createProfile page
+     * It is a helper function for setupListeners()
+     * @param {Listener} userDocListener
+     */
+    function _validateUserDoc(userDocListener) {
+        if (!userDocListener) {
+            navigate("/createProfile");
+            setIsValidUser(false);
         }
-        getUserInfo();
-    }, []);
+    }
 
-
+    /**
+     * These useEffects are for setting up the listener for the user document
+     * It is the first layer of the setup process
+     */
     useEffect(() => {
         setupListeners();
     }, []);
 
     useEffect(() => {
-
-        // Check that the listener is fully set up before setting up subscriptions,
-        // and initializing userDoc and UserDocEditor
-        if (userDocListener) {
-            const unsubscribeFromSavedPosts = setupSubscriptions();
-            setIsLoading(false);
-
-            return () => {
-                unsubscribeFromSavedPosts();
-            }
-            
+        if (!isValidUser) {
+            return;
         }
+    }, [isValidUser]);
 
-    }, [userDocListener]);
 
-    async function setupListeners() {
-        const userDocListener = await listenerImplementer.getUserDocListener();
-        setUserDocListener(userDocListener);
+    /**
+     * This function initialises the user document
+     * It then retrieves all the posts that the user has access to
+     */
+    function initialisations() {
+
+        // Initialise userDoc and userProfile
+        const userDoc = userDocListener.getCurrentDocument();
+        setUserProfile(userDoc);
+
+        // Initialise IDsOfAllPosts and IDsOfPostsToDisplay
+        const allPosts = userDoc.postsToView;
+        const reversedAllPosts = [...allPosts].reverse();
+        setIDsOfAllPosts(reversedAllPosts);
+        setIDsOfPostsToDisplay(reversedAllPosts);
+
+        setIsLoadingForUserDoc(false);
     }
 
+    /**
+     * This function sets up subscriptions for the user document
+     * @returns {Function} - cancel subscriptions when component unmounts
+     */
     function setupSubscriptions() {
         const unsubscribeFromSavedPosts =
             userDocListener.subscribeToField('savedPosts',
                 (savedPosts) => {
-                    setSavedPosts(savedPosts);
+                    setIDsOfSavedPosts(savedPosts);
                 });
 
         return () => {
@@ -90,17 +127,87 @@ function Dashboard() {
         }
     }
 
-    function loadMorePosts() {
-        const numOfPostsLoaded = loadedPosts.length;
-        if (numOfPostsLoaded + numOfPostsToLoad > allPosts.length) {
-            setLoadedPosts(allPosts);
-            setHasMorePosts(false);
+    /**
+     * This useEffect is for initialising the user document and setting up subscriptions
+     * It is the second layer of the setup process
+     * It is only run after the listener is fully set up
+     */
+    useEffect(() => {
+
+        if (userDocListener) {
+            initialisations();
+            const unsubscribeFromSavedPosts = setupSubscriptions();
+            setIsLoadingForSubscriptions(false);
+
+            return () => {
+                unsubscribeFromSavedPosts();
+            }
+        }
+    }, [userDocListener]);
+
+    /**
+     * This function handles the search functionality
+     * It filters the posts based on the search category and caption
+     * It then sets the posts to display to the filtered posts
+     * 
+     * @todo
+     * - Refine search functionality & utilise lazy loading
+     */
+    async function handleSearch() {
+        setHasMorePosts(true);
+        if (searchCategory || searchCaption) {
+            const filteredPosts = [];
+            for (let i = 0; i < IDsOfAllPosts.length; i++) {
+                const postID = IDsOfAllPosts[i];
+                const postRef = doc(db, 'posts', postID);
+                const postDoc = await getDoc(postRef);
+                if (postDoc.exists()) {
+                    const post = postDoc.data();
+                    if (
+                        (searchCategory && post.category.includes(searchCategory)) ||
+                        (searchCaption && post.caption.toLowerCase().includes(searchCaption.toLowerCase()))
+                    ) {
+                        filteredPosts.push(postID);
+                    }
+                }
+            }
+            setIDsOfPostsToDisplay(filteredPosts);
         } else {
-            setLoadedPosts(loadedPosts.concat(allPosts.slice(numOfPostsLoaded, numOfPostsLoaded + numOfPostsToLoad)));
+            setIDsOfPostsToDisplay(IDsOfAllPosts);
         }
     }
 
-    if (loading || isLoading) {
+
+    /**
+     * This useEffect is for setting the loaded posts to display
+     * It is run whenever the posts to display changes
+     * It is also run when the component first mounts
+     */
+    useEffect(() => {
+        setHasMorePosts(true);
+        if (IDsOfPostsToDisplay.length < numOfPostsToLoad) {
+            setIDsOfLoadedPosts(IDsOfPostsToDisplay);
+        } else {
+            setIDsOfLoadedPosts(IDsOfPostsToDisplay.slice(0, numOfPostsToLoad));
+        }
+    }, [IDsOfPostsToDisplay]);
+
+    /**
+     * This function loads more posts to display
+     * It is called when the user scrolls to the bottom of the page
+     * It is a helper function for the InfiniteScroll component
+     */
+    function _loadMorePosts() {
+        const numOfPostsLoaded = IDsOfLoadedPosts.length;
+        if (numOfPostsLoaded + numOfPostsToLoad > IDsOfPostsToDisplay.length) {
+            setIDsOfLoadedPosts(IDsOfPostsToDisplay);
+            setHasMorePosts(false);
+        } else {
+            setIDsOfLoadedPosts(IDsOfLoadedPosts.concat(IDsOfPostsToDisplay.slice(numOfPostsLoaded, numOfPostsLoaded + numOfPostsToLoad)));
+        }
+    }
+
+    if (isLoadingForUserDoc || isLoadingForSubscriptions) {
         return (
             <div>
                 <p>Loading...</p>
@@ -111,29 +218,52 @@ function Dashboard() {
     return (
         <div className="container">
             <p className="welcome-message">Welcome, {userProfile.userID}!</p>
-            { (loadedPosts.length !== 0 ) && <InfiniteScroll
-                dataLength={loadedPosts.length}
-                next={loadMorePosts}
+
+            {<div className="search-bar">
+                <p>Search for posts by category or caption. Leaving both fields blank will show all posts.</p>
+                <select
+                    id='category'
+                    value={searchCategory}
+                    onChange={(e) => setSearchCategory(e.target.value)}
+                >
+                    <option value="">Search a category</option>
+                    {categoriesData.map((category, index) => (
+                        <option key={index} value={index}>
+                            {category}
+                        </option>
+                    ))}
+                </select>
+                <input
+                    type="text"
+                    placeholder="Search by caption"
+                    value={searchCaption}
+                    onChange={(e) => setSearchCaption(e.target.value)}
+                />
+                <div>
+                    <button onClick={handleSearch}>Search</button>
+                </div>
+            </div>}
+
+            {(IDsOfLoadedPosts.length !== 0) && <InfiniteScroll
+                dataLength={IDsOfLoadedPosts.length}
+                next={_loadMorePosts}
                 hasMore={hasMorePosts}
                 loader={<p>Loading...</p>}
                 endMessage={<p>No more posts to load.</p>}
             >
-
-                {loadedPosts.map(postID => {
+                {IDsOfLoadedPosts.map(postID => {
                     return <DisplayPostUI
-                    key={postID}
                         postID={postID}
-                        userOwnID={userProfile.userID} 
+                        userOwnID={userProfile.userID}
                         isAPersonalPost={false}
-                        isASavedPost={savedPosts.includes(postID)}
+                        isASavedPost={IDsOfSavedPosts.includes(postID)}
                     />
                 }
                 )}
-
             </InfiniteScroll>
             }
         </div>
-    );
+    )
 }
 
-export default Dashboard;
+export default Dashboard

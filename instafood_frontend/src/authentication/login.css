@@ -42,8 +42,8 @@
     text-decoration: underline;
   }
 
-  /*.login-container {
-    background-image: url("../images/login_background.jpg");
+ /* .login-container {
+    background-image: url("../theme/images/login_background.jpg");
     background-size: cover;
     background-position: center;
     display: flex;

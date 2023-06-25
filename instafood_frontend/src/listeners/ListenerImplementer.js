@@ -34,7 +34,7 @@ class ListenerImplementer {
                 await listener.startSnapshotListener();
                 this.listeners[listenerKey] = listener;
             } catch (error) {
-                console.log(error);
+                this.listeners[listenerKey] = null;
             }
         }
 

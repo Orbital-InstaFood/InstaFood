@@ -27,7 +27,7 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
 
     useEffect(() => {
         setupListeners();
-    }, []);
+    }, [postID]);
 
     useEffect(() => {
 

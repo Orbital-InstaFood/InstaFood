@@ -94,7 +94,7 @@ body {
 }
 
 .container-login-page {
-    background-image: url("./images/login_background.jpg");
+    background-image: url("./theme/images/login_background.jpg");
     background-size: cover;
     background-position: center;
     display: flex;
@@ -105,7 +105,7 @@ body {
   }
 
   .background-in-website{
-    background-image: url("./images/login_background.jpg");
+    background-image: url("./theme/images/login_background.jpg");
     background-size: cover;
     background-position: center;
     height: 100vh;

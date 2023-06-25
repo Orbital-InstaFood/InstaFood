@@ -1,0 +1,37 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    background-color: #f2f2f2;
+    padding: 10px;
+  }
+  
+  .links-container {
+    flex-grow: 1;
+  }
+  
+  .navbar-link {
+    text-decoration: none;
+    color: #333;
+    margin-right: 10px;
+  }
+
+    .navbar-link:hover {
+        text-decoration: underline;
+    }
+
+    .navbar-link.active {
+        color: #4CAF50;
+    }
+  
+  .logout-container {
+    margin-left: auto;
+  }
+  
+  .logout {
+    background-color: transparent;
+    display: flex;
+    border: none;
+    cursor: pointer;
+    color: #333;
+  }
+  
