@@ -1,5 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import TextField from "@mui/material/TextField";
+import Button from "@mui/material/Button";
+import Typography from "@mui/material/Typography";
 import useAuth from "./authLogic";
+import GoogleIcon from "./google-icon.png";
+import { Grid } from "@mui/material";
+import { StyledBox, StyledGoogleIcon, DividerWithText, Title, Description } from "./authStyle";
 
 export default function Login() {
     const {
@@ -11,40 +17,67 @@ export default function Login() {
         handleLogin,
     } = useAuth();
 
+    const navigate = useNavigate();
+
     return (
-        <div>
-            <input
+        <StyledBox>
+                <Title variant="h2">LOG IN</Title>
+                <Description variant="body1">
+                    Welcome back to Instafood!
+                </Description>
+            <TextField
                 type="email"
-                placeholder="Email"
+                label="Email"
+                required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                sx={{ width: "100%" }} // Stretch the text field to occupy the entire width
             />
-            <input
+            <TextField
                 type="password"
-                placeholder="Password"
+                label="Password"
+                required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                sx={{ width: "100%" }} // Stretch the text field to occupy the entire width
             />
 
-            <div>
-                <button onClick={handleLogin}>LOG IN</button>
-            </div>
+            <Grid container alignItems="center" justifyContent="space-between">
+                <Grid item xs>
+                    <Button
+                        variant="text"
+                        size="small"
+                        color="error"
+                        onClick={() => navigate("/forgotpassword")}
+                    >
+                        Forgot password?
+                    </Button>
+                </Grid>
+                <Grid item>
+                    <Button
+                        variant="contained"
+                        onClick={handleLogin}
+                        sx={{ width: "100%" }}
+                    >
+                        LOG IN
+                    </Button>
+                </Grid>
+            </Grid>
 
-            <div>
-                <Link to="/forgotPassword">Forgot your password?</Link>
-            </div>
+            <DividerWithText>OR</DividerWithText>
 
-            <div>
-                <p>OR</p>
-                <button onClick={handleGoogle}>CONTINUE WITH GOOGLE</button>
-            </div>
+            <Button
+                variant="outlined"
+                onClick={handleGoogle}
+                sx={{ width: "100%" }}
+                startIcon={<StyledGoogleIcon src={GoogleIcon} alt="Google Icon" />}
+            >
+                CONTINUE WITH GOOGLE
+            </Button>
 
-            <div>
-                <p>
-                    Don't have an account? <Link to="/signup">SIGN UP FOR INSTAFOOD</Link>
-                </p>
-            </div>
-        </div>
+            <Typography component="div" variant="body2">
+                Don't have an account? <Link to="/signup">SIGN UP</Link>
+            </Typography>
+        </StyledBox>
     );
 }
-
