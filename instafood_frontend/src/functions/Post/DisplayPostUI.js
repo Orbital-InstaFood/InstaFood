@@ -37,6 +37,14 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                 <p>Category: {categoriesData[postDoc.category]}</p>
             )}
 
+            {postDoc.categories &&
+                postDoc.categories.map(category => {
+                    return (
+                        <p>Category: {categoriesData[category]}</p>
+                    );
+                }
+                )}
+
             <div>
                 <h4>{postDoc.likes.length} Likes</h4>
                 {postDoc.likes.map(likerID => {

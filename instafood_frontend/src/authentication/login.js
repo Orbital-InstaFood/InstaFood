@@ -21,10 +21,13 @@ export default function Login() {
 
     return (
         <StyledBox>
-                <Title variant="h2">LOG IN</Title>
-                <Description variant="body1">
-                    Welcome back to Instafood!
-                </Description>
+
+            <Title variant="h2">LOG IN</Title>
+
+            <Description variant="body1">
+                Welcome back to Instafood!
+            </Description>
+
             <TextField
                 type="email"
                 label="Email"
@@ -33,6 +36,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 sx={{ width: "100%" }} // Stretch the text field to occupy the entire width
             />
+
             <TextField
                 type="password"
                 label="Password"
@@ -53,6 +57,7 @@ export default function Login() {
                         Forgot password?
                     </Button>
                 </Grid>
+                
                 <Grid item>
                     <Button
                         variant="contained"
