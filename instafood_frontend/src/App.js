@@ -23,6 +23,8 @@ import Navbar from './Navbar';
 import "./theme/ButtonDesign/general.css";
 import PageNotFound from './pages/404';
 
+import './App.css'
+
 function App() {
   const [user, setUser] = useState(null);
 
@@ -35,6 +37,7 @@ function App() {
 
   return (
     <Router>
+      <div className="background-in-website"> 
       <h1>InstaFood</h1>
 
       {user && user.emailVerified && <Navbar />}
@@ -59,6 +62,7 @@ function App() {
           : null}
           <Route path="*" element={<PageNotFound />} />
       </Routes>
+      </div>
     </Router>
   );
 }
