@@ -6,6 +6,7 @@ import {categoriesData} from '../theme/categoriesData.js';
 //import CaptionSearch from '../functions/CaptionSearch';
 import { getPostsByPostIds }from '../functions/postUtils';
 //import { rankPosts } from '../functions/RankPost';
+import displayImage from '../functions/displayImage'
 
 import InfiniteScroll from 'react-infinite-scroll-component';
 
@@ -133,7 +134,7 @@ function ViewPosts() {
           <h2>{post.title}</h2>
           <p>{post.caption}</p>
           {post.images.length > 0 && post.images.map((image) => (
-          <img key={image} src={image} alt="Post Image" />
+            displayImage(image)
           ))}
           <p>Likes: {post.likes.length}</p>
           <p>Comments: {post.comments.length}</p>
