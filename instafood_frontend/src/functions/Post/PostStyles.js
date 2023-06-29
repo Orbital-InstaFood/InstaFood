@@ -10,13 +10,23 @@ font-weight: bold;
 const Description = styled(Typography)`
 font-size: 1rem;
 color: #666;
+margin-bottom: 1rem;
+`;
+
+const Caption = styled(Typography)`
+font-size: 1rem;
+`;
+
+const SubHeading = styled(Typography)`
+font-size: 1rem;
+color: #666;
 `;
 
 const PostContainer = styled(Box)`
   display: flex,
   flex-direction: column,
   align-items: flex-start,
-  justify-content: start;
+  justify-content: start,
   gap: 1rem;
   margin-top: 2rem;
   margin-left: auto;
@@ -41,7 +51,34 @@ const Image = styled('img')({
   objectFit: 'cover',
   width: '100%',
   justifyContent: 'center',
+  alignItems: 'center',
   height: '100%',
+});
+
+const LeftArrowContainer = styled(Box)({
+  position: 'absolute',
+  top: '50%',
+  left: 0,
+  width: '5%',
+  height: '5%',
+  transform: 'translateY(-50%)',
+  pointerEvents: 'auto',
+});
+
+const RightArrowContainer = styled(Box)({
+  position: 'absolute',
+  top: '50%',
+  right: 0,
+  width: '5%',
+  height: '5%',
+  transform: 'translateY(-50%)',
+  pointerEvents: 'auto',
+});
+
+const ButtonOverlay = styled(Box)({
+  width: '100%',
+  height: '100%',
+  background: 'rgba(255, 255, 255, 0.8)',
 });
 
 const DeleteButtonContainer = styled(Box)({
@@ -65,9 +102,14 @@ const DeleteButtonOverlay = styled(Box)({
 export {
     Title,
     Description,
+    SubHeading,
+    Caption,
     PostContainer,
     ImagePreview,
     Image,
     DeleteButtonContainer,
-    DeleteButtonOverlay
+    DeleteButtonOverlay,
+    LeftArrowContainer,
+    RightArrowContainer,
+    ButtonOverlay,
 }
