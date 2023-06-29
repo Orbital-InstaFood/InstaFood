@@ -27,7 +27,13 @@ function ViewOtherUsers() {
     async function getUserOwnID() {
         const userOwnDoc = await getDoc(userOwnRef);
 
-        setUserOwnID(userOwnDoc.data().userID);
+        const docUserID = userOwnDoc.data().userID;
+        if (docUserID === userID) {
+            navigate('/viewProfile');
+            return;
+        }
+
+        setUserOwnID(docUserID);
         setFollowing(userOwnDoc.data().following);
         setFollowRequestsSent(userOwnDoc.data().followRequestsSent);
     }
@@ -59,10 +65,6 @@ function ViewOtherUsers() {
                 <h2>Loading...</h2>
             </div>
         );
-    }
-
-    if (userOwnID === userID) {
-        navigate('/viewProfile');
     }
 
     return (
