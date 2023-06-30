@@ -1,20 +1,20 @@
-import { useEffect } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import displayImage from '../functions/displayImage';
 import { categoriesData } from '../theme/categoriesData.js';
 import { ViewPostsLogic } from './useViewPost';
 
+
 function ViewPosts(){
   const{
   searchCategory,
   setSearchCategory,
-  searchCaption,
-  setSearchCaption,
+  searchTitle,
+  setSearchTitle,
   loading,
   loadedPosts,
   hasMorePosts,
   handleCategorySearch,
-  handleCaptionSearch,
+  handleTitleSearch,
   loadMorePosts,
   } = ViewPostsLogic();
 
@@ -49,11 +49,11 @@ function ViewPosts(){
 
       <input
         type="text"
-        placeholder="Search a caption"
-        value={searchCaption}
-        onChange={(e) => setSearchCaption(e.target.value)}
+        placeholder="Search title"
+        value={searchTitle}
+        onChange={(e) => setSearchTitle(e.target.value)}
       />
-      <button onClick={handleCaptionSearch}>Search</button>
+      <button onClick={handleTitleSearch}>Search</button>
 
       <InfiniteScroll
         dataLength={loadedPosts.length}

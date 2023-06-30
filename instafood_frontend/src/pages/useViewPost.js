@@ -1,13 +1,15 @@
 import { useState, useEffect } from 'react';
 import { collection, doc, getDocs, getDoc, query, where } from 'firebase/firestore';
 import { db } from '../firebaseConf';
-import { categoriesData } from '../theme/categoriesData.js';
 import { getPostsByPostIds } from '../functions/postUtils';
+
+import rankPosts from '../functions/rankPosts';
 
 export function ViewPostsLogic() {
   const [searchCategory, setSearchCategory] = useState('');
   const [searchResults, setSearchResults] = useState([]);
-  const [searchCaption, setSearchCaption] = useState('');
+  const [searchTitle, setSearchTitle] = useState('');
+  const [rankedResults, setRankedResults] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [loadedPosts, setLoadedPosts] = useState([]);
@@ -18,13 +20,19 @@ export function ViewPostsLogic() {
     const categorisedPostsRef = doc(db, 'categorisedPosts', searchCategory);
     const categorisedPostsDoc = await getDoc(categorisedPostsRef);
     const postIds = categorisedPostsDoc.data()?.post_id_array || [];
-
+  
     const posts = await getPostsByPostIds(postIds);
-    setSearchResults(posts);
+    //setSearchResults(posts);
+
+    const updatedPosts = rankPosts(posts);
+    setSearchResults(updatedPosts); //
+  
+//    const rankedResults = rankPosts(updatedPosts);
+//    setRankedResults(rankedResults);
   };
 
-  const handleCaptionSearch = async () => {
-    const q = query(collection(db, 'posts'), where('caption', '==', searchCaption));
+  const handleTitleSearch = async () => {
+    const q = query(collection(db, 'posts'), where('title', '==', searchTitle));
 
     getDocs(q)
       .then((querySnapshot) => {
@@ -40,11 +48,12 @@ export function ViewPostsLogic() {
         console.error('Error searching documents:', error);
       });
   };
-
+  
   useEffect(() => {
     setLoadedPosts([]);
     if (searchResults.length < numOfPostsToLoad) {
-      setLoadedPosts(searchResults);
+   // if (rankedResults.length < numOfPostsToLoad) {
+      setLoadedPosts();
     } else {
       setLoadedPosts(searchResults.slice(0, numOfPostsToLoad));
     }
@@ -64,13 +73,14 @@ export function ViewPostsLogic() {
     searchCategory,
     setSearchCategory,
     searchResults,
-    searchCaption,
-    setSearchCaption,
+    searchTitle,
+    setSearchTitle,
+    rankedResults,
     loading,
     loadedPosts,
     hasMorePosts,
     handleCategorySearch,
-    handleCaptionSearch,
+    handleTitleSearch,
     loadMorePosts,
   };
 }
