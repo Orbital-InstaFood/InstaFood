@@ -23,17 +23,14 @@ color: #666;
 `;
 
 const PostContainer = styled(Box)`
-  display: flex,
   flex-direction: column,
-  align-items: flex-start,
-  justify-content: start,
-  gap: 1rem;
-  margin-top: 2rem;
+  margin-top: 1rem;
   margin-left: auto;
   margin-right: auto;
-  width: 600px; 
+  margin-bottom: 1rem;
+  width: "100%"; 
   border: 1px solid #ccc; 
-  padding: 1rem; /* Add padding */
+  padding: 1rem; 
   `;
 
 const ImagePreview = styled(Box)({
@@ -41,8 +38,7 @@ const ImagePreview = styled(Box)({
   width: '100%',
   overflow: 'hidden',
   justifyContent: 'center',
-  alignItems: 'center',
-  marginBottom: 10,
+  marginBottom: '1rem',
   aspectRatio: '1/1',
   border: '1px solid #ccc',
 });
@@ -50,8 +46,6 @@ const ImagePreview = styled(Box)({
 const Image = styled('img')({
   objectFit: 'cover',
   width: '100%',
-  justifyContent: 'center',
-  alignItems: 'center',
   height: '100%',
 });
 
@@ -61,8 +55,6 @@ const LeftArrowContainer = styled(Box)({
   left: 0,
   width: '5%',
   height: '5%',
-  transform: 'translateY(-50%)',
-  pointerEvents: 'auto',
 });
 
 const RightArrowContainer = styled(Box)({
@@ -71,32 +63,20 @@ const RightArrowContainer = styled(Box)({
   right: 0,
   width: '5%',
   height: '5%',
-  transform: 'translateY(-50%)',
-  pointerEvents: 'auto',
 });
 
 const ButtonOverlay = styled(Box)({
   width: '100%',
   height: '100%',
-  background: 'rgba(255, 255, 255, 0.8)',
+  background: 'rgba(255, 255, 255, 1)',
 });
 
 const DeleteButtonContainer = styled(Box)({
   position: 'absolute',
   top: 0,
   right: 0,
-  width: '7%', // Adjust the width to control the size of the delete button
+  width: '7%', 
   height: '7%',
-  display: 'flex',
-  alignItems: 'flex-start',
-  justifyContent: 'flex-end',
-  pointerEvents: 'none', // Prevent pointer events on the container to allow clicking the delete button
-});
-
-const DeleteButtonOverlay = styled(Box)({
-  width: '100%',
-  height: '100%',
-  background: 'rgba(255, 255, 255, 0.8)', // Use a semi-transparent white overlay to obscure the image
 });
 
 export {
@@ -108,7 +88,6 @@ export {
     ImagePreview,
     Image,
     DeleteButtonContainer,
-    DeleteButtonOverlay,
     LeftArrowContainer,
     RightArrowContainer,
     ButtonOverlay,
