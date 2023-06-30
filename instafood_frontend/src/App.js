@@ -11,7 +11,7 @@ import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard';
 import CreateProfile from './pages/Profile/CreateProfile';
-import UserInfo from './pages/Profile/UserInfo';
+import ViewProfile from './pages/Profile/ViewProfileUI';
 import NewPost from './pages/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
@@ -49,7 +49,7 @@ function App() {
             <Route path="/createProfile" element={<CreateProfile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/newPost" element={<NewPost />} />
-            <Route path="/viewProfile" element={<UserInfo />} />
+            <Route path="/viewProfile" element={<ViewProfile />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
             <Route path="/viewPosts" element={<ViewPosts />} />
