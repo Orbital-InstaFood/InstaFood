@@ -1,10 +1,10 @@
-const engagementWeight = 0.5;
+const engagementWeight = 1.0;
 
 function rankPosts(posts) {
-  const rankedPosts = [...posts]; // Create a copy of the posts array
+  const rankedPosts = [...posts]; 
 
   rankedPosts.forEach((post, index) => {
-    const engagementScore = post.likes.length + post.comments.length;
+    const engagementScore = post.comments.length + post.likes.length;
 
     post.rankScore = engagementScore * engagementWeight;
 
@@ -15,14 +15,5 @@ function rankPosts(posts) {
 
   return rankedPosts;
 }
-
-/*function calculatePopularityScore(post) {
-    const now = new Date();
-    const postDate = new Date(post.date_created);
-    const timeDifference = now.getTime() - postDate.getTime();
-    const hoursDifference = timeDifference / (1000 * 3600);
-
-    return post.likes / hoursDifference;
-}*/
 
 export default rankPosts;

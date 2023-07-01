@@ -66,7 +66,7 @@ function ViewPosts(){
           <div key={post.post_id}>
             <h2>{post.title}</h2>
             <p>{post.caption}</p>
-            {post.images.length > 0 && post.images.map((image) => displayImage(image))}
+           {post.images.length > 0 && post.images.map((image) => displayImage(image))}
             <p>Likes: {post.likes.length}</p>
             <p>Comments: {post.comments.length}</p>
           </div>

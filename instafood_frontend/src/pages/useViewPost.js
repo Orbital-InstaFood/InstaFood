@@ -9,7 +9,6 @@ export function ViewPostsLogic() {
   const [searchCategory, setSearchCategory] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searchTitle, setSearchTitle] = useState('');
-  const [rankedResults, setRankedResults] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [loadedPosts, setLoadedPosts] = useState([]);
@@ -20,15 +19,12 @@ export function ViewPostsLogic() {
     const categorisedPostsRef = doc(db, 'categorisedPosts', searchCategory);
     const categorisedPostsDoc = await getDoc(categorisedPostsRef);
     const postIds = categorisedPostsDoc.data()?.post_id_array || [];
-  
+    
     const posts = await getPostsByPostIds(postIds);
-    //setSearchResults(posts);
 
-    const updatedPosts = rankPosts(posts);
-    setSearchResults(updatedPosts); //
+    const rankedPosts = rankPosts(posts);
+    setSearchResults(rankedPosts); 
   
-//    const rankedResults = rankPosts(updatedPosts);
-//    setRankedResults(rankedResults);
   };
 
   const handleTitleSearch = async () => {
@@ -42,7 +38,8 @@ export function ViewPostsLogic() {
           const documentData = doc.data();
           results.push(documentData);
         });
-        setSearchResults(results);
+        const rankedPosts = rankPosts(results);
+        setSearchResults(rankedPosts);
       })
       .catch((error) => {
         console.error('Error searching documents:', error);
@@ -52,8 +49,7 @@ export function ViewPostsLogic() {
   useEffect(() => {
     setLoadedPosts([]);
     if (searchResults.length < numOfPostsToLoad) {
-   // if (rankedResults.length < numOfPostsToLoad) {
-      setLoadedPosts();
+      setLoadedPosts(searchResults);
     } else {
       setLoadedPosts(searchResults.slice(0, numOfPostsToLoad));
     }
@@ -75,7 +71,6 @@ export function ViewPostsLogic() {
     searchResults,
     searchTitle,
     setSearchTitle,
-    rankedResults,
     loading,
     loadedPosts,
     hasMorePosts,
