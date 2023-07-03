@@ -46,6 +46,15 @@ exports.createUserProfile = functions.https.onCall(async (request) => {
         userIDs: admin.firestore.FieldValue.arrayUnion(userID),
     })
 
+    if (!isPrivate) {
+        await db.collection('lists').doc('publicUsers').update(
+            {
+                publicUsers: admin.firestore.FieldValue.arrayUnion(userID),
+            }
+        );
+    }
+
+
     await db.collection('backend_userID_UID').doc(userID).set(
         {
             UID: UID,
