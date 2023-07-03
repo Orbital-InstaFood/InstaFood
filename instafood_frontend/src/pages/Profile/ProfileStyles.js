@@ -34,7 +34,7 @@ const Container = styled(Box)`
   margin-left: auto;
   margin-right: auto;
   margin-bottom: 1rem;
-  width: "100%";
+  width: 600px;
   border: 1px solid #ccc; 
   padding: 1rem; 
   `;
