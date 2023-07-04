@@ -3,45 +3,99 @@ import DisplayUserForConnect from '../../functions/DisplayUserForConnect';
 
 import useConnectLogic from './useConnectLogic';
 
+import {
+    Backdrop,
+    CircularProgress,
+    List,
+    ListItem,
+    ListItemButton,
+    ListItemIcon,
+    ListItemText,
+    Grid,
+    Box,
+    Typography,
+    styled,
+    TextField,
+    Button,
+} from '@mui/material';
+
+const Title = styled(Typography)`
+font-size: 1.5rem;
+font-weight: bold;
+`;
+
+const Description = styled(Typography)`
+font-size: 1rem;
+color: #666;
+margin-bottom: 1rem;
+`;
+
+const Container = styled(Box)`
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1rem;
+  width: 600px;
+  border: 1px solid #ccc; 
+  padding: 1rem; 
+  `;
+
 function ConnectUI() {
 
     const {
-        loadingForSubscriptions,
+        isLoadingForSubscriptions,
         input,
         setInput,
         listOfPossibleMatches,
-        userOwnID,
-        following,
-        followRequestsSent,
+        userDoc,
+        handleFollowRequest
     } = useConnectLogic();
 
-    return (
-        <div>
-            <h2>Connect</h2>
+    if (isLoadingForSubscriptions) {
+        return (
+            <Backdrop
+                sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+                open={isLoadingForSubscriptions}
+            >
+                <CircularProgress color="inherit" />
+            </Backdrop>
+        );
+    }
 
-            {loadingForSubscriptions ?
-                <>
-                    <p>Loading...</p>
-                </>
-                :
-                <>
-                    <label>Search for a user by his/her userID</label>
-                    <input
+    return (
+        <Grid container>
+            <Grid item xs={12}>
+                <Container>
+
+                    <Title>CONNECT</Title>
+                    <Description>Check out who else is on Instafood!</Description>
+
+                    <TextField
+                        fullWidth
+                        label="Search by their user ids"
                         type="text"
                         value={input}
+                        margin='normal'
                         onChange={(e) => setInput(e.target.value)}
                     />
-                    <DisplayArray array={listOfPossibleMatches} displayObjectFunc={c =>
-                        <DisplayUserForConnect
-                            otherUserID={c}
-                            userOwnID={userOwnID}
-                            following={following}
-                            followRequestsSent={followRequestsSent}
-                        />}
-                    />
-                </>
-            }
-        </div>
+
+                    <List>
+                        {listOfPossibleMatches.map((otherUserID) => (
+                            <ListItem key={otherUserID}>
+                                <DisplayUserForConnect
+                                    otherUserID={otherUserID}
+                                    following={userDoc.following}
+                                    followRequestsSent={userDoc.followRequestsSent}
+                                    handleFollowRequest={handleFollowRequest}
+                                />
+                            </ListItem>
+                        ))}
+                    </List>
+
+                </Container>
+            </Grid>
+        </Grid>
     );
 }
 

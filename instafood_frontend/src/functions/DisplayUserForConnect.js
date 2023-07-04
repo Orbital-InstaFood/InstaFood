@@ -1,54 +1,87 @@
-import { functions } from '../firebaseConf';
-import { httpsCallable } from 'firebase/functions';
-import { useState } from 'react';
 import DisplayUserLink from './DisplayUserLink';
 
-function DisplayUserForConnect({ otherUserID, userOwnID, following, followRequestsSent }) {
+import {
+    Box,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Button,
+} from '@mui/material';
 
-    const makeFollowRequest = httpsCallable(functions, 'makeFollowRequest');
-    const [loadingMakeFollowRequest, setLoadingMakeFollowRequest] = useState(false);
+import {
+    NotInterested,
+    AccountCircle,
+} from '@mui/icons-material';
 
-    const handleFollowRequest = async (e) => {
-        e.preventDefault();
-        setLoadingMakeFollowRequest(true);
-        await makeFollowRequest({ requesterUserID: userOwnID, requestedUserID: otherUserID });
-        setLoadingMakeFollowRequest(false);
-
-    };
-
-    if (loadingMakeFollowRequest) {
-        return (
-            <div>
-                <p>{otherUserID}: Loading...</p>
-            </div>
-        );
-    }
+function DisplayUserForConnect({
+    otherUserID,
+    following,
+    followRequestsSent,
+    handleFollowRequest,
+}) {
 
     if (following.includes(otherUserID)) {
         return (
-            <div>
-                <p><DisplayUserLink userID={otherUserID} />: You are already following {otherUserID}</p>
-            </div>
+            <ListItem>
+            <ListItemIcon>
+                <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary={
+                <DisplayUserLink userID={otherUserID} />
+            } />
+            <Box sx={{ marginLeft: 'auto' }}>
+                <Button
+                startIcon={<NotInterested />}
+                    variant={"outlined"}
+                    disabled
+                >
+                    Following
+                </Button>
+            </Box>
+        </ListItem>
         );
     }
 
     if (followRequestsSent.includes(otherUserID)) {
         return (
-            <div>
-                <p><DisplayUserLink userID={otherUserID} />: You have already sent a follow request to {otherUserID}</p>
-            </div>
+        <ListItem>
+            <ListItemIcon>
+                <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary={
+                <DisplayUserLink userID={otherUserID} />
+            } />
+            <Box sx={{ marginLeft: 'auto' }}>
+                <Button
+                    startIcon={<NotInterested />}
+                    variant={"outlined"}
+                    disabled
+                >
+                    Requested
+                </Button>
+            </Box>
+        </ListItem>
         );
     }
 
-    if (otherUserID === userOwnID) {
-        return;
-    }
-
     return (
-        <div>
-            <p> <DisplayUserLink userID={otherUserID} /> : Not following {otherUserID} yet</p>
-            <button onClick={handleFollowRequest}>Follow this user? </button>
-        </div>
+        <ListItem>
+            <ListItemIcon>
+                <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary={
+                <DisplayUserLink userID={otherUserID} />
+            } />
+            <Box sx={{ marginLeft: 'auto' }}>
+                <Button
+                    onClick={() => handleFollowRequest(otherUserID)}
+                    variant={"outlined"}
+                    color="primary"
+                >
+                    Follow
+                </Button>
+            </Box>
+        </ListItem>
     );
 }
 
