@@ -57,9 +57,9 @@ function ViewProfile() {
         isLoading
     } = useViewProfile();
 
-    const [selectedField, setSelectedField] = useState('');
+    const [selectedField, setSelectedField] = useState('personalPosts');
     const selectedStyle = {
-        backgroundColor: '#e6e6e6', // Customize the background color as per your preference
+        backgroundColor: '#e6e6e6',
     };
 
     if (isLoading) {

@@ -85,6 +85,7 @@ function EditProfile() {
                             required
                         />
 
+                        <CheckboxButtonContainer>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -108,8 +109,8 @@ function EditProfile() {
                             >
                                 EDIT PROFILE
                             </Button>
+                        </CheckboxButtonContainer>
 
-                        <div>
                         <Button                        
                             variant="text"
                             color="secondary"
@@ -117,7 +118,6 @@ function EditProfile() {
                         >
                             BACK TO PROFILE
                         </Button>
-                        </div>
 
                     </FormContainer>
                 </Container>
