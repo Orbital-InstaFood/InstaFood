@@ -1,109 +1,130 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import useEditProfile from "./useEditProfile"
 
-import { doc, updateDoc } from 'firebase/firestore';
-import { db, auth } from '../../firebaseConf';
+import { useNavigate } from "react-router-dom";
 
-import listenerImplementer from '../../listeners/ListenerImplementer';
+import {
+    Checkbox,
+    Button,
+    CircularProgress,
+    Grid,
+    FormControlLabel,
+} from "@mui/material";
 
-function EditProfile () {
+import {
+    FormContainer,
+    TextFieldElement
+} from 'react-hook-form-mui'
+
+import {
+    Title,
+    CheckboxButtonContainer,
+    Container
+} from './ProfileStyles';
+
+function EditProfile() {
+
+    const {
+        username,
+        setUserName,
+        bio,
+        setBio,
+        isPrivate,
+        setIsPrivate,
+        isLoading,
+        handleSubmitUserInfo,
+    } = useEditProfile();
 
     const navigate = useNavigate();
 
-    // State for listeners
-    const [userDocListener, setUserDocListener] = useState(null);
-
-    // State for subscriptions to fields in the user document
-    const [username, setUserName] = useState('');
-    const [bio, setBio] = useState('');
-    const [isPrivate, setIsPrivate] = useState(false);
-
-    const [loading, setLoading] = useState(true);
-
-    async function setupListeners() {
-        const userDocListener = await listenerImplementer.getUserDocListener();
-        setUserDocListener(userDocListener);
-    }
-
-    function initializeUserInfo() {
-        const userDoc = userDocListener.getCurrentDocument();
-
-        setUserName(userDoc.username);
-        setBio(userDoc.bio);
-        setIsPrivate(userDoc.isPrivate);
-    }
-
-    const handleSubmitUserInfo = async (e) => {
-        e.preventDefault();
-
-        const userRef = doc(db, 'users', auth.currentUser.uid);
-
-        await updateDoc(userRef, {
-            username: username,
-            bio: bio,
-            isPrivate: isPrivate,
-        });
-
-        navigate('/dashboard');
-    };
-
-    useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        // Check that the listener is fully set up before initializing the user info and subscriptions
-        if (userDocListener) {
-            initializeUserInfo();
-            setLoading(false);
-        }
-    }, [userDocListener]);
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div>
-                <h2>Loading...</h2>
+                <CircularProgress />
             </div>
         );
     }
 
     return (
-        <div>
-            <h2>Edit User Information</h2>
+        <Grid
+            container
+            sx={{
+                flexDirection: 'column',
+                padding: '1rem',
+                alignItems: 'center',
+            }}>
+            <Grid item xs={8}>
+                <Container>
 
-            <div>
-                <label>Username</label>
-                <input
-                    type="text"
-                    required
-                    value={username}
-                    onChange={(e) => setUserName(e.target.value)}
-                />
-            </div>
+                    <Title
+                        sx={{
+                            marginBottom: '1rem',
+                        }}
+                    >EDIT PROFILE INFORMATION</Title>
 
-            <div>
-                <label>Bio</label>
-                <input
-                    type="text"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                />
-            </div>
+                    <FormContainer onSuccess={handleSubmitUserInfo} values={{ username, bio, isPrivate }} >
+                        <TextFieldElement
+                            sx={{
+                                marginBottom: '1rem',
+                            }}
+                            name="username"
+                            label="Username"
+                            value={username}
+                            fullWidth
+                            onChange={(e) => setUserName(e.target.value)}
+                            required
+                        />
 
-            <div>
-                <label>Set as private</label>
-                <input
-                    type="checkbox"
-                    required
-                    checked={isPrivate}
-                    onChange={(e) => setIsPrivate(e.target.checked)}
-                />
-            </div>
+                        <TextFieldElement
+                            sx={{
+                                marginBottom: '1rem',
+                            }}
+                            name="bio"
+                            label="Bio"
+                            fullWidth
+                            onChange={(e) => setBio(e.target.value)}
+                            required
+                        />
 
-            <button onClick={handleSubmitUserInfo}>Submit</button>
+                        <CheckboxButtonContainer>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={isPrivate}
+                                        onChange={(e) => setIsPrivate(e.target.checked)}
+                                        name="isPrivate"
+                                        color="primary"
+                                    />
+                                }
+                                label="Set Profile to Private"
+                            />
 
-        </div>
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                color="primary"
+                                sx={{
+                                    alignSelf: 'flex-end',
+
+                                }}
+                            >
+                                EDIT PROFILE
+                            </Button>
+                        </CheckboxButtonContainer>
+
+                        <Button                        
+                            variant="text"
+                            color="secondary"
+                            onClick={() => navigate('/viewProfile')}
+                        >
+                            BACK TO PROFILE
+                        </Button>
+
+                    </FormContainer>
+                </Container>
+            </Grid>
+        </Grid>
     );
+
 }
 
 export default EditProfile;

@@ -1,10 +1,14 @@
 import { Link } from "react-router-dom";
+import viewUsersLinkManagerInstance from "./viewUsersLinkManager";
 
 function DisplayUserLink({ userID }) {
     return (
-        <div>
-            <Link to={`/${userID}`}>{userID}</Link>
-        </div>
+        <Link
+            to={`/viewOtherUsers`}
+            onClick={() => viewUsersLinkManagerInstance.updateUserID(userID)}
+        >
+            {userID}
+        </Link>
     );
 }
 

@@ -79,6 +79,39 @@ class userDocEditor {
 
     }
 
+    makeFollowRequest (otherUserID) {
+
+        // Operations on the state
+        this.setState( (prevState) => {
+            const newFollowRequestsSent = [...prevState.followRequestsSent, otherUserID];
+            return {
+                ...prevState,
+                followRequestsSent: newFollowRequestsSent
+            };
+        });
+
+        // Operations on the database
+        const makeFollowRequestFn = httpsCallable(functions, 'makeFollowRequest');
+        makeFollowRequestFn ({ requesterUserID: this.userID, requestedUserID: otherUserID });
+
+    }
+
+    followPublicUser (otherUserID) {
+
+        // Operations on the state
+        this.setState( (prevState) => {
+            const newFollowing = [...prevState.following, otherUserID];
+            return {
+                ...prevState,
+                following: newFollowing
+            };
+        });
+
+        // Operations on the database
+        const followPublicUserFn = httpsCallable(functions, 'followPublicUser');
+        followPublicUserFn ({ requesterUserID: this.userID, publicUserID: otherUserID });
+    }
+
     /**
      * 
      * @param {string} otherUserID 

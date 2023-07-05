@@ -1,4 +1,18 @@
 import { useState } from 'react';
+
+import {
+    Box,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Button,
+} from '@mui/material';
+
+import {
+    NotInterested,
+    AccountCircle,
+} from '@mui/icons-material';
+
 import DisplayUserLink from '../../functions/DisplayUserLink';
 
 function DisplayFollowing ( {otherUserID, unfollow }) {
@@ -20,10 +34,25 @@ function DisplayFollowing ( {otherUserID, unfollow }) {
     }
 
     return (
-        <div>
-            <DisplayUserLink userID={otherUserID}/>
-            <button onClick={() => handleUnfollow()}>Unfollow?</button>
-        </div>
+        <ListItem>
+            <ListItemIcon>
+                <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary={
+                <DisplayUserLink userID={otherUserID} />
+            } />
+            <Box sx={{ marginLeft: 'auto' }}>
+                <Button
+                    startIcon={<NotInterested />}
+                    onClick={() => handleUnfollow()}
+                    variant={"outlined"}
+                    color="error"
+                    sx={{ flex: 1 }}
+                >
+                    Unfollow
+                </Button>
+            </Box>
+        </ListItem>
     );
 }
 

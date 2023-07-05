@@ -1,5 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
 import { useState, useEffect } from 'react';
 
 import { auth } from './firebaseConf';
@@ -9,13 +10,13 @@ import SignUp from './authentication/signup';
 import SignInAfterEmailVerification from './authentication/signInAfterEmailVerification';
 import ForgotPassword from './authentication/forgotPassword';
 
-import Dashboard from './pages/Dashboard';
+import Dashboard from './pages/Dashboard/Dashboard';
 import CreateProfile from './pages/Profile/CreateProfile';
-import UserInfo from './pages/Profile/UserInfo';
-import NewPost from './pages/NewPost';
+import ViewProfile from './pages/Profile/ViewProfileUI';
+import NewPost from './pages/Create/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
 import ViewPosts from './pages/ViewPosts';
-import ViewOtherUsers from './pages/ViewOtherUsers';
+import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/EditProfile';
 
 import Navbar from './Navbar';
@@ -52,11 +53,12 @@ function App() {
             <Route path="/createProfile" element={<CreateProfile />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/newPost" element={<NewPost />} />
-            <Route path="/viewProfile" element={<UserInfo />} />
+            <Route path="/viewProfile" element={<ViewProfile />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
             <Route path="/viewPosts" element={<ViewPosts />} />
-            <Route path="/:userID" element={<ViewOtherUsers />} />
+            <Route path="/viewOtherUsers" element={<ViewOtherUsers />}
+            />
           </>
         )
           : null}
