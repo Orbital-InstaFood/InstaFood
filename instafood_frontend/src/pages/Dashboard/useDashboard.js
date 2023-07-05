@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
-import './Dashboard.css';
-import { db } from '../firebaseConf';
+import { db } from '../../firebaseConf';
 import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
-import listenerImplementer from '../listeners/ListenerImplementer';
+import listenerImplementer from '../../listeners/ListenerImplementer';
 
 /**
  * 
@@ -33,11 +32,12 @@ function useDashboard() {
     // It is a subset of allPosts, and is modified when the user searches for posts
     // based on caption or category
     const [IDsOfPostsToDisplay, setIDsOfPostsToDisplay] = useState([]);
+    const [lengthOfPostsToDisplay, setLengthOfPostsToDisplay] = useState(0);
 
     // State variables for infinite scroll
     const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
     const [hasMorePosts, setHasMorePosts] = useState(true);
-    const numOfPostsToLoad = 1;
+    const numOfPostsToLoad = 2;
 
     const [searchCategory, setSearchCategory] = useState('');
 
@@ -200,6 +200,10 @@ function useDashboard() {
         }
     }
 
+    useEffect(() => {
+        setLengthOfPostsToDisplay(IDsOfPostsToDisplay.length);
+    }, [IDsOfPostsToDisplay]);
+
     return {
         userProfile,
         IDsOfLoadedPosts,
@@ -211,6 +215,7 @@ function useDashboard() {
         setSearchCategory,
         handleSearch,
         _loadMorePosts,
+        lengthOfPostsToDisplay,
     }
 }
 
