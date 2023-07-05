@@ -65,6 +65,12 @@ class ListenerImplementer {
         const userIDsRef = doc(db, "lists", "userIDs");
         return this._getListener(userIDsRef);
     }
+
+    async getPublicUsersListener() {
+        const publicUsersRef = doc(db, "lists", "publicUsers");
+        return this._getListener(publicUsersRef);
+    }
+    
 }
 
 const listenerImplementer = new ListenerImplementer();
