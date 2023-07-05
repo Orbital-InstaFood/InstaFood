@@ -1,4 +1,4 @@
-import { categoriesData } from '../theme/categoriesData.js';
+import { categoriesData } from '../../theme/categoriesData.js';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Select from '@mui/material/Select';
@@ -19,7 +19,7 @@ import {
   Image,
   DeleteButtonContainer,
   ButtonOverlay
-} from '../functions/Post/PostStyles.js';
+} from '../../functions/Post/PostStyles.js';
 
 function NewPost() {
   const {

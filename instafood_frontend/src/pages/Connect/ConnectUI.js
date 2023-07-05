@@ -1,5 +1,4 @@
-import DisplayArray from '../../functions/DisplayArray';
-import DisplayUserForConnect from '../../functions/DisplayUserForConnect';
+import DisplayUserForConnect from './DisplayUserForConnect';
 
 import useConnectLogic from './useConnectLogic';
 

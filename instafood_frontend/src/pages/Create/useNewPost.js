@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { db, auth, storage, functions } from '../firebaseConf';
+import { db, auth, storage, functions } from '../../firebaseConf';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
-import listenerImplementer from '../listeners/ListenerImplementer';
+import listenerImplementer from '../../listeners/ListenerImplementer';
 
 function useNewPost() {
 

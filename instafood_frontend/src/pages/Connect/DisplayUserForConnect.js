@@ -1,4 +1,4 @@
-import DisplayUserLink from './DisplayUserLink';
+import DisplayUserLink from '../../functions/DisplayUserLink';
 
 import {
     Box,
