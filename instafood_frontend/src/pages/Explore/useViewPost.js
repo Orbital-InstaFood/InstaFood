@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { collection, doc, getDocs, getDoc, query, where } from 'firebase/firestore';
-import { db } from '../firebaseConf';
-import { getPostsByPostIds } from '../functions/postUtils';
+import { db } from '../../firebaseConf';
+import { getPostsByPostIds } from '../../functions/postUtils';
 
-import rankPosts from '../functions/rankPosts';
+import rankPosts from '../../functions/rankPosts';
 
 export function ViewPostsLogic() {
   const [searchCategory, setSearchCategory] = useState('');

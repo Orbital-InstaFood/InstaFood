@@ -15,7 +15,7 @@ import CreateProfile from './pages/Profile/CreateProfile';
 import ViewProfile from './pages/Profile/ViewProfileUI';
 import NewPost from './pages/Create/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
-import ViewPosts from './pages/ViewPosts';
+import ViewPosts from './pages/Explore/ViewPosts';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/EditProfile';
 

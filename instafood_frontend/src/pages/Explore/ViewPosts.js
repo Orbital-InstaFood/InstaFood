@@ -1,6 +1,6 @@
 import InfiniteScroll from 'react-infinite-scroll-component';
 import displayImage from '../functions/displayImage';
-import { categoriesData } from '../theme/categoriesData.js';
+import { categoriesData } from '../../theme/categoriesData.js';
 import { ViewPostsLogic } from './useViewPost';
 
 
