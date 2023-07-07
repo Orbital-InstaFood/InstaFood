@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { categoriesData } from "../../theme/categoriesData";
 import DisplayUserLink from "../DisplayUserLink";
 import saveOrUnsaveAPost from "./saveOrUnsaveAPost";
 import useDisplayPostLogic from "./useDisplayPostLogic";
@@ -51,9 +50,6 @@ import {
 
 function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
-    const [shouldShowArrows, setShouldShowArrows] = useState(false);
-    const [currentImageIndex, setCurrentImageIndex] = useState(0);
-
     const {
         postDoc,
         isLoading,
@@ -63,6 +59,9 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
         handleMakeComment,
         handleDeleteComment,
     } = useDisplayPostLogic({ postID, userOwnID });
+
+    const [shouldShowArrows, setShouldShowArrows] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
     const [isSaved, setIsSaved] = useState(isASavedPost);
     function handleSaveOrUnsaveAPost() {
@@ -100,21 +99,11 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                 Categories
             </SubHeading>
 
-            {postDoc.category &&
-                <Chip
-                    label={categoriesData[postDoc.category]}
-                    variant="outlined"
-                    size="small"
-                    sx={{ margin: '0.5rem' }}
-                />
-            }
-
             {postDoc.categories &&
-
                 postDoc.categories.map((category) => (
                     <Chip
                         key={category}
-                        label={categoriesData[category]}
+                        label={category}
                         variant="outlined"
                         size="small"
                         sx={{ margin: '0.5rem' }}

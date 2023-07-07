@@ -1,15 +1,24 @@
-import { categoriesData } from '../../theme/categoriesData.js';
-import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
-import Select from '@mui/material/Select';
-import MenuItem from '@mui/material/MenuItem';
-import FormControl from '@mui/material/FormControl';
-import InputLabel from '@mui/material/InputLabel';
-import Chip from '@mui/material/Chip';
-import { Grid, IconButton, Input } from '@mui/material';
-import { Box } from '@mui/system';
+import { 
+  Grid, 
+  TextField,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Chip,
+  IconButton, 
+  Input, 
+  Backdrop, 
+  Box,
+  CircularProgress } from '@mui/material';
+
+import { 
+  Delete, 
+  ChevronLeft, 
+  ChevronRight } from '@mui/icons-material';
+
 import useNewPost from './useNewPost.js';
-import { Delete, ChevronLeft, ChevronRight } from '@mui/icons-material';
 
 import {
   PostContainer,
@@ -23,23 +32,24 @@ import {
 
 function NewPost() {
   const {
-    title,
-    setTitle,
-    caption,
-    setCaption,
-    imageObjects,
-    selectedCategories,
-    setSelectedCategories,
-    handleImageChange,
-    handleSubmitNewPost,
-    handleImageDelete,
-
-    currentImageIndex,
-    setCurrentImageIndex,
-    shouldShowArrows,
-    setShouldShowArrows,
-
+    title, setTitle,
+    caption, setCaption,
+    categories, selectedCategories, setSelectedCategories,
+    imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
+    handleImageChange,handleSubmitNewPost,handleImageDelete,
+    isLoading
   } = useNewPost();
+
+  if (isLoading) {
+      return (
+        <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={isLoading}
+        >
+            <CircularProgress color="inherit" />
+        </Backdrop>
+    );
+  }
 
   return (
     <Grid
@@ -81,9 +91,7 @@ function NewPost() {
               id="category"
               multiple
               value={selectedCategories}
-              onChange={(e) =>
-                setSelectedCategories(e.target.value)
-              }
+              onChange={(e) => setSelectedCategories(e.target.value)}
               input={<Input />}
               renderValue={(selected) => (
                 <Box sx={{
@@ -91,14 +99,14 @@ function NewPost() {
                   maxWidth: '100%',
                   flexWrap: 'wrap'
                 }}>
-                  {selected.map((value) => (
-                    <Chip key={value} label={categoriesData[value]} sx={{ m: 0.5 }} />
+                  {selected.map((category) => (
+                    <Chip key={category} label={category} sx={{ m: 0.5 }} />
                   ))}
                 </Box>
               )}
             >
-              {categoriesData.map((category, index) => (
-                <MenuItem key={index} value={index}>
+              {categories.map((category) => (
+                <MenuItem key={category} value={category}>
                   {category}
                 </MenuItem>
               ))}
