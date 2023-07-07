@@ -15,7 +15,7 @@ import CreateProfile from './pages/Profile/CreateProfile';
 import ViewProfile from './pages/Profile/ViewProfileUI';
 import NewPost from './pages/Create/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
-import ViewPosts from './pages/Explore/ViewPosts';
+import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/EditProfile';
 
@@ -38,7 +38,7 @@ function App() {
 
   return (
     <Router>
-      <div className="background-in-website"> 
+      <div> 
       <h1>InstaFood</h1>
 
       {user && user.emailVerified && <Navbar />}
@@ -56,7 +56,7 @@ function App() {
             <Route path="/viewProfile" element={<ViewProfile />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
-            <Route path="/viewPosts" element={<ViewPosts />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/viewOtherUsers" element={<ViewOtherUsers />}
             />
           </>
