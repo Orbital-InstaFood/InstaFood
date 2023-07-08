@@ -15,7 +15,7 @@ import CreateProfile from './pages/Profile/CreateProfile';
 import ViewProfile from './pages/Profile/ViewProfileUI';
 import NewPost from './pages/Create/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
-import ViewPosts from './pages/ViewPosts';
+import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/EditProfile';
 
@@ -23,6 +23,8 @@ import Navbar from './Navbar';
 
 import "./theme/ButtonDesign/general.css";
 import PageNotFound from './pages/404';
+
+import './App.css'
 
 function App() {
   const [user, setUser] = useState(null);
@@ -36,6 +38,7 @@ function App() {
 
   return (
     <Router>
+      <div> 
       <h1>InstaFood</h1>
 
       {user && user.emailVerified && <Navbar />}
@@ -53,7 +56,7 @@ function App() {
             <Route path="/viewProfile" element={<ViewProfile />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
-            <Route path="/viewPosts" element={<ViewPosts />} />
+            <Route path="/explore" element={<Explore />} />
             <Route path="/viewOtherUsers" element={<ViewOtherUsers />}
             />
           </>
@@ -61,6 +64,7 @@ function App() {
           : null}
           <Route path="*" element={<PageNotFound />} />
       </Routes>
+      </div>
     </Router>
   );
 }

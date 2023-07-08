@@ -70,6 +70,16 @@ class ListenerImplementer {
         const publicUsersRef = doc(db, "lists", "publicUsers");
         return this._getListener(publicUsersRef);
     }
+
+    async getCategoriesListener() {
+        const categoriesRef = doc(db, "lists", "categories");
+        return this._getListener(categoriesRef);
+    }
+
+    async getCategorisedPostsListener(category) {
+        const categorisedPostsRef = doc(db, "categorisedPosts", category);
+        return this._getListener(categorisedPostsRef);
+    }
     
 }
 
