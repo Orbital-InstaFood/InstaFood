@@ -2,6 +2,12 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
+import {
+    setupCategorisedPostsListeners,
+    combinePostIDsOfSelectedCategories,
+    rankPostsByDate,
+} from './dashboardUtils';
+
 function useDashboard() {
 
     const POSTS_PER_PAGE = 10;
@@ -75,25 +81,6 @@ function useDashboard() {
         }
     }, [isValidUser]);
 
-    async function setupCategorisedPostsListeners(categories) {
-        let localPostCategoriesObject = {};
-
-        for (const category of categories) {
-            const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
-            const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
-            const categorisedPosts = categorisedPostsDoc.post_id_array;
-
-            // Filter out posts that are not in the user's postsToView
-            const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
-                return IDsOfAllPosts.includes(postID);
-            });
-
-            localPostCategoriesObject[category] = filteredCategorisedPosts;
-        }
-
-        setPostCategoriesObject(localPostCategoriesObject);
-    }
-
     /**
      * This function initialises the userProfile, IDsOfAllPosts and categories
      */
@@ -147,7 +134,7 @@ function useDashboard() {
 
     useEffect(() => {
         if (userProfile && IDsOfAllPosts && categories) {
-            setupCategorisedPostsListeners(categories);
+            setupCategorisedPostsListeners(categories, listenerImplementer, IDsOfAllPosts, setPostCategoriesObject);
         }
     }, [userProfile, IDsOfAllPosts, categories]);
 
@@ -159,51 +146,21 @@ function useDashboard() {
         }
     }, [postCategoriesObject]);
 
-    function combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories) {
+    useEffect(() => {
 
-        if (selectedCategories.length === 0) {
-            return [...IDsOfAllPosts];
-        }
-
-        let localCombinedArrayOfPostIDsOfSelectedCategories = [];
-        for (const category of selectedCategories) {
-            const postIDsOfCategory = postCategoriesObject[category];
-            localCombinedArrayOfPostIDsOfSelectedCategories.push(...postIDsOfCategory);
-        }
-        const combinedArrayWithoutDuplicates = [...new Set(localCombinedArrayOfPostIDsOfSelectedCategories)];
-        return combinedArrayWithoutDuplicates;
-    }
-
-    // Rank posts by date
-    // Compare against IDsOfAllPosts, which is already sorted by date
-    function rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories) {
-        let localIDsOfPostsToDisplay = [];
-
-        for (const postID of IDsOfAllPosts) {
-            if (combinedArrayOfPostIDsOfSelectedCategories.includes(postID)) {
-                localIDsOfPostsToDisplay.push(postID);
-            }
-        }
-
-        return localIDsOfPostsToDisplay;
-    }
-
-    function handleCategorySelection() {
         const combinedArrayOfPostIDsOfSelectedCategories =
-            combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories);
+            combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories, IDsOfAllPosts);
         const localIDsOfPostsToDisplay =
-            rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories);
+            rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories, IDsOfAllPosts);
         setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
 
         setMaxNumberOfPages( Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE) );
 
         const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
         setIDsOfLoadedPosts(localIDsOfLoadedPosts);
-        setCurrentPage(1);
-    }
 
-    useEffect(() => {
-        handleCategorySelection();
+        setCurrentPage(1);
+
     }, [selectedCategories]);
 
     useEffect(() => {
