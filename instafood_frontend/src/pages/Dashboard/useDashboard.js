@@ -3,10 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
 import {
-    setupCategorisedPostsListeners,
-    combinePostIDsOfSelectedCategories,
     rankPostsByDate,
+    dashboard_setupCategorisedPostsObject
 } from './dashboardUtils';
+
+import {
+    combinePostIDsOfSelectedCategories, 
+} from '../commonUtils';
 
 function useDashboard() {
 
@@ -35,7 +38,7 @@ function useDashboard() {
     const [categories, setCategories] = useState([]);
     const [categoriesListener, setCategoriesListener] = useState(null);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [postCategoriesObject, setPostCategoriesObject] = useState(null);
+    const [categorisedPostsObject, setCategorisedPostsObject] = useState(null);
 
     const [isInitialising, setIsInitialising] = useState(true);
 
@@ -134,24 +137,39 @@ function useDashboard() {
 
     useEffect(() => {
         if (userProfile && IDsOfAllPosts && categories) {
-            setupCategorisedPostsListeners(categories, listenerImplementer, IDsOfAllPosts, setPostCategoriesObject);
+            dashboard_setupCategorisedPostsObject(
+                categories, 
+                listenerImplementer, 
+                IDsOfAllPosts, 
+                setCategorisedPostsObject);
         }
     }, [userProfile, IDsOfAllPosts, categories]);
 
     useEffect(() => {
-        if (postCategoriesObject) {
+        if (categorisedPostsObject) {
             setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
             setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
             setIsInitialising(false);
         }
-    }, [postCategoriesObject]);
+    }, [categorisedPostsObject]);
 
     useEffect(() => {
 
         const combinedArrayOfPostIDsOfSelectedCategories =
-            combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories, IDsOfAllPosts);
-        const localIDsOfPostsToDisplay =
+            combinePostIDsOfSelectedCategories(
+                categorisedPostsObject,
+                selectedCategories
+            );
+
+        let localIDsOfPostsToDisplay = [];
+
+        if (selectedCategories.length === 0) {
+            localIDsOfPostsToDisplay = [...IDsOfAllPosts];
+        } else {
+         localIDsOfPostsToDisplay =
             rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories, IDsOfAllPosts);
+        }
+
         setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
 
         setMaxNumberOfPages( Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE) );
@@ -179,7 +197,7 @@ function useDashboard() {
 
     return {
         userProfile, IDsOfSavedPosts,
-        categories, selectedCategories, setSelectedCategories, postCategoriesObject,
+        categories, selectedCategories, setSelectedCategories, postCategoriesObject: categorisedPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
         IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
