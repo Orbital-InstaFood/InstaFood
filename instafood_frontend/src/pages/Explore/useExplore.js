@@ -2,6 +2,14 @@ import { useState, useEffect } from 'react';
 
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
+import {
+  combinePostIDsOfSelectedCategories
+} from '../commonUtils';
+
+import {
+  explore_setupCategorisedPostsObject
+} from './exploreUtils';
+
 function useExplore() {
 
   const [userProfile, setUserProfile] = useState(null);
@@ -14,7 +22,7 @@ function useExplore() {
   const [categoriesListener, setCategoriesListener] = useState(null);
 
   const [savedPosts, setSavedPosts] = useState([]);
-  const [postCategoriesObject, setPostCategoriesObject] = useState(null);
+  const [categorisedPostsObject, setCategorisedPostsObject] = useState(null);
   
   const [titleToSearch, setTitleToSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -85,58 +93,23 @@ function useExplore() {
 
   useEffect(() => {
     if (publicUsers && userProfile && categories) {
-      retrievePostIDsOfCategories(categories);
+      explore_setupCategorisedPostsObject(
+        categories,
+        listenerImplementer,
+        setCategorisedPostsObject,
+        userProfile,
+        publicUsers,
+      );
     }
   }, [publicUsers, userProfile, categories]);
 
-  async function retrievePostIDsOfCategories(categories) {
-
-    function checkIsOwnPost(postID) {
-      const isOwnPost = userProfile.personalPosts.includes(postID);
-      return isOwnPost;
-    }
-
-    // Extract the creator id from the postID
-    function checkIsAPublicPost(postID) {
-      const creator = postID.split('_')[0];
-      return publicUsers.includes(creator);
-    }
-
-    let localPostCategoriesObject = {};
-    for (const category of categories) {
-        const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
-        const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
-        const categorisedPosts = categorisedPostsDoc.post_id_array;
-
-        const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
-          const isOwnPost = checkIsOwnPost(postID);
-          const isAPublicPost = checkIsAPublicPost(postID);
-          return !isOwnPost && isAPublicPost;
-        });
-
-        localPostCategoriesObject[category] = filteredCategorisedPosts;
-      }
-
-    setPostCategoriesObject(localPostCategoriesObject);
-  }
 
   useEffect(() => {
-    if (postCategoriesObject) {
-      console.log('postCategoriesObject', postCategoriesObject);
+    if (categorisedPostsObject) {
+      console.log('postCategoriesObject', categorisedPostsObject);
       setIsInitialising(false);
     }
-  }, [postCategoriesObject]);
-
-  function combinePostIDsOfSelectedCategories (postCategoriesObject) {
-    let localCombinedArrayOfPostIDsOfSelectedCategories = [];
-    for (const category of selectedCategories) {
-      const postIDsOfCategory = postCategoriesObject[category];
-      localCombinedArrayOfPostIDsOfSelectedCategories.push(...postIDsOfCategory);
-    }
-    const combinedArrayWithoutDuplicates = [...new Set(localCombinedArrayOfPostIDsOfSelectedCategories)];
-    setCombinedArrayOfPostIDsOfSelectedCategories(combinedArrayWithoutDuplicates);
-    return combinedArrayWithoutDuplicates;
-  }
+  }, [categorisedPostsObject]);
 
   async function loadPostsOfSelectedCategories(combinedArrayOfPostIDsOfSelectedCategories) {
     let localPostDocsThatMatchSelectedCategories = {...postDocsThatMatchSelectedCategories};
@@ -181,7 +154,11 @@ function useExplore() {
 
   async function handleFilteringWhenSelectedCategoriesChange() {
     setIsFiltering(true);
-    const localCombinedArrayOfPostIDsOfSelectedCategories = combinePostIDsOfSelectedCategories(postCategoriesObject);
+
+    const localCombinedArrayOfPostIDsOfSelectedCategories 
+    = combinePostIDsOfSelectedCategories(categorisedPostsObject, selectedCategories);
+    setCombinedArrayOfPostIDsOfSelectedCategories(localCombinedArrayOfPostIDsOfSelectedCategories);
+
     const localPostDocsThatMatchSelectedCategories = await loadPostsOfSelectedCategories(localCombinedArrayOfPostIDsOfSelectedCategories);
     const filteredPosts = handleTitleSearch(localCombinedArrayOfPostIDsOfSelectedCategories, localPostDocsThatMatchSelectedCategories);
     rankPosts(filteredPosts, localPostDocsThatMatchSelectedCategories);
@@ -206,7 +183,7 @@ function useExplore() {
   return {
     userProfile,
     categories,
-    selectedCategories, setSelectedCategories, postCategoriesObject,
+    selectedCategories, setSelectedCategories, postCategoriesObject: categorisedPostsObject,
     titleToSearch, setTitleToSearch,
     savedPosts,
     IDsOfRankedFilteredPostsToDisplay,
