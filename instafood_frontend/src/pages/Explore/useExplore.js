@@ -8,18 +8,17 @@ function useExplore() {
   const [UserDocListener, setUserDocListener] = useState(null);
 
   const [publicUsers, setPublicUsers] = useState(null);
-  const [filteredPublicUsersWhoAreNotFollowed, setFilteredPublicUsersWhoAreNotFollowed] = useState([]);
   const [PublicUsersListener, setPublicUsersListener] = useState(null);
 
   const [categories, setCategories] = useState([]);
   const [categoriesListener, setCategoriesListener] = useState(null);
 
   const [savedPosts, setSavedPosts] = useState([]);
-
+  const [postCategoriesObject, setPostCategoriesObject] = useState(null);
+  
   const [titleToSearch, setTitleToSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const [postCategoriesObject, setPostCategoriesObject] = useState({});
   const [postDocsThatMatchSelectedCategories, setPostDocsThatMatchSelectedCategories] = useState({});
   const [combinedArrayOfPostIDsOfSelectedCategories, setCombinedArrayOfPostIDsOfSelectedCategories] = useState([]);
   const [IDsOfRankedFilteredPostsToDisplay, setIDsOfRankedFilteredPostsToDisplay] = useState([]);
@@ -44,41 +43,39 @@ function useExplore() {
     setupListeners();
   }, []);
 
+  function initialiseDocumentStates() {
+    const userDoc = UserDocListener.getCurrentDocument();
+    setUserProfile(userDoc);
+
+    const publicUsersDoc = PublicUsersListener.getCurrentDocument();
+    const unfilteredPublicUsers = publicUsersDoc.publicUsers;
+    const filteredPublicUsers = unfilteredPublicUsers.filter((publicUser) => {
+      const isFollowed = userDoc.following.includes(publicUser);
+      return !isFollowed;
+    });
+    setPublicUsers(filteredPublicUsers);
+
+    const categoriesDoc = categoriesListener.getCurrentDocument();
+    setCategories(categoriesDoc.categories);
+  }
+
+  function setupSubscriptions() {
+
+    const unsubscribeFromSavedPosts =
+      UserDocListener.subscribeToField('savedPosts',
+        (savedPosts) => {
+          setSavedPosts(savedPosts);
+        });
+
+    return () => {
+      unsubscribeFromSavedPosts();
+    }
+  }
+
   useEffect(() => {
     if (UserDocListener && PublicUsersListener && categoriesListener) {
 
-      function initialiseUserProfile() {
-        // Initialise userDoc and userProfile
-        const userDoc = UserDocListener.getCurrentDocument();
-        setUserProfile(userDoc);
-      }
-
-      function initialisePublicUsers() {
-        const publicUsersDoc = PublicUsersListener.getCurrentDocument();
-        setPublicUsers(publicUsersDoc.publicUsers);
-      }
-
-      function initialiseCategories() {
-        const categoriesDoc = categoriesListener.getCurrentDocument();
-        setCategories(categoriesDoc.categories);
-      }
-
-      initialiseUserProfile();
-      initialisePublicUsers();
-      initialiseCategories();
-
-      function setupSubscriptions() {
-        const unsubscribeFromSavedPosts =
-          UserDocListener.subscribeToField('savedPosts',
-            (savedPosts) => {
-              setSavedPosts(savedPosts);
-            });
-
-        return () => {
-          unsubscribeFromSavedPosts();
-        }
-      }
-
+      initialiseDocumentStates();
       const cancelAllSubscriptions = setupSubscriptions();
       return () => {
         cancelAllSubscriptions();
@@ -87,17 +84,12 @@ function useExplore() {
   }, [UserDocListener, PublicUsersListener, categoriesListener]);
 
   useEffect(() => {
-    if (publicUsers && userProfile) {
-      const filteredPublicUsersWhoAreNotFollowed = publicUsers.filter((publicUser) => {
-        const isFollowed = userProfile.following.includes(publicUser);
-        return !isFollowed;
-      });
-      setFilteredPublicUsersWhoAreNotFollowed(filteredPublicUsersWhoAreNotFollowed);
-      setIsInitialising(false);
+    if (publicUsers && userProfile && categories) {
+      retrievePostIDsOfCategories(categories);
     }
-  }, [publicUsers, userProfile]);
+  }, [publicUsers, userProfile, categories]);
 
-  async function retrievePostIDsOfSelectedCategories() {
+  async function retrievePostIDsOfCategories(categories) {
 
     function checkIsOwnPost(postID) {
       const isOwnPost = userProfile.personalPosts.includes(postID);
@@ -107,12 +99,11 @@ function useExplore() {
     // Extract the creator id from the postID
     function checkIsAPublicPost(postID) {
       const creator = postID.split('_')[0];
-      return filteredPublicUsersWhoAreNotFollowed.includes(creator);
+      return publicUsers.includes(creator);
     }
 
-    let localPostCategoriesObject = { ...postCategoriesObject };
-    for (const category of selectedCategories) {
-      if (!postCategoriesObject[category]) {
+    let localPostCategoriesObject = {};
+    for (const category of categories) {
         const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
         const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
         const categorisedPosts = categorisedPostsDoc.post_id_array;
@@ -125,10 +116,16 @@ function useExplore() {
 
         localPostCategoriesObject[category] = filteredCategorisedPosts;
       }
-    }
+
     setPostCategoriesObject(localPostCategoriesObject);
-    return localPostCategoriesObject;
   }
+
+  useEffect(() => {
+    if (postCategoriesObject) {
+      console.log('postCategoriesObject', postCategoriesObject);
+      setIsInitialising(false);
+    }
+  }, [postCategoriesObject]);
 
   function combinePostIDsOfSelectedCategories (postCategoriesObject) {
     let localCombinedArrayOfPostIDsOfSelectedCategories = [];
@@ -156,7 +153,7 @@ function useExplore() {
     const filteredPosts = [];
     for (const postID of combinedArrayOfPostIDsOfSelectedCategories) {
       const postDoc = postDocsThatMatchSelectedCategories[postID];
-      if (postDoc.title.includes(titleToSearch)) {
+      if (postDoc.title.toLowerCase().includes(titleToSearch.toLowerCase())) {
         filteredPosts.push(postID);
       }
     }
@@ -184,8 +181,7 @@ function useExplore() {
 
   async function handleFilteringWhenSelectedCategoriesChange() {
     setIsFiltering(true);
-    const localPostCategoriesObject = await retrievePostIDsOfSelectedCategories();
-    const localCombinedArrayOfPostIDsOfSelectedCategories = combinePostIDsOfSelectedCategories(localPostCategoriesObject);
+    const localCombinedArrayOfPostIDsOfSelectedCategories = combinePostIDsOfSelectedCategories(postCategoriesObject);
     const localPostDocsThatMatchSelectedCategories = await loadPostsOfSelectedCategories(localCombinedArrayOfPostIDsOfSelectedCategories);
     const filteredPosts = handleTitleSearch(localCombinedArrayOfPostIDsOfSelectedCategories, localPostDocsThatMatchSelectedCategories);
     rankPosts(filteredPosts, localPostDocsThatMatchSelectedCategories);

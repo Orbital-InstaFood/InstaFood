@@ -92,7 +92,7 @@ function Explore() {
             {categories.map((category) => (
               <Chip
                 key={category}
-                label={postCategoriesObject[category] ? `${category} ${postCategoriesObject[category].length}` : category}
+                label={`${category} ${postCategoriesObject[category].length}`}
                 onClick={() => handleCategorySelect(category)}
                 color={selectedCategories.includes(category) ? 'primary' : 'default'}
                 sx={{ margin: '0.5rem' }}
