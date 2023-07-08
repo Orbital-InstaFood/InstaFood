@@ -1,24 +1,14 @@
 import { useEffect, useState } from 'react';
-import { db } from '../../firebaseConf';
-import { doc, getDoc } from 'firebase/firestore';
 import { useNavigate } from 'react-router-dom';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
-/**
- * 
- * @description
- * This page displays posts that the user has access to, 
- * specifically posts created by the user's followings after he has followed that following.
- * 
- * @todo
- * - Refine search functionality
- * - Add rankPosts functionality
- * 
- */
-
 function useDashboard() {
+
+    const POSTS_PER_PAGE = 10;
+
     const [userProfile, setUserProfile] = useState(null);
-    const [isLoadingForUserDoc, setIsLoadingForUserDoc] = useState(true);
+    const [userDocListener, setUserDocListener] = useState(null);
+    const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
 
     // isValidUser is true if the user has a valid profile, and false otherwise
     // It is used to determine whether to display the dashboard or the create profile page
@@ -29,22 +19,19 @@ function useDashboard() {
     const [IDsOfAllPosts, setIDsOfAllPosts] = useState([]);
 
     // postsToDisplay is the array of posts that the user sees on the dashboard
-    // It is a subset of allPosts, and is modified when the user searches for posts
-    // based on caption or category
+    // It is a subset of allPosts, and is modified when the user filters the posts
     const [IDsOfPostsToDisplay, setIDsOfPostsToDisplay] = useState([]);
-    const [lengthOfPostsToDisplay, setLengthOfPostsToDisplay] = useState(0);
-
-    // State variables for infinite scroll
     const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
-    const [hasMorePosts, setHasMorePosts] = useState(true);
-    const numOfPostsToLoad = 2;
 
-    const [searchCategory, setSearchCategory] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [maxNumberOfPages, setMaxNumberOfPages] = useState(null);
 
-    // State variables for subscriptions
-    const [userDocListener, setUserDocListener] = useState(null);
-    const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
-    const [isLoadingForSubscriptions, setIsLoadingForSubscriptions] = useState(true);
+    const [categories, setCategories] = useState([]);
+    const [categoriesListener, setCategoriesListener] = useState(null);
+    const [selectedCategories, setSelectedCategories] = useState([]);
+    const [postCategoriesObject, setPostCategoriesObject] = useState(null);
+
+    const [isInitialising, setIsInitialising] = useState(true);
 
     const navigate = useNavigate();
 
@@ -56,6 +43,9 @@ function useDashboard() {
         const userDocListener = await listenerImplementer.getUserDocListener();
         _validateUserDoc(userDocListener);
         setUserDocListener(userDocListener);
+
+        const categoriesListener = await listenerImplementer.getCategoriesListener();
+        setCategoriesListener(categoriesListener);
     }
 
     /**
@@ -85,12 +75,29 @@ function useDashboard() {
         }
     }, [isValidUser]);
 
+    async function setupCategorisedPostsListeners(categories) {
+        let localPostCategoriesObject = {};
+
+        for (const category of categories) {
+            const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
+            const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
+            const categorisedPosts = categorisedPostsDoc.post_id_array;
+
+            // Filter out posts that are not in the user's postsToView
+            const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
+                return IDsOfAllPosts.includes(postID);
+            });
+
+            localPostCategoriesObject[category] = filteredCategorisedPosts;
+        }
+
+        setPostCategoriesObject(localPostCategoriesObject);
+    }
 
     /**
-     * This function initialises the user document
-     * It then retrieves all the posts that the user has access to
+     * This function initialises the userProfile, IDsOfAllPosts and categories
      */
-    function initialisations() {
+    function initialiseDocumentStates() {
 
         // Initialise userDoc and userProfile
         const userDoc = userDocListener.getCurrentDocument();
@@ -102,7 +109,8 @@ function useDashboard() {
         setIDsOfAllPosts(reversedAllPosts);
         setIDsOfPostsToDisplay(reversedAllPosts);
 
-        setIsLoadingForUserDoc(false);
+        const categoriesDoc = categoriesListener.getCurrentDocument();
+        setCategories(categoriesDoc.categories);
     }
 
     /**
@@ -128,94 +136,96 @@ function useDashboard() {
      */
     useEffect(() => {
 
-        if (userDocListener) {
-            initialisations();
-            const unsubscribeFromSavedPosts = setupSubscriptions();
-            setIsLoadingForSubscriptions(false);
-
+        if (userDocListener && categoriesListener) {
+            initialiseDocumentStates();
+            const cancelAllSubscriptions = setupSubscriptions();
             return () => {
-                unsubscribeFromSavedPosts();
+                cancelAllSubscriptions();
             }
         }
-    }, [userDocListener]);
+    }, [userDocListener, categoriesListener]);
 
-    /**
-     * This function handles the search functionality
-     * It filters the posts based on the search category and caption
-     * It then sets the posts to display to the filtered posts
-     * 
-     * @todo
-     * - Refine search functionality & utilise lazy loading
-     */
-    async function handleSearch() {
-        setHasMorePosts(true);
-        if (searchCategory) {
-            const filteredPosts = [];
-            for (let i = 0; i < IDsOfAllPosts.length; i++) {
-                const postID = IDsOfAllPosts[i];
-                const postRef = doc(db, 'posts', postID);
-                const postDoc = await getDoc(postRef);
-                if (postDoc.exists()) {
-                    const post = postDoc.data();
-                    if (
-                        (post.category.includes(searchCategory)) 
-                    ) {
-                        filteredPosts.push(postID);
-                    }
-                }
-            }
-            setIDsOfPostsToDisplay(filteredPosts);
-        } else {
-            setIDsOfPostsToDisplay(IDsOfAllPosts);
+    useEffect(() => {
+        if (userProfile && IDsOfAllPosts && categories) {
+            setupCategorisedPostsListeners(categories);
         }
+    }, [userProfile, IDsOfAllPosts, categories]);
+
+    useEffect(() => {
+        if (postCategoriesObject) {
+            setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
+            setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
+            setIsInitialising(false);
+        }
+    }, [postCategoriesObject]);
+
+    function combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories) {
+
+        if (selectedCategories.length === 0) {
+            return [...IDsOfAllPosts];
+        }
+
+        let localCombinedArrayOfPostIDsOfSelectedCategories = [];
+        for (const category of selectedCategories) {
+            const postIDsOfCategory = postCategoriesObject[category];
+            localCombinedArrayOfPostIDsOfSelectedCategories.push(...postIDsOfCategory);
+        }
+        const combinedArrayWithoutDuplicates = [...new Set(localCombinedArrayOfPostIDsOfSelectedCategories)];
+        return combinedArrayWithoutDuplicates;
     }
 
+    // Rank posts by date
+    // Compare against IDsOfAllPosts, which is already sorted by date
+    function rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories) {
+        let localIDsOfPostsToDisplay = [];
 
-    /**
-     * This useEffect is for setting the loaded posts to display
-     * It is run whenever the posts to display changes
-     * It is also run when the component first mounts
-     */
-    useEffect(() => {
-        setHasMorePosts(true);
-        if (IDsOfPostsToDisplay.length < numOfPostsToLoad) {
-            setIDsOfLoadedPosts(IDsOfPostsToDisplay);
-        } else {
-            setIDsOfLoadedPosts(IDsOfPostsToDisplay.slice(0, numOfPostsToLoad));
+        for (const postID of IDsOfAllPosts) {
+            if (combinedArrayOfPostIDsOfSelectedCategories.includes(postID)) {
+                localIDsOfPostsToDisplay.push(postID);
+            }
         }
-    }, [IDsOfPostsToDisplay]);
 
-    /**
-     * This function loads more posts to display
-     * It is called when the user scrolls to the bottom of the page
-     * It is a helper function for the InfiniteScroll component
-     */
-    function _loadMorePosts() {
-        const numOfPostsLoaded = IDsOfLoadedPosts.length;
-        if (numOfPostsLoaded + numOfPostsToLoad > IDsOfPostsToDisplay.length) {
-            setIDsOfLoadedPosts(IDsOfPostsToDisplay);
-            setHasMorePosts(false);
-        } else {
-            setIDsOfLoadedPosts(IDsOfLoadedPosts.concat(IDsOfPostsToDisplay.slice(numOfPostsLoaded, numOfPostsLoaded + numOfPostsToLoad)));
-        }
+        return localIDsOfPostsToDisplay;
+    }
+
+    function handleCategorySelection() {
+        const combinedArrayOfPostIDsOfSelectedCategories =
+            combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories);
+        const localIDsOfPostsToDisplay =
+            rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories);
+        setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
+
+        setMaxNumberOfPages( Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE) );
+
+        const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
+        setIDsOfLoadedPosts(localIDsOfLoadedPosts);
+        setCurrentPage(1);
     }
 
     useEffect(() => {
-        setLengthOfPostsToDisplay(IDsOfPostsToDisplay.length);
-    }, [IDsOfPostsToDisplay]);
+        handleCategorySelection();
+    }, [selectedCategories]);
+
+    useEffect(() => {
+        const indexOfLastPost = currentPage * POSTS_PER_PAGE;
+        const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
+        setIDsOfLoadedPosts( IDsOfPostsToDisplay.slice(indexOfFirstPost, indexOfLastPost) );
+    }, [currentPage]);
+
+    function handleNextPage() {
+        setCurrentPage((prevPage) => prevPage + 1);
+    }
+
+    function handlePreviousPage() {
+        setCurrentPage((prevPage) => prevPage - 1);
+    }
 
     return {
-        userProfile,
-        IDsOfLoadedPosts,
-        hasMorePosts,
-        isLoadingForUserDoc,
-        isLoadingForSubscriptions,
-        IDsOfSavedPosts,
-        searchCategory,
-        setSearchCategory,
-        handleSearch,
-        _loadMorePosts,
-        lengthOfPostsToDisplay,
+        userProfile, IDsOfSavedPosts,
+        categories, selectedCategories, setSelectedCategories, postCategoriesObject,
+        IDsOfPostsToDisplay,
+        isInitialising,
+        IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
     }
 }
 
