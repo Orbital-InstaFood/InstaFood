@@ -28,6 +28,7 @@ function NewPost() {
     setCaption,
     imageObjects,
     selectedCategories,
+    setOtherCategory,
     setSelectedCategories,
     handleImageChange,
     handleSubmitNewPost,
@@ -67,32 +68,40 @@ function NewPost() {
 
         <InputLabel id="category-label">Categories</InputLabel>
         <Select
-          labelId="category-label"
-          id="category"
-          multiple
-          value={selectedCategories}
-          onChange={(e) =>
-            setSelectedCategories(e.target.value)
-          }
-          input={<Input />}
-          renderValue={(selected) => (
-            <Box sx={{
-              display: 'flex',
-              maxWidth: '100%',
-              flexWrap: 'wrap'
-            }}>
-              {selected.map((value) => (
-                <Chip key={value} label={categoriesData[value]} sx={{ m: 0.5 }} />
-              ))}
-            </Box>
-          )}
-        >
-          {categoriesData.map((category, index) => (
-            <MenuItem key={index} value={index}>
-              {category}
-            </MenuItem>
-          ))}
-        </Select>
+        labelId="category-label"
+        id="category"
+        multiple
+        value={selectedCategories}
+        onChange={(e) => setSelectedCategories(e.target.value)}
+        input={<Input />}
+        renderValue={(selected) => (
+        <Box
+        sx={{
+        display: 'flex',
+        maxWidth: '100%',
+        flexWrap: 'wrap'
+      }}
+    >
+      {selected.map((value) => (
+        <Chip key={value} label={categoriesData[value]} sx={{ m: 0.5 }} />
+      ))}
+    </Box>
+  )}
+>
+  {categoriesData.map((category, index) => (
+    <MenuItem key={index} value={index}>
+      {category}
+    </MenuItem>
+  ))}
+  <MenuItem value="Others">
+    <TextField
+      label="Enter Category"
+      onChange={(e) => setOtherCategory(e.target.value)}
+      value={otherCategory}
+    />
+  </MenuItem>
+</Select>
+
 
       </FormControl>
 

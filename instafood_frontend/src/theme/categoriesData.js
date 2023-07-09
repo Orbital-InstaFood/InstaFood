@@ -1,1 +1,1 @@
-export const categoriesData = ['Japanese','Chinese', 'Korean'];
+export const categoriesData = ['Japanese','Chinese', 'Korean','Thai','Indian','Western','Dessert','Drinks','Others'];
