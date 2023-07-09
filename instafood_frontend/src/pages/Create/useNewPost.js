@@ -18,12 +18,9 @@ function useNewPost() {
     // State for post details
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
-<<<<<<< HEAD:instafood_frontend/src/pages/useNewPost.js
     const [otherCategory, setOtherCategory] = useState('Others');
 
-=======
     const [selectedCategories, setSelectedCategories] = useState([]);
->>>>>>> 6b796ac974c929630a5b29db4dcd7b4e2b88ce01:instafood_frontend/src/pages/Create/useNewPost.js
     const [imageObjects, setImageObjects] = useState([]);
 
     // State for image preview
@@ -223,32 +220,12 @@ function useNewPost() {
     };
 
     return {
-<<<<<<< HEAD:instafood_frontend/src/pages/useNewPost.js
-        title,
-        setTitle,
-        caption,
-        setCaption,
-        imageObjects,
-        setImageObjects,
-        selectedCategories,
-        setOtherCategory,
-        setSelectedCategories,
-        handleImageChange,
-        handleSubmitNewPost,
-        handleImageDelete,
-
-        currentImageIndex,
-        setCurrentImageIndex,
-        shouldShowArrows,
-        setShouldShowArrows,
-=======
         title, setTitle,
         caption, setCaption,
         categories, selectedCategories, setSelectedCategories,
         imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
         handleImageChange,handleSubmitNewPost,handleImageDelete,
         isLoading
->>>>>>> 6b796ac974c929630a5b29db4dcd7b4e2b88ce01:instafood_frontend/src/pages/Create/useNewPost.js
     }
 }
 
