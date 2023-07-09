@@ -7,7 +7,10 @@ import {
 } from '../commonUtils';
 
 import {
-  explore_setupCategorisedPostsObject
+  explore_setupCategorisedPostsObject,
+  rankPosts,
+  handleTitleSearch,
+  loadPostsOfSelectedCategories
 } from './exploreUtils';
 
 function useExplore() {
@@ -23,12 +26,12 @@ function useExplore() {
 
   const [savedPosts, setSavedPosts] = useState([]);
   const [categorisedPostsObject, setCategorisedPostsObject] = useState(null);
-  
+
   const [titleToSearch, setTitleToSearch] = useState('');
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const [postDocsThatMatchSelectedCategories, setPostDocsThatMatchSelectedCategories] = useState({});
-  const [combinedArrayOfPostIDsOfSelectedCategories, setCombinedArrayOfPostIDsOfSelectedCategories] = useState([]);
+  const [postDocsObjectOfSelectedCategories, setPostDocsObjectOfSelectedCategories] = useState({});
+  const [postIDsOfSelectedCategories, setPostIDsOfSelectedCategories] = useState([]);
   const [IDsOfRankedFilteredPostsToDisplay, setIDsOfRankedFilteredPostsToDisplay] = useState([]);
 
   const [isInitialising, setIsInitialising] = useState(true);
@@ -111,79 +114,49 @@ function useExplore() {
     }
   }, [categorisedPostsObject]);
 
-  async function loadPostsOfSelectedCategories(combinedArrayOfPostIDsOfSelectedCategories) {
-    let localPostDocsThatMatchSelectedCategories = {...postDocsThatMatchSelectedCategories};
-    for (const filteredPostID of combinedArrayOfPostIDsOfSelectedCategories) {
-      const postListener = await listenerImplementer.getPostListener(filteredPostID);
-      const postDoc = postListener.getCurrentDocument();
-      localPostDocsThatMatchSelectedCategories[filteredPostID] = postDoc;
-    }
-    setPostDocsThatMatchSelectedCategories(localPostDocsThatMatchSelectedCategories);
-    return localPostDocsThatMatchSelectedCategories;
-  }
 
-  function handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsThatMatchSelectedCategories) {
-    const filteredPosts = [];
-    for (const postID of combinedArrayOfPostIDsOfSelectedCategories) {
-      const postDoc = postDocsThatMatchSelectedCategories[postID];
-      if (postDoc.title.toLowerCase().includes(titleToSearch.toLowerCase())) {
-        filteredPosts.push(postID);
-      }
-    }
-    return filteredPosts;
-  }
-
-  function rankPosts(filteredPosts, postDocsThatMatchSelectedCategories) {
-
-    let rankedPosts = [];
-    for (const postID of filteredPosts) {
-      const postDoc = postDocsThatMatchSelectedCategories[postID];
-      const postRank = postDoc.likes.length + postDoc.comments.length;
-      rankedPosts.push({ postID, postRank });
-    }
-    rankedPosts.sort((a, b) => {
-      return b.postRank - a.postRank;
-    });
-
-    let localIDsOfRankedFilteredPostsToDisplay = [];
-    for (const post of rankedPosts) {
-      localIDsOfRankedFilteredPostsToDisplay.push(post.postID);
-    }
-    setIDsOfRankedFilteredPostsToDisplay(localIDsOfRankedFilteredPostsToDisplay);
-  }
-
-  async function handleFilteringWhenSelectedCategoriesChange() {
-    setIsFiltering(true);
-
-    const localCombinedArrayOfPostIDsOfSelectedCategories 
-    = combinePostIDsOfSelectedCategories(categorisedPostsObject, selectedCategories);
-    setCombinedArrayOfPostIDsOfSelectedCategories(localCombinedArrayOfPostIDsOfSelectedCategories);
-
-    const localPostDocsThatMatchSelectedCategories = await loadPostsOfSelectedCategories(localCombinedArrayOfPostIDsOfSelectedCategories);
-    const filteredPosts = handleTitleSearch(localCombinedArrayOfPostIDsOfSelectedCategories, localPostDocsThatMatchSelectedCategories);
-    rankPosts(filteredPosts, localPostDocsThatMatchSelectedCategories);
-    setIsFiltering(false);
-  }
-
-  async function handleFilteringWhenTitleToSearchChange() {
-    setIsFiltering(true);
-    const filteredPosts = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsThatMatchSelectedCategories);
-    rankPosts(filteredPosts, postDocsThatMatchSelectedCategories);
-    setIsFiltering(false);
-  }
 
   useEffect(() => {
-      handleFilteringWhenSelectedCategoriesChange();
+    async function handleFilteringWhenSelectedCategoriesChange() {
+      setIsFiltering(true);
+
+      const localPostIDsOfSelectedCategories
+        = combinePostIDsOfSelectedCategories(categorisedPostsObject, selectedCategories);
+      setPostIDsOfSelectedCategories(localPostIDsOfSelectedCategories);
+
+      const localPostDocsObjectOfSelectedCategories
+        = await loadPostsOfSelectedCategories(postDocsObjectOfSelectedCategories, localPostIDsOfSelectedCategories, listenerImplementer);
+      setPostDocsObjectOfSelectedCategories(localPostDocsObjectOfSelectedCategories);
+
+      const filteredPosts
+        = handleTitleSearch(localPostIDsOfSelectedCategories, localPostDocsObjectOfSelectedCategories, titleToSearch);
+
+      const rankedPosts
+        = rankPosts(filteredPosts, localPostDocsObjectOfSelectedCategories);
+      setIDsOfRankedFilteredPostsToDisplay(rankedPosts);
+
+      setIsFiltering(false);
+    }
+    handleFilteringWhenSelectedCategoriesChange();
   }, [selectedCategories]);
 
   useEffect(() => {
-    handleFilteringWhenTitleToSearchChange();
+    setIsFiltering(true);
+
+    const filteredPosts
+      = handleTitleSearch(postIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleToSearch);
+
+    const rankedPosts
+      = rankPosts(filteredPosts, postDocsObjectOfSelectedCategories);
+    setIDsOfRankedFilteredPostsToDisplay(rankedPosts);
+
+    setIsFiltering(false);
   }, [titleToSearch]);
 
   return {
     userProfile,
     categories,
-    selectedCategories, setSelectedCategories, postCategoriesObject: categorisedPostsObject,
+    selectedCategories, setSelectedCategories, categorisedPostsObject,
     titleToSearch, setTitleToSearch,
     savedPosts,
     IDsOfRankedFilteredPostsToDisplay,

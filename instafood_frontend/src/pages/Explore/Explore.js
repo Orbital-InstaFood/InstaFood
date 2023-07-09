@@ -40,7 +40,7 @@ function Explore() {
   const {
     userProfile,
     categories,
-    selectedCategories, setSelectedCategories, postCategoriesObject,
+    selectedCategories, setSelectedCategories, categorisedPostsObject,
     titleToSearch, setTitleToSearch,
     savedPosts,
     IDsOfRankedFilteredPostsToDisplay,
@@ -92,7 +92,7 @@ function Explore() {
             {categories.map((category) => (
               <Chip
                 key={category}
-                label={`${category} ${postCategoriesObject[category].length}`}
+                label={`${category} ${categorisedPostsObject[category].length}`}
                 onClick={() => handleCategorySelect(category)}
                 color={selectedCategories.includes(category) ? 'primary' : 'default'}
                 sx={{ margin: '0.5rem' }}

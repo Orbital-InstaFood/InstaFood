@@ -43,7 +43,7 @@ function Dashboard() {
 
     const {
         userProfile, IDsOfSavedPosts,
-        categories, selectedCategories, setSelectedCategories, postCategoriesObject,
+        categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
         IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
@@ -83,7 +83,7 @@ function Dashboard() {
                         {categories.map((category) => (
                             <Chip
                                 key={category}
-                                label={`${category} ${postCategoriesObject[category].length}`}
+                                label={`${category} ${categorisedPostsObject[category].length}`}
                                 onClick={() => handleCategorySelect(category)}
                                 color={selectedCategories.includes(category) ? 'primary' : 'default'}
                                 sx={{ margin: '0.5rem' }}

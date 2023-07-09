@@ -1,6 +1,6 @@
 import { 
     combinePostIDsOfSelectedCategories, 
-    setupCategorisedPostsObject,
+    _setupCategorisedPostsObject,
 } from './commonUtils';
 
 describe('combinePostIDsOfSelectedCategories', () => {
@@ -61,7 +61,7 @@ describe('setupCategorisedPostsListeners', () => {
         const verifierCallback = jest.fn();
         const expected = {};
         const callback = jest.fn();
-        await setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+        await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
         expect(callback).toHaveBeenCalledWith(expected);
     });
 
@@ -105,7 +105,7 @@ describe('setupCategorisedPostsListeners', () => {
             'category2': []
         };
         const callback = jest.fn();
-        await setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+        await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
         expect(callback).toHaveBeenCalledWith(expected);
     });
 
@@ -139,7 +139,7 @@ describe('setupCategorisedPostsListeners', () => {
             'category2': []
         };
         const callback = jest.fn();
-        await setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+        await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
         expect(callback).toHaveBeenCalledWith(expected);
     });
 
@@ -187,7 +187,7 @@ describe('setupCategorisedPostsListeners', () => {
             };
             const callback = jest.fn();
 
-            await setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+            await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
             expect(callback).toHaveBeenCalledWith(expected);
         });
 });

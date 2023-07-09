@@ -155,7 +155,7 @@ function useDashboard() {
 
     useEffect(() => {
 
-        const combinedArrayOfPostIDsOfSelectedCategories =
+        const postIDsOfSelectedCategories =
             combinePostIDsOfSelectedCategories(
                 categorisedPostsObject,
                 selectedCategories
@@ -167,7 +167,7 @@ function useDashboard() {
             localIDsOfPostsToDisplay = [...IDsOfAllPosts];
         } else {
          localIDsOfPostsToDisplay =
-            rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories, IDsOfAllPosts);
+            rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts);
         }
 
         setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
@@ -197,7 +197,7 @@ function useDashboard() {
 
     return {
         userProfile, IDsOfSavedPosts,
-        categories, selectedCategories, setSelectedCategories, postCategoriesObject: categorisedPostsObject,
+        categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
         IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
