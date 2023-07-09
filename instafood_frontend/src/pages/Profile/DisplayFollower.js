@@ -1,4 +1,18 @@
 import { useState } from 'react';
+
+import {
+    Box,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    Button,
+} from '@mui/material';
+
+import {
+    NotInterested,
+    AccountCircle,
+} from '@mui/icons-material';
+
 import DisplayUserLink from '../../functions/DisplayUserLink';
 
 function DisplayFollower ( {otherUserID, removeFollower } ) {
@@ -19,10 +33,25 @@ function DisplayFollower ( {otherUserID, removeFollower } ) {
     }
 
     return (
-        <div>
-            <DisplayUserLink userID={otherUserID} />
-            <button onClick={() => handleRemoveFollower()}>Remove follower?</button>
-        </div>
+        <ListItem>
+            <ListItemIcon>
+                <AccountCircle />
+            </ListItemIcon>
+            <ListItemText primary={
+                <DisplayUserLink userID={otherUserID} />
+            } />
+            <Box sx={{ marginLeft: 'auto' }}>
+                <Button
+                    startIcon={<NotInterested />}
+                    onClick={() => handleRemoveFollower()}
+                    variant={"outlined"}
+                    color="error"
+                    sx={{ flex: 1 }}
+                >
+                    Remove
+                </Button>
+            </Box>
+        </ListItem>
     );
 }
 

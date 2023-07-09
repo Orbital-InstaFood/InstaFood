@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import listenerImplementer from "../../listeners/ListenerImplementer";
 import postDocEditor from "../../editor/postDocEditor";
 
+import { generateUniqueID } from "web-vitals/dist/modules/lib/generateUniqueID";
+
 function useDisplayPostLogic ( {postID, userOwnID} ) {
 
     const [postListener, setPostListener] = useState(null);
@@ -11,6 +13,8 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
     const [PostDocEditor, setPostDocEditor] = useState(null);
 
     const [isLoading, setIsLoading] = useState(true);
+
+    const [commentText, setCommentText] = useState('');
 
     async function setupListeners() {
         const postListener = await listenerImplementer.getPostListener(postID);
@@ -23,6 +27,30 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
 
         const PostDocEditor = new postDocEditor(postID, setPostDoc, userOwnID);
         setPostDocEditor(PostDocEditor);
+    }
+
+    function handleDeleteComment(commentID) {
+        PostDocEditor.deleteComment(commentID);
+    }
+
+    function handleLikeOrDislike() {
+        const currentLikeStatus = postDoc.likes.includes(userOwnID);
+        PostDocEditor.likeOrDislike(!currentLikeStatus);
+    }
+
+    function handleMakeComment() {
+
+        if (commentText === "") {
+            return;
+        }
+
+        PostDocEditor.makeComment({
+            commenterID: userOwnID,
+            commentText: commentText,
+            commentID: generateUniqueID()
+        });
+
+        setCommentText("");
     }
 
     useEffect(() => {
@@ -44,6 +72,11 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
         PostDocEditor,
         isLoading,
         postListener,
+        handleLikeOrDislike,
+        handleDeleteComment,
+        handleMakeComment,
+        commentText,
+        setCommentText
     };
 }
 

@@ -1,107 +1,307 @@
-import DisplayComment from "./DisplayComment";
-import MakeComment from "./MakeComment";
-import Likes from "./Likes";
+import { useState } from "react";
 import DisplayUserLink from "../DisplayUserLink";
-import DisplaySave from "./DisplaySave";
-import displayImage from "../displayImage";
-
-import { categoriesData } from "../../theme/categoriesData";
-
+import saveOrUnsaveAPost from "./saveOrUnsaveAPost";
 import useDisplayPostLogic from "./useDisplayPostLogic";
-import "./DisplayPostUI.css";
+
+import { 
+    List, 
+    ListItem, 
+    ListItemText, 
+    Collapse, 
+    ListItemIcon, 
+    ListItemButton,
+    Paper,
+    InputBase,
+    Button,
+    IconButton,
+    Chip,
+    CircularProgress,
+ } from "@mui/material";
+
+import {
+    PostContainer,
+    Title,
+    Description,
+    Caption,
+    SubHeading,
+    ImagePreview,
+    Image,
+    LeftArrowContainer,
+    ButtonOverlay,
+    RightArrowContainer,
+} from './PostStyles.js';
+
+import { Box } from "@mui/system";
+
+import {
+    ChevronLeft,
+    ChevronRight,
+    BookmarkBorder,
+    Bookmark,
+    FavoriteBorder,
+    Favorite,
+    ExpandLess,
+    ExpandMore,
+    ChatBubbleOutline,
+    Delete,
+    AccountCircle,
+    ArrowUpward,
+} from '@mui/icons-material';
 
 function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     const {
         postDoc,
-        PostDocEditor,
         isLoading,
-        postListener,
+        handleLikeOrDislike,
+        commentText,
+        setCommentText,
+        handleMakeComment,
+        handleDeleteComment,
     } = useDisplayPostLogic({ postID, userOwnID });
+
+    const [shouldShowArrows, setShouldShowArrows] = useState(false);
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    const [isSaved, setIsSaved] = useState(isASavedPost);
+    function handleSaveOrUnsaveAPost() {
+        saveOrUnsaveAPost(postID, !isSaved);
+        setIsSaved(!isSaved);
+    }
+
+    const [likesOpen, setLikesOpen] = useState(false);
+    const [commentsOpen, setCommentsOpen] = useState(false);
 
     if (isLoading) {
         return (
-            <div>
-                <p>Loading...</p>
-            </div>
-        );
+            <Box sx={{ display: 'flex' }}>
+              <CircularProgress />
+            </Box>
+          );
     }
 
     return (
-        <div className="postContainer">
-            <h3>Creator: {postDoc.creator}</h3>
-            <h3>Title: {postDoc.title}</h3>
-            <p>Caption: {postDoc.caption}</p>
+        <PostContainer>
+            <Title>{postDoc.title}</Title>
 
-            {postDoc.category && (
-                <p>Category: {categoriesData[postDoc.category]}</p>
-            )}
+            <Description>
+                <div>
+                    Creator: {
+                        <DisplayUserLink userID={postDoc.creator} />
+                    }
+                </div>
+                <div>
+                    Date: {postDoc.date_created.toDate().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
+            </Description>
+
+            <SubHeading>
+                Categories
+            </SubHeading>
 
             {postDoc.categories &&
-                postDoc.categories.map(category => {
-                    return (
-                        <p>Category: {categoriesData[category]}</p>
-                    );
-                }
-                )}
-
-            <div>
-                <h4>{postDoc.likes.length} Likes</h4>
-                {postDoc.likes.map(likerID => {
-                    return (
-                        <DisplayUserLink
-                            className="user-link"
-                            userID={likerID}
-                        />
-                    );
-                })}
-
-                <Likes
-                    className="likes"
-                    likes={postDoc.likes}
-                    userOwnID={userOwnID}
-                    likeOrDislike={PostDocEditor.likeOrDislike}
-                />
-            </div>
-
-            <br />
-            <div>
-                <h4>{postDoc.comments.length} Comments</h4>
-
-                {postDoc.comments.map(comment => {
-                    return (
-                        <DisplayComment
-                            comment={comment}
-                            userOwnID={userOwnID}
-                            deleteComment={PostDocEditor.deleteComment}
-                        />
-                    );
-                })}
-
-                <br />
-                <MakeComment
-                    commenterID={userOwnID}
-                    makeComment={PostDocEditor.makeComment}
-                />
-            </div>
-
-            <br />
-            <div>
-                {!isAPersonalPost && (
-                    <DisplaySave
-                        className="save-button"
-                        postID={postID}
-                        isASavedPost={isASavedPost}
+                postDoc.categories.map((category) => (
+                    <Chip
+                        key={category}
+                        label={category}
+                        variant="outlined"
+                        size="small"
+                        sx={{ margin: '0.5rem' }}
                     />
+                ))
+            }
+
+            <SubHeading
+                sx={{ marginTop: '1rem' }}
+            >
+                Recipe Details
+            </SubHeading>
+
+            <Caption>
+                {postDoc.caption}
+            </Caption>
+
+            <SubHeading
+                sx={{ marginTop: '1rem' }}
+            >
+                Check out others' opinions!
+            </SubHeading>
+
+            <List>
+                {/* Likes */}
+                <ListItemButton onClick={() => setLikesOpen(!likesOpen)}>
+                    <ListItemIcon>
+                        <FavoriteBorder />
+                    </ListItemIcon>
+                    <ListItemText primary={`Likes (${postDoc.likes.length})`} />
+                    {likesOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+                <Collapse in={likesOpen} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {postDoc.likes.map((like, index) => (
+                            <ListItem key={index}
+                            >
+                                <ListItemIcon
+                                    sx={{ marginLeft: '5rem' }}
+                                >
+                                    <AccountCircle />
+                                </ListItemIcon>
+                                {/* <ListItemText primary={like} /> */}
+                                <DisplayUserLink userID={like} />
+                            </ListItem>
+                        ))}
+                    </List>
+                </Collapse>
+
+                {/* Comments */}
+                <ListItemButton onClick={() => setCommentsOpen(!commentsOpen)}>
+                    <ListItemIcon>
+                        <ChatBubbleOutline />
+                    </ListItemIcon>
+                    <ListItemText primary={`Comments (${postDoc.comments.length})`} />
+                    {commentsOpen ? <ExpandLess /> : <ExpandMore />}
+                </ListItemButton>
+                <Collapse in={commentsOpen} timeout="auto" unmountOnExit>
+                    <List component="div" disablePadding>
+                        {postDoc.comments.map((comment, index) => (
+                            <ListItem key={index}
+                            >
+                                <ListItemIcon
+
+                                    sx={{ marginLeft: '5rem' }}
+                                >
+                                    <AccountCircle />
+                                </ListItemIcon>
+                                <ListItemText primary={`${comment.commenterID}: ${comment.commentText}`} />
+                                {userOwnID === comment.commenterID && (
+                                    <IconButton
+                                        onClick={() => handleDeleteComment(comment.commentID)}
+                                    >
+                                        <Delete />
+                                    </IconButton>
+                                )}
+                            </ListItem>
+                        ))}
+                    </List>
+                </Collapse>
+            </List>
+
+            {postDoc.images.length > 0 && (
+
+                <Box
+                    sx={{ marginTop: 2 }}
+                    onMouseEnter={() => setShouldShowArrows(true)}
+                    onMouseLeave={() => setShouldShowArrows(false)}
+                >
+                    <ImagePreview key={postDoc.images[currentImageIndex]}>
+                        <Image src={postDoc.images[currentImageIndex]} alt="preview" />
+
+                        {shouldShowArrows && (
+                            <LeftArrowContainer>
+                                <ButtonOverlay />
+                                <IconButton
+                                    onClick={() => setCurrentImageIndex(currentImageIndex - 1)}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        left: 0,
+                                        transform: 'translateY(-50%)',
+                                        pointerEvents: 'auto',
+                                    }}
+                                    disabled={currentImageIndex === 0}
+                                >
+                                    <ChevronLeft />
+                                </IconButton>
+                            </LeftArrowContainer>
+                        )}
+
+                        {shouldShowArrows && (
+                            <RightArrowContainer>
+                                <ButtonOverlay />
+                                <IconButton
+                                    onClick={() => setCurrentImageIndex(currentImageIndex + 1)}
+                                    sx={{
+                                        position: 'absolute',
+                                        top: '50%',
+                                        right: 0,
+                                        transform: 'translateY(-50%)',
+                                        pointerEvents: 'auto',
+                                    }}
+                                    disabled={currentImageIndex === postDoc.images.length - 1}
+                                >
+                                    <ChevronRight />
+                                </IconButton>
+                            </RightArrowContainer>
+
+                        )}
+
+
+                    </ImagePreview>
+
+                </Box>
+            )}
+
+            <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                marginTop="2rem"
+            >
+                <Button
+                    startIcon={postDoc.likes.includes(userOwnID) ? <Favorite /> : <FavoriteBorder />}
+                    variant="outlined"
+                    color="primary"
+                    fullWidth
+                    sx={{ flex: 1 }}
+                    onClick={() => handleLikeOrDislike()}
+                >
+                    {postDoc.likes.includes(userOwnID) ? "Unlike" : "Like"}
+                </Button>
+
+                {(
+                    <Button
+                        startIcon={isSaved ? <Bookmark /> : <BookmarkBorder />}
+                        onClick={() => handleSaveOrUnsaveAPost()}
+                        variant={"outlined"}
+                        disabled={isAPersonalPost}
+                        color="primary"
+                        fullWidth
+                        sx={{ flex: 1 }}
+                    >
+                        {isSaved ? "Unsave" : "Save"}
+                    </Button>
                 )}
-            </div>
+            </Box>
 
-            {postDoc.images.map(image => {
-                return displayImage(image);
-            })}
+            <Paper
+                sx={{ 
+                    marginTop: '2rem', 
+                    display: 'flex',
+                    p: '2px 4px',
+                    width: '100%',
+                    alignItems: 'center',
+                }}
+            >
+                <InputBase
+                    sx={{ ml: 1, flex: 1 }}
+                    placeholder="Add a comment..."
+                    inputProps={{ 'aria-label': 'add a comment' }}
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                />
+                <IconButton
+                    sx={{ p: '10px' }}
+                    onClick={() => handleMakeComment()}
+                >
+                    <ArrowUpward />
+                </IconButton>
+            </Paper>
 
-        </div>
+
+
+        </PostContainer>
     );
+
 }
 
 export default DisplayPostUI;

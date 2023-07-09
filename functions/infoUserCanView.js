@@ -20,6 +20,7 @@ exports.infoUserCanView = functions.https.onCall(async (request) => {
         following: requestedUser.following,
         personalPostsLength: requestedUser.personalPosts.length,
         personalPosts: [],
+        isPrivate: requestedUser.isPrivate,
     }
 
     if (requestedUser.isPublic || requestedUser.followers.includes(userOwnID)) {

@@ -1,42 +1,52 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { db, auth, storage, functions } from '../firebaseConf';
+import { db, auth, storage, functions } from '../../firebaseConf';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
-import listenerImplementer from '../listeners/ListenerImplementer';
+import listenerImplementer from '../../listeners/ListenerImplementer';
 
 function useNewPost() {
 
     const navigate = useNavigate();
     const user = auth.currentUser;
-    const addPostToFollowersToView = httpsCallable(functions, 'addPostToFollowersToView');
 
     // State for post details
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
+<<<<<<< HEAD:instafood_frontend/src/pages/useNewPost.js
     const [otherCategory, setOtherCategory] = useState('Others');
 
+=======
+    const [selectedCategories, setSelectedCategories] = useState([]);
+>>>>>>> 6b796ac974c929630a5b29db4dcd7b4e2b88ce01:instafood_frontend/src/pages/Create/useNewPost.js
     const [imageObjects, setImageObjects] = useState([]);
+
+    // State for image preview
     const allowedImageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [shouldShowArrows, setShouldShowArrows] = useState(false);
 
-    const [selectedCategories, setSelectedCategories] = useState([]);
-
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
-
-    // State for post submission
     const [userID, setUserID] = useState('');
+
+    const [categoriesListener, setCategoriesListener] = useState(null);
+    const [categories, setCategories] = useState([]);
+
+    // State for loading
+    const [isLoading, setIsLoading] = useState(false);
 
     async function setupListeners() {
         const userDocListener = await listenerImplementer.getUserDocListener();
         setUserDocListener(userDocListener);
+
+        const categoriesListener = await listenerImplementer.getCategoriesListener();
+        setCategoriesListener(categoriesListener);
     }
 
     useEffect(() => {
@@ -49,6 +59,19 @@ function useNewPost() {
             setUserID(userDoc.userID);
         }
     }, [userDocListener]);
+
+    useEffect(() => {
+        if (categoriesListener) {
+            const categoriesDoc = categoriesListener.getCurrentDocument();
+            setCategories(categoriesDoc.categories);
+        }
+    }, [categoriesListener]);
+
+    useEffect(() => {
+        if ( categories && userID ) {
+            setIsLoading(false);
+        }
+    }, [categories, userID]);
 
     function handleImageChange(e) {
         const newImageObjects = [...imageObjects];
@@ -87,7 +110,6 @@ function useNewPost() {
         }
 
         setImageObjects(newImageObjects);
-        console.log(newImageObjects);
         e.target.value = null;
     }
 
@@ -115,8 +137,6 @@ function useNewPost() {
         );
 
         setImageObjects(newImageObjects);
-        console.log(newImageObjects);
-
     }
 
     const handleSubmitNewPost = async (e) => {
@@ -146,7 +166,7 @@ function useNewPost() {
             postID: postID,
             likes: [],
             comments: [],
-            categories: selectedCategories,
+            categories: selectedCategories
         };
 
         await setDoc(postDocRef, postDoc);
@@ -158,6 +178,7 @@ function useNewPost() {
             }
         );
 
+        const addPostToFollowersToView = httpsCallable(functions, 'addPostToFollowersToView');
         addPostToFollowersToView({
             postID: postID,
             creatorUID: user.uid
@@ -202,6 +223,7 @@ function useNewPost() {
     };
 
     return {
+<<<<<<< HEAD:instafood_frontend/src/pages/useNewPost.js
         title,
         setTitle,
         caption,
@@ -219,6 +241,14 @@ function useNewPost() {
         setCurrentImageIndex,
         shouldShowArrows,
         setShouldShowArrows,
+=======
+        title, setTitle,
+        caption, setCaption,
+        categories, selectedCategories, setSelectedCategories,
+        imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
+        handleImageChange,handleSubmitNewPost,handleImageDelete,
+        isLoading
+>>>>>>> 6b796ac974c929630a5b29db4dcd7b4e2b88ce01:instafood_frontend/src/pages/Create/useNewPost.js
     }
 }
 

@@ -13,6 +13,7 @@ const infoUserCanView = require("./infoUserCanView");
 const addPostToFollowersToView = require("./addPostToFollowersToView");
 const createUserProfile = require("./createUserProfile");
 const rankPosts = require("./rankPosts");
+const followPublicUser = require("./followPublicUser");
 
 exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
 exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
@@ -26,3 +27,4 @@ exports.infoUserCanView = infoUserCanView.infoUserCanView;
 exports.addPostToFollowersToView = addPostToFollowersToView.addPostToFollowersToView;
 exports.createUserProfile = createUserProfile.createUserProfile;
 exports.rankPosts = rankPosts.rankPosts;
+exports.followPublicUser = followPublicUser.followPublicUser;
