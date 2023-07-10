@@ -26,11 +26,11 @@ import DisplayRequestReceived from './DisplayRequestReceived';
 import DisplayRequestSent from './DisplayRequestSent';
 import DisplayFollower from './DisplayFollower';
 import DisplayFollowing from './DisplayFollowing';
-import DisplayPostUI from '../../functions/Post/DisplayPostUI';
+import DisplayPostUI from '../../../functions/Post/DisplayPostUI';
 
 import {
     UserInfoContainer,
-} from './ProfileStyles';
+} from '../ProfileStyles';
 
 function ViewProfile() {
 

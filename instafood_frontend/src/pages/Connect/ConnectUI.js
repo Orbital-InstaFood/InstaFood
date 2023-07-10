@@ -43,19 +43,18 @@ const Container = styled(Box)`
 function ConnectUI() {
 
     const {
-        isLoadingForSubscriptions,
-        input,
-        setInput,
+        isLoading,
+        input, setInput,
         listOfPossibleMatches,
         userDoc,
-        handleFollowRequest
+        handleFollowRequest,
     } = useConnectLogic();
 
-    if (isLoadingForSubscriptions) {
+    if (isLoading) {
         return (
             <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={isLoadingForSubscriptions}
+                open={isLoading}
             >
                 <CircularProgress color="inherit" />
             </Backdrop>

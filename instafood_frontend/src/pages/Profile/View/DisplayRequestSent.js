@@ -8,7 +8,7 @@ import {
     AccountCircle,
 } from '@mui/icons-material';
 
-import DisplayUserLink from '../../functions/DisplayUserLink';
+import DisplayUserLink from '../../../functions/DisplayUserLink';
 
 function DisplayRequestSent({ otherUserID }) {
 

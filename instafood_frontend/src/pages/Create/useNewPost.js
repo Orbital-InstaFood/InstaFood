@@ -34,39 +34,29 @@ function useNewPost() {
     const [categories, setCategories] = useState([]);
 
     // State for loading
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
-    async function setupListeners() {
+    async function setup() {
+        // Setup listeners
         const userDocListener = await listenerImplementer.getUserDocListener();
         setUserDocListener(userDocListener);
 
         const categoriesListener = await listenerImplementer.getCategoriesListener();
         setCategoriesListener(categoriesListener);
+
+        // Initialise states
+        const userDoc = userDocListener.getCurrentDocument();
+        setUserID(userDoc.userID);
+
+        const categoriesDoc = categoriesListener.getCurrentDocument();
+        setCategories(categoriesDoc.categories);
+
+        setIsLoading(false);
     }
 
     useEffect(() => {
-        setupListeners();
+        setup();
     }, []);
-
-    useEffect(() => {
-        if (userDocListener) {
-            const userDoc = userDocListener.getCurrentDocument();
-            setUserID(userDoc.userID);
-        }
-    }, [userDocListener]);
-
-    useEffect(() => {
-        if (categoriesListener) {
-            const categoriesDoc = categoriesListener.getCurrentDocument();
-            setCategories(categoriesDoc.categories);
-        }
-    }, [categoriesListener]);
-
-    useEffect(() => {
-        if ( categories && userID ) {
-            setIsLoading(false);
-        }
-    }, [categories, userID]);
 
     function handleImageChange(e) {
         const newImageObjects = [...imageObjects];
@@ -124,7 +114,6 @@ function useNewPost() {
 
         return true;
     }
-
 
     function handleImageDelete(uniqueID) {
         const newImageObjects = imageObjects.filter(
@@ -203,8 +192,8 @@ function useNewPost() {
         caption, setCaption,
         categories, selectedCategories, setSelectedCategories,
         imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
-        handleImageChange,handleSubmitNewPost,handleImageDelete,
-        isLoading
+        handleImageChange, handleImageDelete,
+        handleSubmitNewPost, isLoading
     }
 }
 

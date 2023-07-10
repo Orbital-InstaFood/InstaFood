@@ -36,8 +36,8 @@ function NewPost() {
     caption, setCaption,
     categories, selectedCategories, setSelectedCategories,
     imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
-    handleImageChange,handleSubmitNewPost,handleImageDelete,
-    isLoading
+    handleImageChange, handleImageDelete,
+    handleSubmitNewPost, isLoading
   } = useNewPost();
 
   if (isLoading) {

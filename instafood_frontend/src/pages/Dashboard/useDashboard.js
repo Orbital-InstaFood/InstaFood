@@ -8,20 +8,17 @@ import {
 } from './dashboardUtils';
 
 import {
-    combinePostIDsOfSelectedCategories, 
+    combinePostIDsOfSelectedCategories,
 } from '../commonUtils';
 
 function useDashboard() {
 
-    const POSTS_PER_PAGE = 10;
+    const POSTS_PER_PAGE = 1;
+    let cleanupFunctions = [];
 
     const [userProfile, setUserProfile] = useState(null);
     const [userDocListener, setUserDocListener] = useState(null);
     const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
-
-    // isValidUser is true if the user has a valid profile, and false otherwise
-    // It is used to determine whether to display the dashboard or the create profile page
-    const [isValidUser, setIsValidUser] = useState(true);
 
     // allPosts is the array of all posts that the user has access to at the dashboard
     // It should not be modified once initialized
@@ -44,114 +41,62 @@ function useDashboard() {
 
     const navigate = useNavigate();
 
-    /**
-     * This function sets up the listener for the user document
-     * Also checks if the user has a user document via validateUserDoc()
-     */
-    async function setupListeners() {
-        const userDocListener = await listenerImplementer.getUserDocListener();
-        _validateUserDoc(userDocListener);
-        setUserDocListener(userDocListener);
+    async function setup() {
 
+        // Setup listeners
         const categoriesListener = await listenerImplementer.getCategoriesListener();
         setCategoriesListener(categoriesListener);
-    }
 
-    /**
-     * This function checks if the user has a user document
-     * If not, it redirects the user to the createProfile page
-     * It is a helper function for setupListeners()
-     * @param {Listener} userDocListener
-     */
-    function _validateUserDoc(userDocListener) {
+        const userDocListener = await listenerImplementer.getUserDocListener();
+        // If userDocListener is null, the user has not created a profile
         if (!userDocListener) {
             navigate("/createProfile");
-            setIsValidUser(false);
-        }
-    }
-
-    /**
-     * These useEffects are for setting up the listener for the user document
-     * It is the first layer of the setup process
-     */
-    useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        if (!isValidUser) {
             return;
         }
-    }, [isValidUser]);
-
-    /**
-     * This function initialises the userProfile, IDsOfAllPosts and categories
-     */
-    function initialiseDocumentStates() {
+        setUserDocListener(userDocListener);
 
         // Initialise userDoc and userProfile
         const userDoc = userDocListener.getCurrentDocument();
         setUserProfile(userDoc);
 
-        // Initialise IDsOfAllPosts and IDsOfPostsToDisplay
+        // Initialise IDsOfAllPosts
+        // All posts are displayed when the user first enters the dashboard
         const allPosts = userDoc.postsToView;
-        const reversedAllPosts = [...allPosts].reverse();
-        setIDsOfAllPosts(reversedAllPosts);
-        setIDsOfPostsToDisplay(reversedAllPosts);
+        const IDsOfAllPosts = [...allPosts].reverse();
+        setIDsOfAllPosts(IDsOfAllPosts);
+        setIDsOfPostsToDisplay(IDsOfAllPosts);
+        setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
+        setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
 
-        const categoriesDoc = categoriesListener.getCurrentDocument();
-        setCategories(categoriesDoc.categories);
-    }
+        // Retrieve categories from categoriesListener
+        const categories = categoriesListener.getCurrentDocument().categories;
+        setCategories(categories);
 
-    /**
-     * This function sets up subscriptions for the user document
-     * @returns {Function} - cancel subscriptions when component unmounts
-     */
-    function setupSubscriptions() {
+        // Setup subscriptions
         const unsubscribeFromSavedPosts =
             userDocListener.subscribeToField('savedPosts',
                 (savedPosts) => {
                     setIDsOfSavedPosts(savedPosts);
                 });
+        cleanupFunctions.push(unsubscribeFromSavedPosts);
 
-        return () => {
-            unsubscribeFromSavedPosts();
-        }
+        // Retrieve postIDs in each category
+        await dashboard_setupCategorisedPostsObject(
+            categories,
+            listenerImplementer,
+            IDsOfAllPosts,
+            setCategorisedPostsObject
+        );
+
+        setIsInitialising(false);
     }
 
-    /**
-     * This useEffect is for initialising the user document and setting up subscriptions
-     * It is the second layer of the setup process
-     * It is only run after the listener is fully set up
-     */
     useEffect(() => {
-
-        if (userDocListener && categoriesListener) {
-            initialiseDocumentStates();
-            const cancelAllSubscriptions = setupSubscriptions();
-            return () => {
-                cancelAllSubscriptions();
-            }
+        setup();
+        return () => {
+            cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
         }
-    }, [userDocListener, categoriesListener]);
-
-    useEffect(() => {
-        if (userProfile && IDsOfAllPosts && categories) {
-            dashboard_setupCategorisedPostsObject(
-                categories, 
-                listenerImplementer, 
-                IDsOfAllPosts, 
-                setCategorisedPostsObject);
-        }
-    }, [userProfile, IDsOfAllPosts, categories]);
-
-    useEffect(() => {
-        if (categorisedPostsObject) {
-            setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
-            setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
-            setIsInitialising(false);
-        }
-    }, [categorisedPostsObject]);
+    }, []);
 
     useEffect(() => {
 
@@ -162,21 +107,17 @@ function useDashboard() {
             );
 
         let localIDsOfPostsToDisplay = [];
-
         if (selectedCategories.length === 0) {
             localIDsOfPostsToDisplay = [...IDsOfAllPosts];
         } else {
-         localIDsOfPostsToDisplay =
-            rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts);
+            localIDsOfPostsToDisplay =
+                rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts);
         }
+        const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
 
         setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
-
-        setMaxNumberOfPages( Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE) );
-
-        const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
+        setMaxNumberOfPages(Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE));
         setIDsOfLoadedPosts(localIDsOfLoadedPosts);
-
         setCurrentPage(1);
 
     }, [selectedCategories]);
@@ -184,23 +125,15 @@ function useDashboard() {
     useEffect(() => {
         const indexOfLastPost = currentPage * POSTS_PER_PAGE;
         const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-        setIDsOfLoadedPosts( IDsOfPostsToDisplay.slice(indexOfFirstPost, indexOfLastPost) );
+        setIDsOfLoadedPosts(IDsOfPostsToDisplay.slice(indexOfFirstPost, indexOfLastPost));
     }, [currentPage]);
-
-    function handleNextPage() {
-        setCurrentPage((prevPage) => prevPage + 1);
-    }
-
-    function handlePreviousPage() {
-        setCurrentPage((prevPage) => prevPage - 1);
-    }
 
     return {
         userProfile, IDsOfSavedPosts,
         categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
-        IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
+        IDsOfLoadedPosts, setCurrentPage, currentPage, maxNumberOfPages
     }
 }
 

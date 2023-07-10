@@ -46,7 +46,7 @@ function Dashboard() {
         categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
-        IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
+        IDsOfLoadedPosts, setCurrentPage, currentPage, maxNumberOfPages
     } = useDashboard();
 
     const handleCategorySelect = (category) => {
@@ -103,7 +103,9 @@ function Dashboard() {
                                 sx={{ position: 'absolute' }}
                                 size='small'
                                 startIcon={<ChevronLeft />}
-                                onClick={handlePreviousPage}
+                                onClick={() => {
+                                    setCurrentPage((prevPage) => prevPage - 1);
+                                }}
                                 disabled={currentPage === 1 || IDsOfPostsToDisplay.length === 0}
                             >
                             </Button>
@@ -112,7 +114,9 @@ function Dashboard() {
                                 sx={{ right: 0, position: 'absolute' }}
                                 size='small'
                                 endIcon={<ChevronRight />}
-                                onClick={handleNextPage}
+                                onClick={() => {
+                                    setCurrentPage((prevPage) => prevPage + 1);
+                                }}
                                 disabled={maxNumberOfPages === currentPage || IDsOfPostsToDisplay.length === 0}
                             >
                             </Button>

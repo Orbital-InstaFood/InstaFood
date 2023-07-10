@@ -53,11 +53,8 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     const {
         postDoc,
         isLoading,
-        handleLikeOrDislike,
-        commentText,
-        setCommentText,
-        handleMakeComment,
-        handleDeleteComment,
+        commentText, setCommentText,
+        handleMakeComment, handleLikeOrDislike, handleDeleteComment,
     } = useDisplayPostLogic({ postID, userOwnID });
 
     const [shouldShowArrows, setShouldShowArrows] = useState(false);

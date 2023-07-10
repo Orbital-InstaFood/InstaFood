@@ -16,18 +16,23 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
 
     const [commentText, setCommentText] = useState('');
 
-    async function setupListeners() {
+    async function setup() {
         const postListener = await listenerImplementer.getPostListener(postID);
         setPostListener(postListener);
-    }
 
-    function initializePostDocAndEditor() {
         const postDoc = postListener.getCurrentDocument();
         setPostDoc(postDoc);
 
         const PostDocEditor = new postDocEditor(postID, setPostDoc, userOwnID);
         setPostDocEditor(PostDocEditor);
+
+        setIsLoading(false);
     }
+
+    useEffect(() => {
+        setup();
+    }, [postID]);
+
 
     function handleDeleteComment(commentID) {
         PostDocEditor.deleteComment(commentID);
@@ -53,30 +58,11 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
         setCommentText("");
     }
 
-    useEffect(() => {
-        setupListeners();
-    }, [postID]);
-
-    useEffect(() => {
-
-        // Check that the listener is fully set up before initializing userDoc and UserDocEditor
-        if (postListener) {
-            initializePostDocAndEditor();
-            setIsLoading(false);
-        }
-
-    }, [postListener]);
-
-    return {
+    return {       
         postDoc,
-        PostDocEditor,
         isLoading,
-        postListener,
-        handleLikeOrDislike,
-        handleDeleteComment,
-        handleMakeComment,
-        commentText,
-        setCommentText
+        commentText, setCommentText,
+        handleMakeComment, handleLikeOrDislike, handleDeleteComment,
     };
 }
 

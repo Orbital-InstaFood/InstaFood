@@ -15,7 +15,7 @@ import {
 
 function useExplore() {
 
-  const [userProfile, setUserProfile] = useState(null);
+  const [userDoc, setUserDoc] = useState(null);
   const [UserDocListener, setUserDocListener] = useState(null);
 
   const [publicUsers, setPublicUsers] = useState(null);
@@ -37,89 +37,64 @@ function useExplore() {
   const [isInitialising, setIsInitialising] = useState(true);
   const [isFiltering, setIsFiltering] = useState(false);
 
-  /**
-   * The first three useEffects are used to initialise the userProfile, publicUsers and categories.
-   */
-  useEffect(() => {
-    async function setupListeners() {
-      const userDocListener = await listenerImplementer.getUserDocListener();
-      setUserDocListener(userDocListener);
+  let cleanupFunctions = [];
 
-      const publicUsersListener = await listenerImplementer.getPublicUsersListener();
-      setPublicUsersListener(publicUsersListener);
+  async function setup() {
 
-      const categoriesListener = await listenerImplementer.getCategoriesListener();
-      setCategoriesListener(categoriesListener);
-    }
-    setupListeners();
-  }, []);
+    //Initialise the listeners
+    const UserDocListener = await listenerImplementer.getUserDocListener();
+    setUserDocListener(UserDocListener);
 
-  function initialiseDocumentStates() {
+    const PublicUsersListener = await listenerImplementer.getPublicUsersListener();
+    setPublicUsersListener(PublicUsersListener);
+
+    const categoriesListener = await listenerImplementer.getCategoriesListener();
+    setCategoriesListener(categoriesListener);
+
+    // Initialise the userProfile, publicUsers and categories
     const userDoc = UserDocListener.getCurrentDocument();
-    setUserProfile(userDoc);
+    setUserDoc(userDoc);
 
-    const publicUsersDoc = PublicUsersListener.getCurrentDocument();
-    const unfilteredPublicUsers = publicUsersDoc.publicUsers;
-    const filteredPublicUsers = unfilteredPublicUsers.filter((publicUser) => {
+    const unfilteredPublicUsers = PublicUsersListener.getCurrentDocument().publicUsers;
+    const publicUsers = unfilteredPublicUsers.filter((publicUser) => {
       const isFollowed = userDoc.following.includes(publicUser);
       return !isFollowed;
     });
-    setPublicUsers(filteredPublicUsers);
+    setPublicUsers(publicUsers);
 
-    const categoriesDoc = categoriesListener.getCurrentDocument();
-    setCategories(categoriesDoc.categories);
-  }
+    const categories = categoriesListener.getCurrentDocument().categories;
+    setCategories(categories);
 
-  function setupSubscriptions() {
-
+    // Setup subscriptions
     const unsubscribeFromSavedPosts =
       UserDocListener.subscribeToField('savedPosts',
         (savedPosts) => {
           setSavedPosts(savedPosts);
         });
+    cleanupFunctions.push(unsubscribeFromSavedPosts);
 
-    return () => {
-      unsubscribeFromSavedPosts();
-    }
+    await explore_setupCategorisedPostsObject(
+      categories,
+      listenerImplementer,
+      setCategorisedPostsObject,
+      userDoc,
+      publicUsers,
+    );
+
+    setIsInitialising(false);
   }
 
   useEffect(() => {
-    if (UserDocListener && PublicUsersListener && categoriesListener) {
-
-      initialiseDocumentStates();
-      const cancelAllSubscriptions = setupSubscriptions();
-      return () => {
-        cancelAllSubscriptions();
-      }
-    }
-  }, [UserDocListener, PublicUsersListener, categoriesListener]);
-
-  useEffect(() => {
-    if (publicUsers && userProfile && categories) {
-      explore_setupCategorisedPostsObject(
-        categories,
-        listenerImplementer,
-        setCategorisedPostsObject,
-        userProfile,
-        publicUsers,
-      );
-    }
-  }, [publicUsers, userProfile, categories]);
-
-
-  useEffect(() => {
-    if (categorisedPostsObject) {
-      console.log('postCategoriesObject', categorisedPostsObject);
-      setIsInitialising(false);
-    }
-  }, [categorisedPostsObject]);
-
-
+    setup();
+    return () => {
+      cleanupFunctions.forEach((cleanupFunction) => {
+        cleanupFunction();
+      });
+    };
+  }, []);
 
   useEffect(() => {
     async function handleFilteringWhenSelectedCategoriesChange() {
-      setIsFiltering(true);
-
       const localPostIDsOfSelectedCategories
         = combinePostIDsOfSelectedCategories(categorisedPostsObject, selectedCategories);
       setPostIDsOfSelectedCategories(localPostIDsOfSelectedCategories);
@@ -137,6 +112,7 @@ function useExplore() {
 
       setIsFiltering(false);
     }
+    setIsFiltering(true);
     handleFilteringWhenSelectedCategoriesChange();
   }, [selectedCategories]);
 
@@ -154,7 +130,7 @@ function useExplore() {
   }, [titleToSearch]);
 
   return {
-    userProfile,
+    userProfile: userDoc,
     categories,
     selectedCategories, setSelectedCategories, categorisedPostsObject,
     titleToSearch, setTitleToSearch,

@@ -4,6 +4,10 @@ class viewUsersLinkManager {
         this.subscriptions = [];
     }
 
+    getCurrentUserID() {
+        return this.userID;
+    }
+
     updateUserID(userID) {
         if (this.userID === userID) {
             return;

@@ -13,21 +13,22 @@ import {
     AccountCircle,
 } from '@mui/icons-material';
 
-import DisplayUserLink from '../../functions/DisplayUserLink';
+import DisplayUserLink from '../../../functions/DisplayUserLink';
 
-function DisplayFollower ( {otherUserID, removeFollower } ) {
-    const [removeFollowerIsBeingProcessed, setRemoveFollowerIsBeingProcessed] = useState(false); 
+function DisplayFollowing ( {otherUserID, unfollow }) {
+    const [unfollowIsBeingProcessed, setUnfollowIsBeingProcessed] = useState(false); 
 
-    const handleRemoveFollower = async () => {
-        setRemoveFollowerIsBeingProcessed(true);
-        removeFollower(otherUserID);
-        setRemoveFollowerIsBeingProcessed(false);
+    const handleUnfollow = async () => {
+        setUnfollowIsBeingProcessed(true);
+        unfollow(otherUserID);
+
+        setUnfollowIsBeingProcessed(false);
     }
 
-    if (removeFollowerIsBeingProcessed) {
+    if (unfollowIsBeingProcessed) {
         return (
             <div>
-                <p>Removing {otherUserID}...</p>
+                <p>Unfollowing {otherUserID}...</p>
             </div>
         );
     }
@@ -43,16 +44,16 @@ function DisplayFollower ( {otherUserID, removeFollower } ) {
             <Box sx={{ marginLeft: 'auto' }}>
                 <Button
                     startIcon={<NotInterested />}
-                    onClick={() => handleRemoveFollower()}
+                    onClick={() => handleUnfollow()}
                     variant={"outlined"}
                     color="error"
                     sx={{ flex: 1 }}
                 >
-                    Remove
+                    Unfollow
                 </Button>
             </Box>
         </ListItem>
     );
 }
 
-export default DisplayFollower; 
+export default DisplayFollowing;

@@ -16,7 +16,7 @@ import {
     AccountCircle,
 } from '@mui/icons-material';
 
-import DisplayUserLink from '../../functions/DisplayUserLink';
+import DisplayUserLink from '../../../functions/DisplayUserLink';
 
 function DisplayRequestReceived({ otherUserID, answerFollowRequest }) {
     const [requestIsBeingProcessed, setRequestIsBeingProcessed] = useState(false);

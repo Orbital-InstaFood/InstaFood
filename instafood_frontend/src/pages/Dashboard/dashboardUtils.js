@@ -32,11 +32,11 @@ export function rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts) {
  * @param {string[]} IDsOfAllposts - Array of postIDs that are in user's postsToView
  * @param {*} callback 
  */
-export function dashboard_setupCategorisedPostsObject (categories, listenerImplementer, IDsOfAllposts, callback) {
+export async function dashboard_setupCategorisedPostsObject (categories, listenerImplementer, IDsOfAllposts, callback) {
 
     const verifierCallback = (postID) => {
         return IDsOfAllposts.includes(postID);
     }
 
-    _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+    await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
 }

@@ -19,17 +19,14 @@ import {
     Title,
     CheckboxButtonContainer,
     Container
-} from './ProfileStyles';
+} from '../ProfileStyles';
 
 function EditProfile() {
 
     const {
-        username,
-        setUserName,
-        bio,
-        setBio,
-        isPrivate,
-        setIsPrivate,
+        username, setUserName,
+        bio, setBio,
+        isPrivate, setIsPrivate,
         isLoading,
         handleSubmitUserInfo,
     } = useEditProfile();

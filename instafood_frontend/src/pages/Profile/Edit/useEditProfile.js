@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { doc, updateDoc, arrayRemove, arrayUnion } from 'firebase/firestore';
-import { db, auth } from '../../firebaseConf';
+import { db, auth } from '../../../firebaseConf';
 
-import listenerImplementer from '../../listeners/ListenerImplementer';
+import listenerImplementer from '../../../listeners/ListenerImplementer';
 
 function useEditProfile () {
 
@@ -21,19 +21,22 @@ function useEditProfile () {
 
     const [isLoading, setIsLoading] = useState(true);
 
-    async function setupListeners() {
+    async function setup() {
         const userDocListener = await listenerImplementer.getUserDocListener();
         setUserDocListener(userDocListener);
-    }
 
-    function initializeUserInfo() {
         const userDoc = userDocListener.getCurrentDocument();
-
         setUserName(userDoc.username);
         setBio(userDoc.bio);
         setIsPrivate(userDoc.isPrivate);
         setUserID(userDoc.userID);
+
+        setIsLoading(false);
     }
+
+    useEffect(() => {
+        setup();
+    }, []);
 
     const handleSubmitUserInfo = async () => {
         const userRef = doc(db, 'users', auth.currentUser.uid);
@@ -58,25 +61,10 @@ function useEditProfile () {
         navigate('/viewProfile');
     };
 
-    useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        // Check that the listener is fully set up before initializing the user info and subscriptions
-        if (userDocListener) {
-            initializeUserInfo();
-            setIsLoading(false);
-        }
-    }, [userDocListener]);
-
     return {
-        username,
-        setUserName,
-        bio,
-        setBio,
-        isPrivate,
-        setIsPrivate,
+        username, setUserName,
+        bio, setBio,
+        isPrivate, setIsPrivate,
         isLoading,
         handleSubmitUserInfo,
     };

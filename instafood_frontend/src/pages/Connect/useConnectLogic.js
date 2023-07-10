@@ -21,13 +21,16 @@ function useConnectLogic() {
     const [userIDs, setUserIDs] = useState([]);
     const [publicUsers, setPublicUsers] = useState([]);
 
-    const [isLoadingForSubscriptions, setIsLoadingForSubscriptions] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    let cleanupFunctions = [];
 
     // State for search bar
     const [input, setInput] = useState('');
     const [listOfPossibleMatches, setListOfPossibleMatches] = useState([]);
 
-    async function setupListeners() {
+    async function setup() {
+        // Setup listeners
         const userDocListener = await listenerImplementer.getUserDocListener();
         const listOfUserIDsListener = await listenerImplementer.getListOfUserIDsListener();
         const publicUsersListener = await listenerImplementer.getPublicUsersListener();
@@ -35,38 +38,34 @@ function useConnectLogic() {
         setUserDocListener(userDocListener);
         setListOfUserIDsListener(listOfUserIDsListener);
         setPublicUsersListener(publicUsersListener);
-    }
 
-    /**
-     * Subscribes to relevant fields in the user document and the list of userIDs.
-     * 
-     * @returns {function} unsubscribeFromAllFields
-     */
-    function setupSubscriptions() {
-
-        const unsubscribeFromUserIDs =
-            listOfUserIDsListener.subscribeToField('userIDs', (userIDs) => {
-                setUserIDs(userIDs);
-            });
-
-        const unsubscribeFromPublicUsers =
-            publicUsersListener.subscribeToField('publicUsers', (publicUsers) => {
-                setPublicUsers(publicUsers);
-            });
-
-        return () => {
-            unsubscribeFromUserIDs();
-            unsubscribeFromPublicUsers();
-        }
-    }
-
-    function initializeUserDocAndEditor() {
         const userDoc = userDocListener.getCurrentDocument();
         setUserDoc(userDoc);
 
         const UserDocEditor = new userDocEditor(userDoc.userID, setUserDoc);
         setUserDocEditor(UserDocEditor);
+
+        const unsubscribeFromUserIDs =
+            listOfUserIDsListener.subscribeToField('userIDs', (userIDs) => {
+                setUserIDs(userIDs);
+            });
+        cleanupFunctions.push(unsubscribeFromUserIDs);
+
+        const unsubscribeFromPublicUsers =
+            publicUsersListener.subscribeToField('publicUsers', (publicUsers) => {
+                setPublicUsers(publicUsers);
+            });
+        cleanupFunctions.push(unsubscribeFromPublicUsers);
+
+        setIsLoading(false);
     }
+
+    useEffect(() => {
+        setup();
+        return () => {
+            cleanupFunctions.forEach(cleanupFunction => cleanupFunction());
+        }
+    }, []);
 
     function handleFollowRequest(otherUserID) {
         if (publicUsers.includes(otherUserID)) {
@@ -77,35 +76,14 @@ function useConnectLogic() {
     }
 
     useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        // Only set up subscriptions when both listeners are ready
-        if (userDocListener && listOfUserIDsListener && publicUsersListener) {
-
-            initializeUserDocAndEditor();
-            const unsubscribeFromAllFields = setupSubscriptions();
-            setIsLoadingForSubscriptions(false);
-
-            // Unsubscribe from all fields when component unmounts
-            return () => {
-                unsubscribeFromAllFields();
-            }
-        }
-
-    }, [userDocListener, listOfUserIDsListener, publicUsersListener]);
-
-    useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
         const filteredMatchesWithoutUserOwnID = possibleMatches.filter(ID => ID !== userDoc.userID);
         setListOfPossibleMatches(filteredMatchesWithoutUserOwnID);
     }, [input]);
 
     return {
-        isLoadingForSubscriptions,
-        input,
-        setInput,
+        isLoading,
+        input, setInput,
         listOfPossibleMatches,
         userDoc,
         handleFollowRequest,
