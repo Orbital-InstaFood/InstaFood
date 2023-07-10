@@ -6,8 +6,10 @@ import {
   Button,
   Backdrop,
   Box,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
+//import { DateTimePicker } from '@mui/lab';
+//import dayjs from 'dayjs';
 
 function NewEvent() {
   const {
@@ -40,22 +42,16 @@ function NewEvent() {
   return (
     <Grid
       container
-      sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: '1rem',
-      }}
+      justifyContent="center"
+      alignItems="center"
+      padding="1rem"
     >
       <Grid item xs={6}>
         <Box
-          sx={{
-            border: '1px solid #ccc',
-            padding: '1rem',
-            borderRadius: '5px',
-            backgroundColor: '#fff',
-          }}
+          border="1px solid #ccc"
+          padding="1rem"
+          borderRadius="5px"
+          backgroundColor="#fff"
         >
           <h2>Create New Event</h2>
           <form onSubmit={handleSubmit}>
@@ -71,7 +67,7 @@ function NewEvent() {
 
             <TextField
               label="Event Time"
-              type="text"
+              type="datetime-local"
               value={eventTime}
               onChange={(e) => setEventTime(e.target.value)}
               fullWidth
