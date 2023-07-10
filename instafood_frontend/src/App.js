@@ -18,6 +18,7 @@ import ConnectUI from './pages/Connect/ConnectUI';
 import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/EditProfile';
+import NewEvent from './pages/Event/NewEvent';
 
 import Navbar from './Navbar';
 
@@ -57,7 +58,8 @@ function App() {
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/connect" element={<ConnectUI />} />
             <Route path="/explore" element={<Explore />} />
-            <Route path="/viewOtherUsers" element={<ViewOtherUsers />}
+            <Route path="/viewOtherUsers" element={<ViewOtherUsers />}/>
+            <Route path="/newEvent" element={<NewEvent />}
             />
           </>
         )

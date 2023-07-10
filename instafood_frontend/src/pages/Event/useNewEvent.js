@@ -38,8 +38,8 @@ function useNewEvent() {
 
       await setDoc(eventDocRef, eventDoc);
 
-      const notifyFollowersEmail = httpsCallable(functions, 'notifyFollowersEmail');
-      await notifyFollowersEmail({ eventID });
+      const notifyFollowers = httpsCallable(functions, 'notifyFollowersEmail');
+      await notifyFollowers ({ userID: user.uid, eventID: eventID });
 
       navigate(`/event/${eventID}`);
     } catch (error) {

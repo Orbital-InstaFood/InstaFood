@@ -8,7 +8,8 @@ const links = [
     { path: '/newPost', label: 'Create' },
     { path: '/viewProfile', label: 'Profile' },
     { path: '/connect', label: 'Connect' },
-    { path: '/explore', label: 'Explore' }
+    { path: '/explore', label: 'Explore' },
+    { path: '/event', label: 'Event'}
 ];
 
 function Navbar() {
