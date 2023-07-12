@@ -4,6 +4,8 @@ import { doc, getDoc } from "firebase/firestore";
 import { auth, db, functions } from "../../firebaseConf";
 import { httpsCallable } from "firebase/functions";
 
+import { getFCMToken } from "../Notification/fcmTokenService";
+
 import listenerImplementer from "../../listeners/ListenerImplementer";
 
 export default function useCreateProfile() {
@@ -115,12 +117,14 @@ export default function useCreateProfile() {
     const handleCreate = async () => {
         setIsCreatingUserProfile(true);
 
+        const fcmToken = await getFCMToken();
         await createUserProfile({
             UID: user.uid,
             username: username,
             bio: bio,
             isPrivate: isPrivate,
             userID: userID,
+            fcmToken: fcmToken,
         });
 
         setIsCreatingUserProfile(false);

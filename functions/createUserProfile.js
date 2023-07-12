@@ -25,12 +25,16 @@ exports.createUserProfile = functions.https.onCall(async (request) => {
     if (userID === undefined || userID === null) {
         return { result: "No userID provided!!" };
     }
+    if (fcmToken === undefined || fcmToken === null) {
+        return { result: "No fcmToken provided!!" };
+    }
 
     const userDoc = {
         username: username,
         bio: bio,
         isPrivate: isPrivate,
         userID: userID,
+        fcmToken: fcmToken,
         followers: [],
         followRequestsReceived: [],
         following: [],
