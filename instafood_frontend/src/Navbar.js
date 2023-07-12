@@ -9,7 +9,7 @@ const links = [
     { path: '/viewProfile', label: 'Profile' },
     { path: '/connect', label: 'Connect' },
     { path: '/explore', label: 'Explore' },
-    { path: '/newEvent', label: 'Event'}
+    { path: '/event', label: 'Event'}
 ];
 
 function Navbar() {
