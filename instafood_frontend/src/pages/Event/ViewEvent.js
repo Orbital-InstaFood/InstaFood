@@ -1,54 +1,51 @@
-import { useEffect, useState } from 'react';
-import listenerImplementer from '../../listeners/ListenerImplementer';
+import React from 'react';
+import useViewEvent from './useViewEvent';
+import { Box, CircularProgress, Backdrop, Grid, Typography } from '@mui/material';
+
+const Title = Typography;
+
+const eventBoxStyles = {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '200px',
+  width: '300px',
+  backgroundColor: 'primary.main',
+  color: 'common.white',
+  borderRadius: 'borderRadius',
+  boxShadow: 'shadows.2',
+  margin: '2',
+  padding: '2',
+};
 
 function ViewEvent() {
-  const [eventID, setEventID] = useState('');
-  const [EventDocListener, setEventDocListener] = useState(null);
-  const [eventData, setEventData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { eventData, loading } = useViewEvent();
 
-  useEffect(() => {
-    async function setupListeners() {
-      const eventDocListener = await listenerImplementer.getEventDocListener();
-      setEventDocListener(eventDocListener);
-    }
-    setupListeners();
-  }, []);
-
-  function initialiseDocumentStates() {
-    const eventDoc = EventDocListener.getCurrentDocument();
-    setEventData(eventDoc);
-    setLoading(false);
+  if (loading) {
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={loading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
+    );
   }
 
-  useEffect(() => {
-    if (EventDocListener) {
-      initialiseDocumentStates();
-
-      const unsubscribe = EventDocListener.subscribe((eventData) => {
-        setEventData(eventData);
-      });
-
-      return () => {
-        unsubscribe();
-      };
-    }
-  }, [EventDocListener]);
-
   return (
-    <div>
-      {loading ? (
-        <div>Loading...</div>
-      ) : eventData ? (
-        <div>
-          <h2>{eventData.eventName}</h2>
-          <p>Event Time: {eventData.eventTime}</p>
-          <p>Event Place: {eventData.eventPlace}</p>
-        </div>
-      ) : (
-        <div>Event not found.</div>
-      )}
-    </div>
+    <Grid container spacing={2}>
+      {eventData.map((event) => (
+        <Grid key={event.eventID} item xs={12} sm={6} md={4} lg={3}>
+          <Box sx={eventBoxStyles}>
+            <Typography variant="h6">{event.eventName}</Typography>
+            <Typography variant="body1">Event Time: {event.eventTime}</Typography>
+            <Typography variant="body1">Event Place: {event.eventPlace}</Typography>
+          </Box>
+        </Grid>
+      ))}
+      {eventData.length === 0 && <div>No events found.</div>}
+    </Grid>
   );
 }
 

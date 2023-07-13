@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button, AppBar, Toolbar, Typography, Box, IconButton } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import NewEvent from './NewEvent';
+import ViewEvent from './ViewEvent';
 
 function EventUI() {
   const navigate = useNavigate();
@@ -17,7 +18,7 @@ function EventUI() {
   };
 
   const handleButtonClick = () => {
-    navigate('/new-event');
+    navigate('/');
   };
 
   return (
@@ -37,7 +38,7 @@ function EventUI() {
       {creatingEvent ? (
         <NewEvent onEventCreated={handleEventCreated} />
       ) : (
-        <div></div>
+        <ViewEvent />
       )}
     </div>
   );
