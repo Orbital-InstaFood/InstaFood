@@ -3,6 +3,14 @@ const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
 const admin = require("firebase-admin");
 
+/**
+ * @param {string} followerUserID - The userID of the follower
+ * @param {string} followedUserID - The userID of the followed user
+ * 
+ * This function removes the follower from the followed user's followers list
+ * and removes the followed user from the follower's following list
+ * This function also removes all of the followed user's posts from the follower's postsToView list
+ */
 exports.removeFollower = functions.https.onCall(async (request) => {
     const followerUserID = request.data.followerUserID;
     const followedUserID = request.data.followedUserID;

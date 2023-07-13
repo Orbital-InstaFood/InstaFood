@@ -231,7 +231,7 @@ function ViewProfile() {
                         </UserInfoContainer>
                     )}
 
-                    {selectedField === 'personalPosts' && userDoc.personalPosts.map((postID) => (
+                    {selectedField === 'personalPosts' && [...userDoc.personalPosts].reverse().map((postID) => (
                         <DisplayPostUI
                             postID={postID}
                             userOwnID={userDoc.userID}

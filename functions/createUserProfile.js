@@ -3,6 +3,17 @@ const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
 const admin = require("firebase-admin");
 
+/**
+ * @param {string} UID
+ * @param {string} username
+ * @param {string} bio
+ * @param {boolean} isPrivate
+ * @param {string} userID
+ * 
+ * This function creates a user document in the users collection,
+ * a document in backend_userID_UID to store the UID,
+ * updates the userIDs and publicUsers lists in the lists collection,
+ */
 exports.createUserProfile = functions.https.onCall(async (request) => {
     const UID = request.data.UID;
     const username = request.data.username;
@@ -53,7 +64,6 @@ exports.createUserProfile = functions.https.onCall(async (request) => {
             }
         );
     }
-
 
     await db.collection('backend_userID_UID').doc(userID).set(
         {

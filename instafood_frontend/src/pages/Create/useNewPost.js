@@ -10,6 +10,10 @@ import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
+import {
+    _handleImageChange,
+} from './newpostUtils';
+
 function useNewPost() {
 
     const navigate = useNavigate();
@@ -22,7 +26,7 @@ function useNewPost() {
     const [imageObjects, setImageObjects] = useState([]);
 
     // State for image preview
-    const allowedImageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [shouldShowArrows, setShouldShowArrows] = useState(false);
 
@@ -59,67 +63,15 @@ function useNewPost() {
     }, []);
 
     function handleImageChange(e) {
-        const newImageObjects = [...imageObjects];
-
-        for (const image of e.target.files) {
-
-            if (allowedImageTypes.includes(image.type)) {
-
-                let isExistingImage = false;
-
-                for (const imageObject of imageObjects) {
-                    if (_isSameImage(imageObject.content, image)) {
-                        isExistingImage = true;
-                        break;
-                    }
-                }
-
-                if (!isExistingImage) {
-
-                    const newImageObject = {
-                        content: image,
-                        uniqueID: generateUniqueID(),
-                        imageURL: URL.createObjectURL(image),
-                    };
-                    newImageObjects.push(newImageObject);
-
-                } else {
-                    // Handle existing image
-                    console.log('Existing image');
-                }
-
-            } else {
-                // Handle invalid file type
-                console.log('Invalid file type');
-            }
-        }
-
+        const newImageObjects = _handleImageChange(e, imageObjects);
         setImageObjects(newImageObjects);
         e.target.value = null;
-    }
-
-    function _isSameImage(image1, image2) {
-
-        if (image1.size !== image2.size) {
-            return false;
-        }
-
-        if (image1.name !== image2.name) {
-            return false;
-        }
-
-        if (image1.type !== image2.type) {
-            return false;
-        }
-
-        return true;
     }
 
     function handleImageDelete(uniqueID) {
         const newImageObjects = imageObjects.filter(
             imageObject => imageObject.uniqueID !== uniqueID
         );
-
         setImageObjects(newImageObjects);
     }
 
@@ -169,8 +121,7 @@ function useNewPost() {
         });
 
         for (const category of selectedCategories) {
-            const categoryToString = category.toString();
-            const categoryRef = doc(db, 'categorisedPosts', categoryToString);
+            const categoryRef = doc(db, 'categorisedPosts', category) ;
             const categoryDoc = await getDoc(categoryRef);
 
             if (categoryDoc.exists()) {
@@ -184,7 +135,7 @@ function useNewPost() {
             }
         }
 
-        navigate('/dashboard');
+        navigate('/viewProfile');
     };
 
     return {

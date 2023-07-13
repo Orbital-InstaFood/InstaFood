@@ -34,6 +34,9 @@ const useAuth = () => {
     signInWithPopup(auth, provider)
       .then(() => {
         navigate("/dashboard");
+      })
+      .catch((error) => {
+        console.log(error);
       });
   };
 
