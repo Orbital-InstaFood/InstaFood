@@ -7,18 +7,16 @@ import ViewEvent from './ViewEvent';
 function EventUI() {
   const navigate = useNavigate();
   const [creatingEvent, setCreatingEvent] = useState(false);
+  const [appBarMessage, setAppBarMessage] = useState('Discover interesting events!');
 
   const handleCreateEvent = () => {
     setCreatingEvent(true);
+    setAppBarMessage('Create a new event...');
   };
 
-  const handleEventCreated = (eventID) => {
-    console.log('Event created:', eventID);
+  const handleEventCreated = () => {
     setCreatingEvent(false);
-  };
-
-  const handleButtonClick = () => {
-    navigate('/');
+    setAppBarMessage('Discover interesting events!');
   };
 
   return (
@@ -26,7 +24,7 @@ function EventUI() {
       <AppBar position="static">
         <Toolbar sx={{ backgroundColor: '#fff', display: 'flex', justifyContent: 'space-between' }}>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#000' }}>
-              Discover interesting events!  
+             {appBarMessage} 
             </Typography>
           <Button color="primary" variant="contained" onClick={handleCreateEvent}>
             Create
