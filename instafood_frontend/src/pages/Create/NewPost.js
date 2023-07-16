@@ -37,8 +37,9 @@ import 'react-quill/dist/quill.snow.css';
 
 function NewPost() {
   const {
-    titleHTML, setTitleHTML,
+    title, setTitle,
     caption, setCaption,
+    captionHTML, setCaptionHTML,
     categories, selectedCategories, setSelectedCategories,
     imageObjects, currentImageIndex, setCurrentImageIndex, shouldShowArrows, setShouldShowArrows,
     handleImageChange, handleSubmitNewPost, handleImageDelete,
@@ -74,14 +75,14 @@ function NewPost() {
             Add categories, recipe details, and images to share your creativity with the world!
           </Description>
 
-          <ReactQuill
+          <TextField
             fullWidth
             label="Title"
             type="text"
             required
-            value={titleHTML}
+            value={title}
             margin='normal'
-            onChange={(newHTML) => setTitleHTML(newHTML)}
+            onChange={(e) => setTitle(e.target.value)}
           />
 
           <FormControl sx={{
@@ -119,7 +120,7 @@ function NewPost() {
 
           </FormControl>
 
-          <TextField
+          <ReactQuill
             sx={{ marginBottom: 2 }}
             fullWidth
             label="Recipe Details"
@@ -127,8 +128,8 @@ function NewPost() {
             type="text"
             id="caption"
             required
-            value={caption}
-            onChange={(e) => setCaption(e.target.value)}
+            value={captionHTML}
+            onChange={(newHTML) => setCaptionHTML(newHTML)}
           />
 
           <Button

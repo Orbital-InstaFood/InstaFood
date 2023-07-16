@@ -17,9 +17,10 @@ function useNewPost() {
 
     // State for post details
     const [title, setTitle] = useState('');
-    const [titleHTML, setTitleHTML] = useState('');
 
     const [caption, setCaption] = useState('');
+    const [captionHTML, setCaptionHTML] = useState('');
+
     const [otherCategory, setOtherCategory] = useState('Others');
 
     const [selectedCategories, setSelectedCategories] = useState([]);
@@ -148,8 +149,8 @@ function useNewPost() {
 
         const postDocRef = doc(db, 'posts', postID);
 
-        const encodedTitle = encodeURIComponent(titleHTML);
-        const title = encodedTitle;
+        const encodedCaption = encodeURIComponent(captionHTML);
+        const caption = encodedCaption;
 
         const uploadTasks = imageObjects.map(async (imageObject) => {
             const imageRef = ref(storage, `/${userID}/${postID}/${imageObject.content.name}/${imageObject.uniqueID}`);
@@ -226,8 +227,8 @@ function useNewPost() {
 
     return {
         title, setTitle,
-        titleHTML, setTitleHTML,
         caption, setCaption,
+        captionHTML, setCaptionHTML,
         categories, selectedCategories, setSelectedCategories,
         imageObjects, currentImageIndex, setCurrentImageIndex, shouldShowArrows, setShouldShowArrows,
         handleImageChange, handleSubmitNewPost, handleImageDelete,

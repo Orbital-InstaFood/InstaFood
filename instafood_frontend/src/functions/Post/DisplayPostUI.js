@@ -3,12 +3,12 @@ import DisplayUserLink from "../DisplayUserLink";
 import saveOrUnsaveAPost from "./saveOrUnsaveAPost";
 import useDisplayPostLogic from "./useDisplayPostLogic";
 
-import { 
-    List, 
-    ListItem, 
-    ListItemText, 
-    Collapse, 
-    ListItemIcon, 
+import {
+    List,
+    ListItem,
+    ListItemText,
+    Collapse,
+    ListItemIcon,
     ListItemButton,
     Paper,
     InputBase,
@@ -16,7 +16,7 @@ import {
     IconButton,
     Chip,
     CircularProgress,
- } from "@mui/material";
+} from "@mui/material";
 
 import {
     PostContainer,
@@ -75,19 +75,19 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     const [likesOpen, setLikesOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
 
-    const decodedTitle = decodeURIComponent(postDoc.title);
+    const decodedCaption = postDoc?.caption ? decodeURIComponent(postDoc.caption) : '';
 
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex' }}>
-              <CircularProgress />
+                <CircularProgress />
             </Box>
-          );
+        );
     }
 
     return (
         <PostContainer>
-            <Title>{decodedTitle}</Title>
+            <Title>{postDoc.title}</Title>
 
             <Description>
                 <div>
@@ -123,7 +123,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
             </SubHeading>
 
             <Caption>
-                {postDoc.caption}
+                <div dangerouslySetInnerHTML={{ __html: decodedCaption }} />
             </Caption>
 
             <SubHeading
@@ -279,8 +279,8 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
             </Box>
 
             <Paper
-                sx={{ 
-                    marginTop: '2rem', 
+                sx={{
+                    marginTop: '2rem',
                     display: 'flex',
                     p: '2px 4px',
                     width: '100%',
