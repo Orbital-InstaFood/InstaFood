@@ -1,5 +1,5 @@
-import { 
-  Grid, 
+import {
+  Grid,
   TextField,
   Button,
   Select,
@@ -7,16 +7,18 @@ import {
   FormControl,
   InputLabel,
   Chip,
-  IconButton, 
-  Input, 
-  Backdrop, 
+  IconButton,
+  Input,
+  Backdrop,
   Box,
-  CircularProgress } from '@mui/material';
+  CircularProgress
+} from '@mui/material';
 
-import { 
-  Delete, 
-  ChevronLeft, 
-  ChevronRight } from '@mui/icons-material';
+import {
+  Delete,
+  ChevronLeft,
+  ChevronRight
+} from '@mui/icons-material';
 
 import useNewPost from './useNewPost.js';
 
@@ -30,24 +32,27 @@ import {
   ButtonOverlay
 } from '../../functions/Post/PostStyles.js';
 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 function NewPost() {
   const {
-    title, setTitle,
+    titleHTML, setTitleHTML,
     caption, setCaption,
     categories, selectedCategories, setSelectedCategories,
-    imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
-    handleImageChange,handleSubmitNewPost,handleImageDelete,
+    imageObjects, currentImageIndex, setCurrentImageIndex, shouldShowArrows, setShouldShowArrows,
+    handleImageChange, handleSubmitNewPost, handleImageDelete,
     isLoading
   } = useNewPost();
 
   if (isLoading) {
-      return (
-        <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={isLoading}
-        >
-            <CircularProgress color="inherit" />
-        </Backdrop>
+    return (
+      <Backdrop
+        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        open={isLoading}
+      >
+        <CircularProgress color="inherit" />
+      </Backdrop>
     );
   }
 
@@ -69,14 +74,14 @@ function NewPost() {
             Add categories, recipe details, and images to share your creativity with the world!
           </Description>
 
-          <TextField
+          <ReactQuill
             fullWidth
             label="Title"
             type="text"
             required
-            value={title}
+            value={titleHTML}
             margin='normal'
-            onChange={(e) => setTitle(e.target.value)}
+            onChange={(newHTML) => setTitleHTML(newHTML)}
           />
 
           <FormControl sx={{

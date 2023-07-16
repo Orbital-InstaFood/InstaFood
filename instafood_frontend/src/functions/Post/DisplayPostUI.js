@@ -48,6 +48,9 @@ import {
     ArrowUpward,
 } from '@mui/icons-material';
 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     const {
@@ -72,6 +75,8 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     const [likesOpen, setLikesOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
 
+    const decodedTitle = decodeURIComponent(postDoc.title);
+
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex' }}>
@@ -82,7 +87,7 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     return (
         <PostContainer>
-            <Title>{postDoc.title}</Title>
+            <Title>{decodedTitle}</Title>
 
             <Description>
                 <div>

@@ -17,6 +17,8 @@ function useNewPost() {
 
     // State for post details
     const [title, setTitle] = useState('');
+    const [titleHTML, setTitleHTML] = useState('');
+
     const [caption, setCaption] = useState('');
     const [otherCategory, setOtherCategory] = useState('Others');
 
@@ -65,7 +67,7 @@ function useNewPost() {
     }, [categoriesListener]);
 
     useEffect(() => {
-        if ( categories && userID ) {
+        if (categories && userID) {
             setIsLoading(false);
         }
     }, [categories, userID]);
@@ -146,6 +148,9 @@ function useNewPost() {
 
         const postDocRef = doc(db, 'posts', postID);
 
+        const encodedTitle = encodeURIComponent(titleHTML);
+        const title = encodedTitle;
+
         const uploadTasks = imageObjects.map(async (imageObject) => {
             const imageRef = ref(storage, `/${userID}/${postID}/${imageObject.content.name}/${imageObject.uniqueID}`);
             const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
@@ -185,8 +190,8 @@ function useNewPost() {
             const categoryToString = category.toString();
             const categoryRef = doc(db, 'categorisedPosts', categoryToString);
             const categoryDoc = await getDoc(categoryRef);
-           
-        if (category == 'Others'){
+
+            if (category == 'Others') {
                 const userCategory = prompt('Enter your category name:');
                 setOtherCategory(userCategory);
                 if (userCategory == null || userCategory == '') {
@@ -198,14 +203,14 @@ function useNewPost() {
                         post_id_array: arrayUnion(postID)
                     });
                 } else {
-                await setDoc(categoryRef, {
-                    post_id_array: [postID],
-                    category_name: userCategory
-                });
+                    await setDoc(categoryRef, {
+                        post_id_array: [postID],
+                        category_name: userCategory
+                    });
+                }
             }
-        }
 
-        if (categoryDoc.exists()) {
+            if (categoryDoc.exists()) {
                 await updateDoc(categoryRef, {
                     post_id_array: arrayUnion(postID)
                 });
@@ -221,10 +226,11 @@ function useNewPost() {
 
     return {
         title, setTitle,
+        titleHTML, setTitleHTML,
         caption, setCaption,
         categories, selectedCategories, setSelectedCategories,
-        imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
-        handleImageChange,handleSubmitNewPost,handleImageDelete,
+        imageObjects, currentImageIndex, setCurrentImageIndex, shouldShowArrows, setShouldShowArrows,
+        handleImageChange, handleSubmitNewPost, handleImageDelete,
         isLoading
     }
 }

@@ -1,30 +1,32 @@
 const { initializeApp } = require("firebase-admin/app");
 initializeApp();
 
-const makeFollowRequest = require("./makeFollowRequest");
-const answerFollowRequest = require("./answerFollowRequest");
-const unfollow = require("./unfollow");
-const removeFollower = require("./removeFollower");
-const makeComment = require("./makeComment");
-const deleteComment = require("./deleteComment");
-const likePost = require("./likePost");
-const unlikePost = require("./unlikePost");
-const infoUserCanView = require("./infoUserCanView");
 const addPostToFollowersToView = require("./addPostToFollowersToView");
+const answerFollowRequest = require("./answerFollowRequest");
 const createUserProfile = require("./createUserProfile");
-const rankPosts = require("./rankPosts");
+const deleteComment = require("./deleteComment");
 const followPublicUser = require("./followPublicUser");
+const generateFCMTokenOnLogin = require("./generateFCMTokenOnLogin")
+const infoUserCanView = require("./infoUserCanView");
+const likePost = require("./likePost");
+const makeComment = require("./makeComment");
+const makeFollowRequest = require("./makeFollowRequest");
+const removeFollower = require("./removeFollower");
+const unfollow = require("./unfollow");
+const unlikePost = require("./unlikePost");
 
-exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
-exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
-exports.unfollow = unfollow.unfollow;
-exports.removeFollower = removeFollower.removeFollower;
-exports.makeComment = makeComment.makeComment;
-exports.deleteComment = deleteComment.deleteComment;
-exports.likePost = likePost.likePost;
-exports.unlikePost = unlikePost.unlikePost;
-exports.infoUserCanView = infoUserCanView.infoUserCanView;
 exports.addPostToFollowersToView = addPostToFollowersToView.addPostToFollowersToView;
+exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
 exports.createUserProfile = createUserProfile.createUserProfile;
-exports.rankPosts = rankPosts.rankPosts;
+exports.deleteComment = deleteComment.deleteComment;
 exports.followPublicUser = followPublicUser.followPublicUser;
+exports.generateFCMTokenOnLogin = generateFCMTokenOnLogin.generateFCMTokenOnLogin;
+exports.infoUserCanView = infoUserCanView.infoUserCanView;
+exports.likePost = likePost.likePost;
+exports.makeComment = makeComment.makeComment;
+exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
+exports.removeFollower = removeFollower.removeFollower;
+exports.unfollow = unfollow.unfollow;
+exports.unlikePost = unlikePost.unlikePost;
+
+

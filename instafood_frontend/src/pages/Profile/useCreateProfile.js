@@ -117,19 +117,24 @@ export default function useCreateProfile() {
     const handleCreate = async () => {
         setIsCreatingUserProfile(true);
 
-        const fcmToken = getFCMToken();
-        
-        await createUserProfile({
-            UID: user.uid,
-            username: username,
-            bio: bio,
-            isPrivate: isPrivate,
-            userID: userID,
-            fcmToken: fcmToken,
-        });
+        try {
+            const fcmToken = await getFCMToken();
 
-        setIsCreatingUserProfile(false);
-        navigate("/dashboard");
+            await createUserProfile({
+                UID: user.uid,
+                username: username,
+                bio: bio,
+                isPrivate: isPrivate,
+                userID: userID,
+                fcmToken: fcmToken,
+            });
+
+            setIsCreatingUserProfile(false);
+            navigate("/dashboard");
+        } catch (error) {
+            console.log("Error creating profile");
+            setIsCreatingUserProfile(false);
+        }
     }
 
     return {
