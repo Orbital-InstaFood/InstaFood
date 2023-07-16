@@ -42,14 +42,15 @@ export async function setupCategorisedPostsObject(categories, listenerImplemente
             categorisedPostObject[category] = [];
             continue;
         }
-        
+
         const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
         const categorisedPosts = categorisedPostsDoc.post_id_array;
 
         // Filter out posts that are not in the user's postsToView
-        const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
-            return verifierCallback(postID);
-        });
+        const filteredCategorisedPosts = categorisedPosts && categorisedPosts.length > 0
+            ? categorisedPosts.filter((postID) => verifierCallback(postID))
+            : [];
+
 
         categorisedPostObject[category] = filteredCategorisedPosts;
     }
