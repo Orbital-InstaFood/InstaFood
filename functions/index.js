@@ -14,6 +14,7 @@ const makeFollowRequest = require("./makeFollowRequest");
 const removeFollower = require("./removeFollower");
 const unfollow = require("./unfollow");
 const unlikePost = require("./unlikePost");
+const updateFCMToken = require("./updateFCMToken");
 
 exports.addPostToFollowersToView = addPostToFollowersToView.addPostToFollowersToView;
 exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
@@ -28,5 +29,6 @@ exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
 exports.removeFollower = removeFollower.removeFollower;
 exports.unfollow = unfollow.unfollow;
 exports.unlikePost = unlikePost.unlikePost;
+exports.updateFCMToken = updateFCMToken.updateFCMToken;
 
 
