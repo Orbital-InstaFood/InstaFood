@@ -1,19 +1,24 @@
 import { useEffect, useState } from "react";
+import { generateUniqueID } from "web-vitals/dist/modules/lib/generateUniqueID";
 
 import listenerImplementer from "../../listeners/ListenerImplementer";
 import postDocEditor from "../../editor/postDocEditor";
 
-import { generateUniqueID } from "web-vitals/dist/modules/lib/generateUniqueID";
-
-function useDisplayPostLogic ( {postID, userOwnID} ) {
+/**
+ * Custom hook for displaying a post
+ * It retrieves the post document during setup
+ * and provides the following functions:
+ * 
+ * @function handleDeleteComment - delete a comment - assumes that the user is the owner of the comment
+ * @function handleLikeOrDislike - like or dislike a post
+ * @function handleMakeComment - add a comment to the post
+ */
+export default function useDisplayPostLogic ( {postID, userOwnID} ) {
 
     const [postListener, setPostListener] = useState(null);
-
     const [postDoc, setPostDoc] = useState(null);
     const [PostDocEditor, setPostDocEditor] = useState(null);
-
     const [isLoading, setIsLoading] = useState(true);
-
     const [commentText, setCommentText] = useState('');
 
     async function setup() {
@@ -25,7 +30,6 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
 
         const PostDocEditor = new postDocEditor(postID, setPostDoc, userOwnID);
         setPostDocEditor(PostDocEditor);
-
         setIsLoading(false);
     }
 
@@ -65,6 +69,4 @@ function useDisplayPostLogic ( {postID, userOwnID} ) {
         handleMakeComment, handleLikeOrDislike, handleDeleteComment,
     };
 }
-
-export default useDisplayPostLogic;
 

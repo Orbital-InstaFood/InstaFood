@@ -32,21 +32,25 @@ import {
     UserInfoContainer,
 } from '../ProfileStyles';
 
-function ViewProfile() {
-
-    const Title = styled(Typography)`
-    font-size: 1.5rem;
-    font-weight: bold;
+const Title = styled(Typography)`
+font-size: 1.5rem;
+font-weight: bold;
 `;
 
-    const Description = styled(Typography)`
-    font-size: 1rem;
-    color: #666;
+const Description = styled(Typography)`
+font-size: 1rem;
+color: #666;
 `;
 
-    const Caption = styled(Typography)`
-    font-size: 1rem;
+const Caption = styled(Typography)`
+font-size: 1rem;
 `;
+
+/**
+ * This component is used to render the view profile page
+ * for the user's own profile.
+ */
+export default function ViewProfile() {
 
     const navigate = useNavigate();
 
@@ -253,6 +257,3 @@ function ViewProfile() {
         </Grid>
     );
 }
-
-
-export default ViewProfile;

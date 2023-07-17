@@ -61,7 +61,10 @@ const Caption = styled(Typography)`
   font-size: 1rem;
 `;
 
-function ViewOtherUsers() {
+/**
+ * This component is used to render the page for viewing other users' profiles.
+ */
+export default function ViewOtherUsers() {
 
     const {
         viewableUserInfo,
@@ -230,5 +233,3 @@ function ViewOtherUsers() {
         </Grid>
     );
 }
-
-export default ViewOtherUsers;

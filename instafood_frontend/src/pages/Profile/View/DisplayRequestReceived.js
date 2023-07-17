@@ -18,7 +18,14 @@ import {
 
 import DisplayUserLink from '../../../functions/DisplayUserLink';
 
-function DisplayRequestReceived({ otherUserID, answerFollowRequest }) {
+/**
+ * This component is used to render the request received by the user
+ * and provide the user with the option to accept or reject the request.
+ * 
+ * @param {string} otherUserID The user ID of the user who sent the request.
+ * @param {function} answerFollowRequest The function to answer the follow request. This function is passed from a UserDocEditor component.
+ */
+export default function DisplayRequestReceived({ otherUserID, answerFollowRequest }) {
     const [requestIsBeingProcessed, setRequestIsBeingProcessed] = useState(false);
 
     const handleAcceptOrReject = async (isAccepted) => {
@@ -68,5 +75,3 @@ function DisplayRequestReceived({ otherUserID, answerFollowRequest }) {
         </ListItem>
     );
 }
-
-export default DisplayRequestReceived;

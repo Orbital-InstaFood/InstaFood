@@ -8,7 +8,10 @@ import listenerImplementer from '../../listeners/ListenerImplementer';
 import viewUsersLinkManagerInstance from '../../functions/viewUsersLinkManager';
 import userDocEditor from '../../editor/userDocEditor';
 
-function useViewOtherUsers() {
+/**
+ * This hook handles the logic for the view other users page.
+ */
+export default function useViewOtherUsers() {
     const navigate = useNavigate();
 
     const [targetUserID, setTargetUserID] = useState(null);
@@ -91,5 +94,3 @@ function useViewOtherUsers() {
     };
 
 }
-
-export default useViewOtherUsers;

@@ -6,7 +6,11 @@ import { db, auth } from '../../../firebaseConf';
 
 import listenerImplementer from '../../../listeners/ListenerImplementer';
 
-function useEditProfile () {
+/**
+ * This hook handles the logic for the edit profile page.
+ * It handles database updates when user changes their account privacy settings.
+ */
+export default function useEditProfile () {
 
     const navigate = useNavigate();
 
@@ -70,5 +74,3 @@ function useEditProfile () {
     };
 
 }
-
-export default useEditProfile;

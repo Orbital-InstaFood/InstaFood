@@ -1,18 +1,24 @@
 import { Link, useNavigate } from "react-router-dom";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import Typography from "@mui/material/Typography";
 import useAuth from "./authLogic";
 import GoogleIcon from "./google-icon.png";
-import { Grid } from "@mui/material";
 import { StyledBox, StyledGoogleIcon, DividerWithText, Title, Description } from "./authStyle";
+import {
+    Button,
+    Typography,
+    Grid
+} from '@mui/material'
+import {
+    FormContainer,
+    TextFieldElement
+} from 'react-hook-form-mui'
 
+/**
+ * This component is used to render the login page.
+ */
 export default function Login() {
     const {
-        email,
-        setEmail,
-        password,
-        setPassword,
+        email, setEmail,
+        password, setPassword,
         handleGoogle,
         handleLogin,
     } = useAuth();
@@ -23,53 +29,61 @@ export default function Login() {
         <StyledBox>
 
             <Title variant="h2">LOG IN</Title>
+            <Description variant="body1"> Welcome back to Instafood! </Description>
 
-            <Description variant="body1">
-                Welcome back to Instafood!
-            </Description>
+            <FormContainer onSuccess={handleLogin}>
 
-            <TextField
-                type="email"
-                label="Email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                sx={{ width: "100%" }} // Stretch the text field to occupy the entire width
-            />
+                <TextFieldElement
+                    name="email"
+                    type="email"
+                    label="EMAIL"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    sx={{ 
+                        width: "100%",
+                        marginBottom: "1rem" 
+                    }}
+                />
 
-            <TextField
-                type="password"
-                label="Password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                sx={{ width: "100%" }} // Stretch the text field to occupy the entire width
-            />
+                <TextFieldElement
+                    name="password"
+                    type="password"
+                    label="PASSWORD"
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    sx={{
+                        width: "100%",
+                        marginBottom: "1rem"
+                    }}
+                />
 
-            <Grid container alignItems="center" justifyContent="space-between">
-                <Grid item xs>
-                    <Button
-                        variant="text"
-                        size="small"
-                        color="error"
-                        onClick={() => navigate("/forgotpassword")}
-                    >
-                        Forgot password?
-                    </Button>
+                <Grid container alignItems="center" justifyContent="space-between">
+                    <Grid item xs>
+                        <Button
+                            variant="text"
+                            size="small"
+                            color="error"
+                            onClick={() => navigate("/forgotpassword")}
+                        >
+                            Forgot password?
+                        </Button>
+                    </Grid>
+
+                    <Grid item>
+                        <Button
+                            variant="contained"
+                            type="submit"
+                            sx={{ width: "100%" }}
+                        >
+                            LOG IN
+                        </Button>
+                    </Grid>
                 </Grid>
-                
-                <Grid item>
-                    <Button
-                        variant="contained"
-                        onClick={handleLogin}
-                        sx={{ width: "100%" }}
-                    >
-                        LOG IN
-                    </Button>
-                </Grid>
-            </Grid>
+            </FormContainer>
 
-            <DividerWithText>OR</DividerWithText>
+            <DividerWithText>OR</DividerWithText> 
 
             <Button
                 variant="outlined"

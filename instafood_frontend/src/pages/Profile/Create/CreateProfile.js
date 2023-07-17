@@ -19,6 +19,9 @@ import {
 
 import useCreateProfile from "./useCreateProfile";
 
+/**
+ * This component is used to render the create profile page.
+ */
 export default function CreateProfile() {
 
   const {

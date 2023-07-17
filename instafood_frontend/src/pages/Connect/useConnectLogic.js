@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 
 import textSearch from '../../functions/textSearch';
-
 import listenerImplementer from '../../listeners/ListenerImplementer';
 import userDocEditor from '../../editor/userDocEditor';
 
-function useConnectLogic() {
+/**
+ * Custom hook for the Connect page
+ * It retrieves the user document during setup,
+ * matches input from the search bar to user IDs in the database
+ * and exposes the following variables and functions:
+ * @var userDoc - the user document
+ * @var listOfPossibleMatches - matches from the search bar
+ * @function handleFollowRequest - function to handle follow requests
+ */
+export default function useConnectLogic() {
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -14,7 +22,6 @@ function useConnectLogic() {
 
     // State for subscriptions to fields in the user document
     const [userDoc, setUserDoc] = useState(null);
-
     const [UserDocEditor, setUserDocEditor] = useState(null);
 
     // State for subscriptions to userIDs in the listOfUserIDs document
@@ -89,6 +96,4 @@ function useConnectLogic() {
         handleFollowRequest,
     }
 }
-
-export default useConnectLogic;
 

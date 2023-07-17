@@ -48,7 +48,16 @@ import {
     ArrowUpward,
 } from '@mui/icons-material';
 
-function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
+/**
+ * This component is used to render a post 
+ * 
+ * This component assumes that the user has view access to the post
+ * @param {string} postID The ID of the post to be displayed
+ * @param {string} userOwnID The ID of the user who is viewing the post
+ * @param {boolean} isAPersonalPost Whether the post is a personal post
+ * @param {boolean} isASavedPost Whether the post is a saved post. This must be updated when the user saves or unsaves a post
+ */
+export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     const {
         postDoc,
@@ -143,7 +152,6 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                                 >
                                     <AccountCircle />
                                 </ListItemIcon>
-                                {/* <ListItemText primary={like} /> */}
                                 <DisplayUserLink userID={like} />
                             </ListItem>
                         ))}
@@ -300,5 +308,3 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     );
 
 }
-
-export default DisplayPostUI;

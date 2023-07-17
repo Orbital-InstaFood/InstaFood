@@ -1,3 +1,14 @@
+/**
+ * This module is used to manage the user ID that is being viewed.
+ * by maintaining a single source of truth for the user ID
+ * and notifying all components that are subscribed to the user ID
+ * when the user ID is updated.
+ * It assumes that only one user ID can be viewed at a time.
+ * 
+ * It is used by the following components:
+ * - DisplayUserLink
+ * - ViewOtherUsers
+ */
 class viewUsersLinkManager {
     constructor() {
         this.userID = null;
@@ -18,7 +29,6 @@ class viewUsersLinkManager {
     }
 
     subscribeToUserID(callback) {
-        // Call the callback immediately with the current value
         callback(this.userID);
 
         this.subscriptions.push(callback);

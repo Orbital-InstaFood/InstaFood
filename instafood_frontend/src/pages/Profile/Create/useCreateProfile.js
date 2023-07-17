@@ -5,6 +5,10 @@ import { httpsCallable } from "firebase/functions";
 
 import listenerImplementer from "../../../listeners/ListenerImplementer";
 
+/**
+ * This hook handles the logic for the create profile page.
+ * Its main purpose is to ensure that the user does not create a profile with an existing userID.
+ */
 export default function useCreateProfile() {
 
     const user = auth.currentUser;

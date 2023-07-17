@@ -21,7 +21,10 @@ import {
     Container
 } from '../ProfileStyles';
 
-function EditProfile() {
+/**
+ * This component is used to render the edit profile page.
+ */
+export default function EditProfile() {
 
     const {
         username, setUserName,
@@ -123,5 +126,3 @@ function EditProfile() {
     );
 
 }
-
-export default EditProfile;

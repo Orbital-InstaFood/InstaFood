@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import listenerImplementer from '../../../listeners/ListenerImplementer';
-
 import userDocEditor from '../../../editor/userDocEditor';
 
-/*
-Edits of followers, following to be updated in the backend database 
-*/
-
-function useViewProfile() {
+/**
+ * This hook handles the logic for the view profile page.
+ */
+export default function useViewProfile() {
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -61,7 +59,5 @@ function useViewProfile() {
         isLoading
     }
 }
-
-export default useViewProfile
 
 
