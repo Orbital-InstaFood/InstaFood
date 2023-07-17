@@ -98,7 +98,6 @@ class ListenerImplementer {
         const eventRef = doc(db, "events", eventID);
         return this._getListener(eventRef);
     }
-
 }
 
 const listenerImplementer = new ListenerImplementer();

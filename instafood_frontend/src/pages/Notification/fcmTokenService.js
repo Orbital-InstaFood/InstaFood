@@ -8,7 +8,7 @@ function getFCMToken() {
       console.log('Notification permission granted.');
 
       const currentToken = getToken(messaging, {
-        vapidKey: 'BBrMwU3pxms1IGiAMa3V0aLvbtuqG9Ubm4P7QQk87zeii5d4dZD-gJTM_oIfOhR3fegFNwkhNafOJtlWEGa2n84'
+        vapidKey: 'BBSR2tNayOFOoqLw6PHnRfs0eLkK_ooq2mz0Qjm_sx-gF6Q2eSCgcubj0cOLtLDWgS0J6oaJe0MDerBk_ErQe9U'
       }).then((currentToken) => {
         if (currentToken) {
           console.log("currentToken: ", currentToken);
