@@ -27,11 +27,7 @@ export default function useAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user && user.emailVerified) {
-        navigate("/dashboard");
-      }
-    });
+    const unsubscribe = auth.onAuthStateChanged((user) => {});
     return () => unsubscribe();
   }, []);
 
