@@ -39,14 +39,18 @@ color: #666;
 margin-bottom: 1rem;
 `;
 
-function Dashboard() {
+/**
+ * This component is used to render the dashboard page.
+ */
+export default function Dashboard() {
 
     const {
         userProfile, IDsOfSavedPosts,
-        categories, selectedCategories, setSelectedCategories, postCategoriesObject,
+        categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
+        ingredients, selectedIngredients, setSelectedIngredients, ingredientPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
-        IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
+        IDsOfLoadedPosts, setCurrentPage, currentPage, maxNumberOfPages
     } = useDashboard();
 
     const handleCategorySelect = (category) => {
@@ -55,6 +59,15 @@ function Dashboard() {
             setSelectedCategories(selectedCategories.filter((c) => c !== category));
         } else {
             setSelectedCategories([...selectedCategories, category]);
+        }
+    };
+
+    const handleIngredientSelect = (ingredient) => {
+        const isSelected = selectedIngredients.includes(ingredient);
+        if (isSelected) {
+            setSelectedIngredients(selectedIngredients.filter((i) => i !== ingredient));
+        } else {
+            setSelectedIngredients([...selectedIngredients, ingredient]);
         }
     };
 
@@ -76,16 +89,29 @@ function Dashboard() {
                 <UserInfoContainer style={{ position: 'sticky', top: 0 }}>
 
                     <Title> Welcome, {userProfile.username}! </Title>
-                    <Description> Discover the newest recipes from people you follow. </Description>
+                    <Description> Discover the newest recipes from people you follow </Description>
 
                     <Typography variant="subtitle1">Categories</Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
                         {categories.map((category) => (
                             <Chip
                                 key={category}
-                                label={`${category} ${postCategoriesObject[category].length}`}
+                                label={`${category} ${categorisedPostsObject[category].length}`}
                                 onClick={() => handleCategorySelect(category)}
                                 color={selectedCategories.includes(category) ? 'primary' : 'default'}
+                                sx={{ margin: '0.5rem' }}
+                            />
+                        ))}
+                    </Box>
+
+                    <Typography variant="subtitle1">Ingredients</Typography>
+                    <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+                        {ingredients.map((ingredient) => (
+                            <Chip
+                                key={ingredient}
+                                label={`${ingredient} ${ingredientPostsObject[ingredient].length}`}
+                                onClick={() => handleIngredientSelect(ingredient)}
+                                color={selectedIngredients.includes(ingredient) ? 'primary' : 'default'}
                                 sx={{ margin: '0.5rem' }}
                             />
                         ))}
@@ -103,18 +129,24 @@ function Dashboard() {
                                 sx={{ position: 'absolute' }}
                                 size='small'
                                 startIcon={<ChevronLeft />}
-                                onClick={handlePreviousPage}
+                                onClick={() => {
+                                    setCurrentPage((prevPage) => prevPage - 1);
+                                }}
                                 disabled={currentPage === 1 || IDsOfPostsToDisplay.length === 0}
                             >
+                                Previous
                             </Button>
                             <Button
                                 variant="contained"
                                 sx={{ right: 0, position: 'absolute' }}
                                 size='small'
                                 endIcon={<ChevronRight />}
-                                onClick={handleNextPage}
+                                onClick={() => {
+                                    setCurrentPage((prevPage) => prevPage + 1);
+                                }}
                                 disabled={maxNumberOfPages === currentPage || IDsOfPostsToDisplay.length === 0}
                             >
+                                Next
                             </Button>
                         </div>
                     )}
@@ -133,5 +165,3 @@ function Dashboard() {
         </Grid>
     );
 }
-
-export default Dashboard

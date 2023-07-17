@@ -1,16 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { db, auth, storage, functions } from '../../firebaseConf';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
-
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
 import listenerImplementer from '../../listeners/ListenerImplementer';
+import { db, auth, storage, functions } from '../../firebaseConf';
+import {
+    _handleImageChange,
+} from './newpostUtils';
 
-function useNewPost() {
+/**
+ * This hook handles the logic for the new post page.
+ * It handles image upload, deletion, and viewing.
+ * It also handles the submission of the new post.
+ * It exposes the following methods:
+ * 
+ * @function handleImageChange - handles new image selection
+ * @function handleImageDelete - delete an uploaded image
+ * @function handleSubmitNewPost - submit the new post
+ */
+export default function useNewPost() {
 
     const navigate = useNavigate();
     const user = auth.currentUser;
@@ -19,10 +30,11 @@ function useNewPost() {
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
 
     // State for image preview
-    const allowedImageTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
     const [shouldShowArrows, setShouldShowArrows] = useState(false);
 
@@ -33,109 +45,54 @@ function useNewPost() {
     const [categoriesListener, setCategoriesListener] = useState(null);
     const [categories, setCategories] = useState([]);
 
-    // State for loading
-    const [isLoading, setIsLoading] = useState(false);
+    const [ingredientsListener, setIngredientsListener] = useState(null);
+    const [ingredients, setIngredients] = useState([]);
 
-    async function setupListeners() {
+    // State for loading
+    const [isLoading, setIsLoading] = useState(true);
+
+    async function setup() {
+        // Setup listeners
         const userDocListener = await listenerImplementer.getUserDocListener();
         setUserDocListener(userDocListener);
 
         const categoriesListener = await listenerImplementer.getCategoriesListener();
         setCategoriesListener(categoriesListener);
+
+        const ingredientsListener = await listenerImplementer.getIngredientsListener();
+        setIngredientsListener(ingredientsListener);
+
+        // Initialise states
+        const userDoc = userDocListener.getCurrentDocument();
+        setUserID(userDoc.userID);
+
+        const categoriesDoc = categoriesListener.getCurrentDocument();
+        setCategories(categoriesDoc.categories);
+
+        const ingredientsDoc = ingredientsListener.getCurrentDocument();
+        setIngredients(ingredientsDoc.Ingredients);
+
+        setIsLoading(false);
     }
 
     useEffect(() => {
-        setupListeners();
+        setup();
     }, []);
 
-    useEffect(() => {
-        if (userDocListener) {
-            const userDoc = userDocListener.getCurrentDocument();
-            setUserID(userDoc.userID);
-        }
-    }, [userDocListener]);
-
-    useEffect(() => {
-        if (categoriesListener) {
-            const categoriesDoc = categoriesListener.getCurrentDocument();
-            setCategories(categoriesDoc.categories);
-        }
-    }, [categoriesListener]);
-
-    useEffect(() => {
-        if ( categories && userID ) {
-            setIsLoading(false);
-        }
-    }, [categories, userID]);
-
     function handleImageChange(e) {
-        const newImageObjects = [...imageObjects];
-
-        for (const image of e.target.files) {
-
-            if (allowedImageTypes.includes(image.type)) {
-
-                let isExistingImage = false;
-
-                for (const imageObject of imageObjects) {
-                    if (_isSameImage(imageObject.content, image)) {
-                        isExistingImage = true;
-                        break;
-                    }
-                }
-
-                if (!isExistingImage) {
-
-                    const newImageObject = {
-                        content: image,
-                        uniqueID: generateUniqueID(),
-                        imageURL: URL.createObjectURL(image),
-                    };
-                    newImageObjects.push(newImageObject);
-
-                } else {
-                    // Handle existing image
-                    console.log('Existing image');
-                }
-
-            } else {
-                // Handle invalid file type
-                console.log('Invalid file type');
-            }
-        }
-
+        const newImageObjects = _handleImageChange(e, imageObjects);
         setImageObjects(newImageObjects);
         e.target.value = null;
     }
-
-    function _isSameImage(image1, image2) {
-
-        if (image1.size !== image2.size) {
-            return false;
-        }
-
-        if (image1.name !== image2.name) {
-            return false;
-        }
-
-        if (image1.type !== image2.type) {
-            return false;
-        }
-
-        return true;
-    }
-
 
     function handleImageDelete(uniqueID) {
         const newImageObjects = imageObjects.filter(
             imageObject => imageObject.uniqueID !== uniqueID
         );
-
         setImageObjects(newImageObjects);
     }
 
     const handleSubmitNewPost = async (e) => {
-        e.preventDefault();
 
         const timestamp = serverTimestamp();
         const uniqueID = generateUniqueID();
@@ -161,7 +118,8 @@ function useNewPost() {
             postID: postID,
             likes: [],
             comments: [],
-            categories: selectedCategories
+            categories: selectedCategories,
+            ingredients: selectedIngredients
         };
 
         await setDoc(postDocRef, postDoc);
@@ -180,8 +138,7 @@ function useNewPost() {
         });
 
         for (const category of selectedCategories) {
-            const categoryToString = category.toString();
-            const categoryRef = doc(db, 'categorisedPosts', categoryToString);
+            const categoryRef = doc(db, 'categorisedPosts', category) ;
             const categoryDoc = await getDoc(categoryRef);
 
             if (categoryDoc.exists()) {
@@ -195,17 +152,32 @@ function useNewPost() {
             }
         }
 
-        navigate('/dashboard');
+        for (const ingredient of selectedIngredients) {
+            const ingredientRef = doc(db, 'ingredientPosts', ingredient);
+            const ingredientDoc = await getDoc(ingredientRef);
+
+            if (ingredientDoc.exists()) {
+                await updateDoc(ingredientRef, {
+                    post_id_array: arrayUnion(postID)
+                });
+            } else {
+                await setDoc(ingredientRef, {
+                    post_id_array: [postID]
+                });
+            }
+        }
+
+        navigate('/viewProfile');
     };
 
     return {
         title, setTitle,
         caption, setCaption,
         categories, selectedCategories, setSelectedCategories,
+        ingredients, selectedIngredients, setSelectedIngredients,
         imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
-        handleImageChange,handleSubmitNewPost,handleImageDelete,
-        isLoading
+        handleImageChange, handleImageDelete,
+        handleSubmitNewPost, isLoading
     }
 }
 
-export default useNewPost;

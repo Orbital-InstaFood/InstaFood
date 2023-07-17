@@ -27,15 +27,10 @@ class ListenerImplementer {
     async _getListener(docRef) {
         const listenerKey = docRef.id;
 
-        if (!this.listeners[listenerKey]) {
+        if (this.listeners[listenerKey] === undefined) {
             const listener = new Listener(docRef);
-
-            try {
-                await listener.startSnapshotListener();
-                this.listeners[listenerKey] = listener;
-            } catch (error) {
-                this.listeners[listenerKey] = null;
-            }
+            await listener.startSnapshotListener();
+            this.listeners[listenerKey] = listener;
         }
 
         return this.listeners[listenerKey];
@@ -80,7 +75,16 @@ class ListenerImplementer {
         const categorisedPostsRef = doc(db, "categorisedPosts", category);
         return this._getListener(categorisedPostsRef);
     }
-    
+
+    async getIngredientsListener() {
+        const ingredientsRef = doc(db, "lists", "Ingredients");
+        return this._getListener(ingredientsRef);
+    }
+
+    async getIngredientPostsListener(ingredient) {
+        const ingredientPostsRef = doc(db, "ingredientPosts", ingredient);
+        return this._getListener(ingredientPostsRef);
+    }
 }
 
 const listenerImplementer = new ListenerImplementer();

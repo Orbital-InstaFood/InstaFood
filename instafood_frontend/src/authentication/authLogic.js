@@ -11,20 +11,24 @@ import {
 } from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
 
-const useAuth = () => {
+/**
+ * Custom hook for authentication
+ * The following functions are available:
+ * @function handleGoogle - sign in with Google
+ * @function handleLogin - sign in with email and password
+ * @function handleSignup - sign up with email and password
+ * @function handleLogout - sign out
+ * @function handleSendPasswordResetEmail - send password reset email
+ */
+export default function useAuth() {
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubsribe = auth.onAuthStateChanged((user) => {
-
-      if (user && user.emailVerified) {
-        navigate("/dashboard");
-      }
-
-    });
-    return () => unsubsribe();
+    const unsubscribe = auth.onAuthStateChanged((user) => {});
+    return () => unsubscribe();
   }, []);
 
   const handleGoogle = (e) => {
@@ -32,45 +36,35 @@ const useAuth = () => {
 
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
-      .then(() => {
-        navigate("/dashboard");
-      });
+      .then(() => { navigate("/dashboard") })
+      .catch((error) => { 
+        if (error.code === "auth/popup-closed-by-user") {
+          return;
+        }
+        alert(error.code) });
+
   };
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-
+  const handleLogin = () => {
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
-        const user = userCredential.user;
-        if (!user.emailVerified) {
-          if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
-            await SendEmailVerification(email, password);
-          }
-          signOut(auth);
-          navigate("/");
-        } else {
+        if (userCredential.user.emailVerified) {
           navigate("/dashboard");
+          return;
         }
+
+        if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
+          await SendEmailVerification(email, password);
+        }
+
+        signOut(auth);
+        navigate("/");
       })
 
-      .catch((error) => {
-        if (error.code === "auth/invalid-email") {
-          alert("Invalid email address.");
-        }
-
-        if (error.code === "auth/user-not-found") {
-          alert("You do not have an account. Please create an account.");
-        }
-
-        if (error.code === "auth/wrong-password") {
-          alert("Incorrect password.");
-        }
-      });
+      .catch((error) => { alert(error.code) });
   };
 
-  const handleSignup = (e) => {
-    e.preventDefault();
+  const handleSignup = () => {
 
     createUserWithEmailAndPassword(auth, email, password)
       .then(async () => {
@@ -80,22 +74,11 @@ const useAuth = () => {
       })
 
       .catch((error) => {
-        if (error.code === "auth/email-already-in-use") {
-          alert("Email already in use. Please use a different email address.");
-        }
-
-        if (error.code === "auth/invalid-email") {
-          alert("Invalid email address.");
-        }
-
         if (error.code === "auth/weak-password") {
-          alert("Password must be at least 6 characters.");
+          alert("Password should be at least 6 characters.");
+        } else {
+          alert(error.code)
         }
-
-        if (error.code === "auth/missing-password") {
-          alert("Please enter a password.");
-        }
-
         navigate("/signup");
       });
   }
@@ -104,17 +87,11 @@ const useAuth = () => {
     e.preventDefault();
 
     signOut(auth)
-      .then(() => {
-        navigate('/');
-      })
-
-      .catch((error) => {
-        return alert(error.message);
-      });
+      .then(() => { navigate('/') })
+      .catch((error) => { alert(error.code) });
   }
 
-  const handleSendPasswordResetEmail = (e) => {
-    e.preventDefault();
+  const handleSendPasswordResetEmail = () => {
 
     const continueUrl = "https://orbital-386a9.web.app";
 
@@ -128,23 +105,19 @@ const useAuth = () => {
         alert("Password reset email sent.");
         navigate("/");
       })
-      
-      .catch((error) => {
-        if (error.code === "auth/invalid-email") {
-          alert("Invalid email address.");
-        }
 
+      .catch((error) => {
         if (error.code === "auth/user-not-found") {
           alert("You do not have an account. Please create an account.");
+        } else {
+          alert(error.code);
         }
       });
   }
 
   return {
-    email,
-    setEmail,
-    password,
-    setPassword,
+    email, setEmail,
+    password, setPassword,
     handleGoogle,
     handleLogin,
     handleSignup,
@@ -152,5 +125,3 @@ const useAuth = () => {
     handleSendPasswordResetEmail
   };
 };
-
-export default useAuth;

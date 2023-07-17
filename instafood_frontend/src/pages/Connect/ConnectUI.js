@@ -1,5 +1,4 @@
 import DisplayUserForConnect from './DisplayUserForConnect';
-
 import useConnectLogic from './useConnectLogic';
 
 import {
@@ -7,15 +6,11 @@ import {
     CircularProgress,
     List,
     ListItem,
-    ListItemButton,
-    ListItemIcon,
-    ListItemText,
     Grid,
     Box,
     Typography,
     styled,
     TextField,
-    Button,
 } from '@mui/material';
 
 const Title = styled(Typography)`
@@ -40,24 +35,28 @@ const Container = styled(Box)`
   padding: 1rem; 
   `;
 
-function ConnectUI() {
+  /**
+   * This component is used to render the connect page.
+   */
+export default function ConnectUI() {
 
     const {
-        isLoadingForSubscriptions,
-        input,
-        setInput,
+        isLoading,
+        input, setInput,
         listOfPossibleMatches,
         userDoc,
-        handleFollowRequest
+        handleFollowRequest,
     } = useConnectLogic();
 
-    if (isLoadingForSubscriptions) {
+    if (isLoading) {
         return (
             <Backdrop
                 sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-                open={isLoadingForSubscriptions}
+                open={isLoading}
             >
-                <CircularProgress color="inherit" />
+                <CircularProgress 
+                    data-testid="loading-spinner"
+                color="inherit" />
             </Backdrop>
         );
     }
@@ -97,5 +96,3 @@ function ConnectUI() {
         </Grid>
     );
 }
-
-export default ConnectUI;

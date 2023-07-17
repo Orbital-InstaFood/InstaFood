@@ -2,17 +2,24 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
-function useDashboard() {
+import {
+    dashboard_setupFieldPostsObject,
+    handleCategoriesOrIngredientsChange,
+} from './dashboardUtils';
 
-    const POSTS_PER_PAGE = 10;
+/**
+ * This hook handles the logic for the dashboard page.
+ * It allows the user to filter posts by category.
+ * It also implements pagination to achieve pseudo-infinite scrolling.
+ */
+export default function useDashboard() {
+
+    const POSTS_PER_PAGE = 20;
+    let cleanupFunctions = [];
 
     const [userProfile, setUserProfile] = useState(null);
     const [userDocListener, setUserDocListener] = useState(null);
     const [IDsOfSavedPosts, setIDsOfSavedPosts] = useState([]);
-
-    // isValidUser is true if the user has a valid profile, and false otherwise
-    // It is used to determine whether to display the dashboard or the create profile page
-    const [isValidUser, setIsValidUser] = useState(true);
 
     // allPosts is the array of all posts that the user has access to at the dashboard
     // It should not be modified once initialized
@@ -21,6 +28,8 @@ function useDashboard() {
     // postsToDisplay is the array of posts that the user sees on the dashboard
     // It is a subset of allPosts, and is modified when the user filters the posts
     const [IDsOfPostsToDisplay, setIDsOfPostsToDisplay] = useState([]);
+
+    // loadedPosts is the array of posts that the user sees on the dashboard at the current page
     const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -29,204 +38,117 @@ function useDashboard() {
     const [categories, setCategories] = useState([]);
     const [categoriesListener, setCategoriesListener] = useState(null);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [postCategoriesObject, setPostCategoriesObject] = useState(null);
+    const [categorisedPostsObject, setCategorisedPostsObject] = useState(null);
+
+    const [ingredients, setIngredients] = useState([]);
+    const [ingredientsListener, setIngredientsListener] = useState(null);
+    const [selectedIngredients, setSelectedIngredients] = useState([]);
+    const [ingredientPostsObject, setIngredientPostsObject] = useState(null);
 
     const [isInitialising, setIsInitialising] = useState(true);
 
     const navigate = useNavigate();
 
-    /**
-     * This function sets up the listener for the user document
-     * Also checks if the user has a user document via validateUserDoc()
-     */
-    async function setupListeners() {
+    async function setup() {
+
         const userDocListener = await listenerImplementer.getUserDocListener();
-        _validateUserDoc(userDocListener);
+        // If userDocListener is null, the user has not created a profile
+        if (!userDocListener) {
+            navigate("/createProfile");
+            return;
+        }
         setUserDocListener(userDocListener);
 
         const categoriesListener = await listenerImplementer.getCategoriesListener();
         setCategoriesListener(categoriesListener);
-    }
 
-    /**
-     * This function checks if the user has a user document
-     * If not, it redirects the user to the createProfile page
-     * It is a helper function for setupListeners()
-     * @param {Listener} userDocListener
-     */
-    function _validateUserDoc(userDocListener) {
-        if (!userDocListener) {
-            navigate("/createProfile");
-            setIsValidUser(false);
-        }
-    }
-
-    /**
-     * These useEffects are for setting up the listener for the user document
-     * It is the first layer of the setup process
-     */
-    useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        if (!isValidUser) {
-            return;
-        }
-    }, [isValidUser]);
-
-    async function setupCategorisedPostsListeners(categories) {
-        let localPostCategoriesObject = {};
-
-        for (const category of categories) {
-            const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
-            const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
-            const categorisedPosts = categorisedPostsDoc.post_id_array;
-
-            // Filter out posts that are not in the user's postsToView
-            const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
-                return IDsOfAllPosts.includes(postID);
-            });
-
-            localPostCategoriesObject[category] = filteredCategorisedPosts;
-        }
-
-        setPostCategoriesObject(localPostCategoriesObject);
-    }
-
-    /**
-     * This function initialises the userProfile, IDsOfAllPosts and categories
-     */
-    function initialiseDocumentStates() {
+        const ingredientsListener = await listenerImplementer.getIngredientsListener();
+        setIngredientsListener(ingredientsListener);
 
         // Initialise userDoc and userProfile
         const userDoc = userDocListener.getCurrentDocument();
         setUserProfile(userDoc);
 
-        // Initialise IDsOfAllPosts and IDsOfPostsToDisplay
+        // Initialise IDsOfAllPosts
+        // All posts are displayed when the user first enters the dashboard
         const allPosts = userDoc.postsToView;
-        const reversedAllPosts = [...allPosts].reverse();
-        setIDsOfAllPosts(reversedAllPosts);
-        setIDsOfPostsToDisplay(reversedAllPosts);
+        const IDsOfAllPosts = [...allPosts].reverse();
+        setIDsOfAllPosts(IDsOfAllPosts);
+        setIDsOfPostsToDisplay(IDsOfAllPosts);
+        setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
+        setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
 
-        const categoriesDoc = categoriesListener.getCurrentDocument();
-        setCategories(categoriesDoc.categories);
-    }
+        // Retrieve categories from categoriesListener
+        const categories = categoriesListener.getCurrentDocument().categories;
+        setCategories(categories);
 
-    /**
-     * This function sets up subscriptions for the user document
-     * @returns {Function} - cancel subscriptions when component unmounts
-     */
-    function setupSubscriptions() {
+        // Retrieve ingredients from ingredientsListener    
+        const ingredients = ingredientsListener.getCurrentDocument().Ingredients;
+        setIngredients(ingredients);
+
+        // Setup subscriptions
         const unsubscribeFromSavedPosts =
             userDocListener.subscribeToField('savedPosts',
                 (savedPosts) => {
                     setIDsOfSavedPosts(savedPosts);
                 });
+        cleanupFunctions.push(unsubscribeFromSavedPosts);
 
+        await dashboard_setupFieldPostsObject(
+            'category',
+            categories,
+            listenerImplementer,
+            IDsOfAllPosts,
+            setCategorisedPostsObject
+        );
+
+        await dashboard_setupFieldPostsObject(
+            'ingredient',
+            ingredients,
+            listenerImplementer,
+            IDsOfAllPosts,
+            setIngredientPostsObject
+        );
+
+        setIsInitialising(false);
+    }
+
+    useEffect(() => {
+        setup();
         return () => {
-            unsubscribeFromSavedPosts();
+            cleanupFunctions.forEach((cleanupFunction) => cleanupFunction());
         }
-    }
+    }, []);
 
-    /**
-     * This useEffect is for initialising the user document and setting up subscriptions
-     * It is the second layer of the setup process
-     * It is only run after the listener is fully set up
-     */
     useEffect(() => {
 
-        if (userDocListener && categoriesListener) {
-            initialiseDocumentStates();
-            const cancelAllSubscriptions = setupSubscriptions();
-            return () => {
-                cancelAllSubscriptions();
-            }
-        }
-    }, [userDocListener, categoriesListener]);
+        const IDsOfPostsToDisplay = handleCategoriesOrIngredientsChange({
+            categorisedPostsObject: categorisedPostsObject, selectedCategories: selectedCategories,
+            ingredientPostsObject: ingredientPostsObject, selectedIngredients: selectedIngredients,
+            IDsOfAllPosts: IDsOfAllPosts
+        });
+        setIDsOfPostsToDisplay(IDsOfPostsToDisplay);
 
-    useEffect(() => {
-        if (userProfile && IDsOfAllPosts && categories) {
-            setupCategorisedPostsListeners(categories);
-        }
-    }, [userProfile, IDsOfAllPosts, categories]);
-
-    useEffect(() => {
-        if (postCategoriesObject) {
-            setIDsOfLoadedPosts(IDsOfAllPosts.slice(0, POSTS_PER_PAGE));
-            setMaxNumberOfPages(Math.ceil(IDsOfAllPosts.length / POSTS_PER_PAGE));
-            setIsInitialising(false);
-        }
-    }, [postCategoriesObject]);
-
-    function combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories) {
-
-        if (selectedCategories.length === 0) {
-            return [...IDsOfAllPosts];
-        }
-
-        let localCombinedArrayOfPostIDsOfSelectedCategories = [];
-        for (const category of selectedCategories) {
-            const postIDsOfCategory = postCategoriesObject[category];
-            localCombinedArrayOfPostIDsOfSelectedCategories.push(...postIDsOfCategory);
-        }
-        const combinedArrayWithoutDuplicates = [...new Set(localCombinedArrayOfPostIDsOfSelectedCategories)];
-        return combinedArrayWithoutDuplicates;
-    }
-
-    // Rank posts by date
-    // Compare against IDsOfAllPosts, which is already sorted by date
-    function rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories) {
-        let localIDsOfPostsToDisplay = [];
-
-        for (const postID of IDsOfAllPosts) {
-            if (combinedArrayOfPostIDsOfSelectedCategories.includes(postID)) {
-                localIDsOfPostsToDisplay.push(postID);
-            }
-        }
-
-        return localIDsOfPostsToDisplay;
-    }
-
-    function handleCategorySelection() {
-        const combinedArrayOfPostIDsOfSelectedCategories =
-            combinePostIDsOfSelectedCategories(postCategoriesObject, selectedCategories);
-        const localIDsOfPostsToDisplay =
-            rankPostsByDate(combinedArrayOfPostIDsOfSelectedCategories);
-        setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
-
-        setMaxNumberOfPages( Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE) );
-
-        const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
+        const localIDsOfLoadedPosts 
+        = IDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
         setIDsOfLoadedPosts(localIDsOfLoadedPosts);
+        setMaxNumberOfPages(Math.ceil(IDsOfPostsToDisplay.length / POSTS_PER_PAGE));
         setCurrentPage(1);
-    }
 
-    useEffect(() => {
-        handleCategorySelection();
-    }, [selectedCategories]);
+    }, [selectedCategories, selectedIngredients]);
 
     useEffect(() => {
         const indexOfLastPost = currentPage * POSTS_PER_PAGE;
         const indexOfFirstPost = indexOfLastPost - POSTS_PER_PAGE;
-        setIDsOfLoadedPosts( IDsOfPostsToDisplay.slice(indexOfFirstPost, indexOfLastPost) );
+        setIDsOfLoadedPosts(IDsOfPostsToDisplay.slice(indexOfFirstPost, indexOfLastPost));
     }, [currentPage]);
-
-    function handleNextPage() {
-        setCurrentPage((prevPage) => prevPage + 1);
-    }
-
-    function handlePreviousPage() {
-        setCurrentPage((prevPage) => prevPage - 1);
-    }
 
     return {
         userProfile, IDsOfSavedPosts,
-        categories, selectedCategories, setSelectedCategories, postCategoriesObject,
+        categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
+        ingredients, selectedIngredients, setSelectedIngredients, ingredientPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
-        IDsOfLoadedPosts, handleNextPage, handlePreviousPage, currentPage, maxNumberOfPages
+        IDsOfLoadedPosts, setCurrentPage, currentPage, maxNumberOfPages
     }
 }
-
-export default useDashboard;

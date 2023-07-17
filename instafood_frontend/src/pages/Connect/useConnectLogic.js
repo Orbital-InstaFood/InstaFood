@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 
 import textSearch from '../../functions/textSearch';
-
 import listenerImplementer from '../../listeners/ListenerImplementer';
 import userDocEditor from '../../editor/userDocEditor';
 
-function useConnectLogic() {
+/**
+ * Custom hook for the Connect page
+ * It retrieves the user document during setup,
+ * matches input from the search bar to user IDs in the database
+ * and exposes the following variables and functions:
+ * @var userDoc - the user document
+ * @var listOfPossibleMatches - matches from the search bar
+ * @function handleFollowRequest - function to handle follow requests
+ */
+export default function useConnectLogic() {
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -14,20 +22,22 @@ function useConnectLogic() {
 
     // State for subscriptions to fields in the user document
     const [userDoc, setUserDoc] = useState(null);
-
     const [UserDocEditor, setUserDocEditor] = useState(null);
 
     // State for subscriptions to userIDs in the listOfUserIDs document
     const [userIDs, setUserIDs] = useState([]);
     const [publicUsers, setPublicUsers] = useState([]);
 
-    const [isLoadingForSubscriptions, setIsLoadingForSubscriptions] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+
+    let cleanupFunctions = [];
 
     // State for search bar
     const [input, setInput] = useState('');
     const [listOfPossibleMatches, setListOfPossibleMatches] = useState([]);
 
-    async function setupListeners() {
+    async function setup() {
+        // Setup listeners
         const userDocListener = await listenerImplementer.getUserDocListener();
         const listOfUserIDsListener = await listenerImplementer.getListOfUserIDsListener();
         const publicUsersListener = await listenerImplementer.getPublicUsersListener();
@@ -35,38 +45,34 @@ function useConnectLogic() {
         setUserDocListener(userDocListener);
         setListOfUserIDsListener(listOfUserIDsListener);
         setPublicUsersListener(publicUsersListener);
-    }
 
-    /**
-     * Subscribes to relevant fields in the user document and the list of userIDs.
-     * 
-     * @returns {function} unsubscribeFromAllFields
-     */
-    function setupSubscriptions() {
-
-        const unsubscribeFromUserIDs =
-            listOfUserIDsListener.subscribeToField('userIDs', (userIDs) => {
-                setUserIDs(userIDs);
-            });
-
-        const unsubscribeFromPublicUsers =
-            publicUsersListener.subscribeToField('publicUsers', (publicUsers) => {
-                setPublicUsers(publicUsers);
-            });
-
-        return () => {
-            unsubscribeFromUserIDs();
-            unsubscribeFromPublicUsers();
-        }
-    }
-
-    function initializeUserDocAndEditor() {
         const userDoc = userDocListener.getCurrentDocument();
         setUserDoc(userDoc);
 
         const UserDocEditor = new userDocEditor(userDoc.userID, setUserDoc);
         setUserDocEditor(UserDocEditor);
+
+        const unsubscribeFromUserIDs =
+            listOfUserIDsListener.subscribeToField('userIDs', (userIDs) => {
+                setUserIDs(userIDs);
+            });
+        cleanupFunctions.push(unsubscribeFromUserIDs);
+
+        const unsubscribeFromPublicUsers =
+            publicUsersListener.subscribeToField('publicUsers', (publicUsers) => {
+                setPublicUsers(publicUsers);
+            });
+        cleanupFunctions.push(unsubscribeFromPublicUsers);
+
+        setIsLoading(false);
     }
+
+    useEffect(() => {
+        setup();
+        return () => {
+            cleanupFunctions.forEach(cleanupFunction => cleanupFunction());
+        }
+    }, []);
 
     function handleFollowRequest(otherUserID) {
         if (publicUsers.includes(otherUserID)) {
@@ -77,40 +83,17 @@ function useConnectLogic() {
     }
 
     useEffect(() => {
-        setupListeners();
-    }, []);
-
-    useEffect(() => {
-        // Only set up subscriptions when both listeners are ready
-        if (userDocListener && listOfUserIDsListener && publicUsersListener) {
-
-            initializeUserDocAndEditor();
-            const unsubscribeFromAllFields = setupSubscriptions();
-            setIsLoadingForSubscriptions(false);
-
-            // Unsubscribe from all fields when component unmounts
-            return () => {
-                unsubscribeFromAllFields();
-            }
-        }
-
-    }, [userDocListener, listOfUserIDsListener, publicUsersListener]);
-
-    useEffect(() => {
         const possibleMatches = textSearch(input, userIDs);
         const filteredMatchesWithoutUserOwnID = possibleMatches.filter(ID => ID !== userDoc.userID);
         setListOfPossibleMatches(filteredMatchesWithoutUserOwnID);
     }, [input]);
 
     return {
-        isLoadingForSubscriptions,
-        input,
-        setInput,
+        isLoading,
+        input, setInput,
         listOfPossibleMatches,
         userDoc,
         handleFollowRequest,
     }
 }
-
-export default useConnectLogic;
 

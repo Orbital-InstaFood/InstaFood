@@ -1,7 +1,8 @@
-import { onSnapshot, getDoc } from 'firebase/firestore';
+import { onSnapshot, getDoc, setDoc } from "firebase/firestore";
 
 /**
  * This class is responsible for creating listeners and managing subscriptions to fields in documents.
+ * This class will create a new document if the document does not exist.
  * Use the ListenerImplementer class to maintain a single instance of this class. Do not initialize this class directly.
  * 
  * @class Listener
@@ -21,17 +22,18 @@ class Listener {
     }
 
     async startSnapshotListener() {
-        // Read the document once to initialize the property
         const snapshot = await getDoc(this.ref);
         if (!snapshot.exists()) {
-            throw new Error("Document does not exist");
+            // Create an empty document
+            await setDoc(this.ref, {}, { merge: true });
+            this.document = {};
         } else {
             this.document = snapshot.data();
-            this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
-                this.document = latestSnapshot.data();
-                this._notifySubscribers();
-            });
         }
+        this.unsubscribeFromListener = onSnapshot(this.ref, (latestSnapshot) => {
+            this.document = latestSnapshot.data();
+            this._notifySubscribers();
+        });
     }
 
     getCurrentDocument() {

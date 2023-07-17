@@ -15,26 +15,23 @@ import {
   Title, 
   CheckboxButtonContainer, 
   Container
-} from './ProfileStyles';
+} from '../ProfileStyles';
 
 import useCreateProfile from "./useCreateProfile";
 
+/**
+ * This component is used to render the create profile page.
+ */
 export default function CreateProfile() {
 
   const {
-    username,
-    setUserName,
-    bio,
-    setBio,
-    isPrivate,
-    setIsPrivate,
-    userID,
-    setUserID,
-    helperText,
-    isValidUserID,
+    username, setUserName,
+    bio, setBio,
+    isPrivate, setIsPrivate,
+    userID, setUserID,
+    isValidUserID, helperText,
     isLoading,
-    handleCreate,
-    isCreatingUserProfile,
+    handleCreate, isCreatingUserProfile,
   } = useCreateProfile();
 
   if (isLoading) {

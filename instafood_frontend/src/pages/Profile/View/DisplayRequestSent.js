@@ -8,9 +8,9 @@ import {
     AccountCircle,
 } from '@mui/icons-material';
 
-import DisplayUserLink from '../../functions/DisplayUserLink';
+import DisplayUserLink from '../../../functions/DisplayUserLink';
 
-function DisplayRequestSent({ otherUserID }) {
+export default function DisplayRequestSent({ otherUserID }) {
 
     return (
         <ListItem>
@@ -23,5 +23,3 @@ function DisplayRequestSent({ otherUserID }) {
         </ListItem>
     );
 }
-
-export default DisplayRequestSent;

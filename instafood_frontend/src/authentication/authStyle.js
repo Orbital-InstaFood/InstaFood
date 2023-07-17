@@ -3,7 +3,6 @@ import { styled } from "@mui/system";
 import Divider from "@mui/material/Divider";
 import Typography from "@mui/material/Typography";
 
-
 const StyledBox = styled(Box)`
   display: flex;
   flex-direction: column;
@@ -12,7 +11,7 @@ const StyledBox = styled(Box)`
   gap: 1rem;
   margin-top: 2rem;
   width: 400px; /* Set the desired width */
-  height: 400px; /* Set the desired height */
+  height: 420px; /* Set the desired height */
   margin: 0 auto; /* Center the box horizontally */
   border: 1px solid #ccc; /* Add a border */
   padding: 1rem; /* Add padding */

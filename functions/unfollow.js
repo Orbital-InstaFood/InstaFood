@@ -3,13 +3,18 @@ const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
 const admin = require("firebase-admin");
 
+/**
+ * @param {string} otherUserID - The userID of the user who is being unfollowed
+ * @param {string} userOwnID - The userID of the user who is unfollowing the other user
+ * 
+ * This function removes the other user from the user's following list
+ * and removes the user from the other user's followers list
+ * This function also removes all of the other user's posts from the user's postsToView list
+ */
 exports.unfollow = functions.https.onCall(async (request) => {
 
     const otherUserID = request.data.otherUserID;
     const userOwnID = request.data.userOwnID;
-
-    console.log("otherUserID: " + otherUserID);
-    console.log("userOwnID: " + userOwnID);
 
     if (otherUserID === undefined) {
         return { result: "No otherUserID provided!!" };
@@ -27,8 +32,6 @@ exports.unfollow = functions.https.onCall(async (request) => {
 
     const otherUserDocSnapshot = await db.collection('users').doc(otherUID).get();
     const postsToRemoveFromToView = otherUserDocSnapshot.data().personalPosts;
-
-    console.log("personalPosts: " + postsToRemoveFromToView);
 
     await db.collection('users').doc(otherUID).update(
         {
