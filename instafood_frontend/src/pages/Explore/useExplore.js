@@ -3,15 +3,9 @@ import { useState, useEffect } from 'react';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
 import {
-  combinePostIDsOfSelectedFields
-} from '../commonUtils';
-
-import {
   explore_setupFieldPostsObject,
-  calculatePostScore,
-  rankPosts,
-  handleTitleSearch,
-  loadPostsOfSelectedFields
+  handleSelectedFieldAChange,
+  handleTitleChange,
 } from './exploreUtils';
 
 /**
@@ -20,6 +14,14 @@ import {
  * It also implements pagination to achieve pseudo-infinite scrolling.
  * It manages posts retrieval from the database
  * by ustilising the listener classes to prevent unnecessary reads.
+ * 
+ * Note that postScoreObjects are only updated when selected categories/ingredients change,
+ * not when the title changes.
+ * This ensures that postScoreObjects always contain postIDs 
+ * of ALL posts that are in the selected categories/ingredients.
+ * However, IDsOfRankedFilteredPostsToDisplay is updated when the title changes.
+ * Here, the updated postScoreObjects are used internally to filter the posts,
+ * and not updated in the state.
  */
 export default function useExplore() {
 
@@ -46,13 +48,13 @@ export default function useExplore() {
   const [selectedIngredients, setSelectedIngredients] = useState([]);
 
   // Each key in the object is a postID, and the value is the postDoc
-  const [postDocsObjectOfSelectedCategories, setPostDocsObjectOfSelectedCategories] = useState({});
+  const [postDocsObject, setPostDocsObject] = useState({});
+
   // An array of objects, each object has the postID and the postScore
   const [postScoreObjectOfSelectedCategories, setPostScoreObjectOfSelectedCategories] = useState([]);
   // An array of postIDs in the selected categories
   const [postIDsOfSelectedCategories, setPostIDsOfSelectedCategories] = useState([]);
 
-  const [postDocsObjectOfSelectedIngredients, setPostDocsObjectOfSelectedIngredients] = useState({});
   const [postScoreObjectOfSelectedIngredients, setPostScoreObjectOfSelectedIngredients] = useState([]);
   const [postIDsOfSelectedIngredients, setPostIDsOfSelectedIngredients] = useState([]);
 
@@ -64,68 +66,68 @@ export default function useExplore() {
 
   let cleanupFunctions = [];
 
-  async function setup() {
-
-    //Initialise the listeners
-    const UserDocListener = await listenerImplementer.getUserDocListener();
-    setUserDocListener(UserDocListener);
-
-    const PublicUsersListener = await listenerImplementer.getPublicUsersListener();
-    setPublicUsersListener(PublicUsersListener);
-
-    const categoriesListener = await listenerImplementer.getCategoriesListener();
-    setCategoriesListener(categoriesListener);
-
-    const ingredientsListener = await listenerImplementer.getIngredientsListener();
-    setIngredientsListener(ingredientsListener);
-
-    // Initialise the userProfile, publicUsers and categories
-    const userDoc = UserDocListener.getCurrentDocument();
-    setUserDoc(userDoc);
-
-    const unfilteredPublicUsers = PublicUsersListener.getCurrentDocument().publicUsers;
-    const publicUsers = unfilteredPublicUsers.filter((publicUser) => {
-      const isFollowed = userDoc.following.includes(publicUser);
-      return !isFollowed;
-    });
-    setPublicUsers(publicUsers);
-
-    const categories = categoriesListener.getCurrentDocument().categories;
-    setCategories(categories);
-
-    const ingredients = ingredientsListener.getCurrentDocument().Ingredients;
-    setIngredients(ingredients);
-
-    // Setup subscriptions
-    const unsubscribeFromSavedPosts =
-      UserDocListener.subscribeToField('savedPosts',
-        (savedPosts) => {
-          setSavedPosts(savedPosts);
-        });
-    cleanupFunctions.push(unsubscribeFromSavedPosts);
-
-    await explore_setupFieldPostsObject(
-      'category',
-      categories,
-      listenerImplementer,
-      setCategorisedPostsObject,
-      userDoc,
-      publicUsers,
-    );
-
-    await explore_setupFieldPostsObject(
-      'ingredient',
-      ingredients,
-      listenerImplementer,
-      setIngredientPostsObject,
-      userDoc,
-      publicUsers,
-    );
-
-    setIsInitialising(false);
-  }
 
   useEffect(() => {
+    async function setup() {
+
+      //Initialise the listeners
+      const UserDocListener = await listenerImplementer.getUserDocListener();
+      setUserDocListener(UserDocListener);
+  
+      const PublicUsersListener = await listenerImplementer.getPublicUsersListener();
+      setPublicUsersListener(PublicUsersListener);
+  
+      const categoriesListener = await listenerImplementer.getCategoriesListener();
+      setCategoriesListener(categoriesListener);
+  
+      const ingredientsListener = await listenerImplementer.getIngredientsListener();
+      setIngredientsListener(ingredientsListener);
+  
+      // Initialise the userProfile, publicUsers and categories
+      const userDoc = UserDocListener.getCurrentDocument();
+      setUserDoc(userDoc);
+  
+      const unfilteredPublicUsers = PublicUsersListener.getCurrentDocument().publicUsers;
+      const publicUsers = unfilteredPublicUsers.filter((publicUser) => {
+        const isFollowed = userDoc.following.includes(publicUser);
+        return !isFollowed;
+      });
+      setPublicUsers(publicUsers);
+  
+      const categories = categoriesListener.getCurrentDocument().categories;
+      setCategories(categories);
+  
+      const ingredients = ingredientsListener.getCurrentDocument().Ingredients;
+      setIngredients(ingredients);
+  
+      // Setup subscriptions
+      const unsubscribeFromSavedPosts =
+        UserDocListener.subscribeToField('savedPosts',
+          (savedPosts) => {
+            setSavedPosts(savedPosts);
+          });
+      cleanupFunctions.push(unsubscribeFromSavedPosts);
+  
+      await explore_setupFieldPostsObject(
+        'category',
+        categories,
+        listenerImplementer,
+        setCategorisedPostsObject,
+        userDoc,
+        publicUsers,
+      );
+  
+      await explore_setupFieldPostsObject(
+        'ingredient',
+        ingredients,
+        listenerImplementer,
+        setIngredientPostsObject,
+        userDoc,
+        publicUsers,
+      );
+  
+      setIsInitialising(false);
+    }
     setup();
     return () => {
       cleanupFunctions.forEach((cleanupFunction) => {
@@ -135,78 +137,67 @@ export default function useExplore() {
   }, []);
 
   useEffect(() => {
-    async function handleFilteringWhenSelectedCategoriesChange() {
-      const localPostIDsOfSelectedCategories
-        = combinePostIDsOfSelectedFields(categorisedPostsObject, selectedCategories);
-      setPostIDsOfSelectedCategories(localPostIDsOfSelectedCategories);
+    setIsFiltering(true); 
+    async function handleSelectedCategoriesChange() {
+      const {
+        postIDsOfSelectedFieldA,
+        postDocsObjectUpdated,
+        postScoreObjectAUpdated,
+        rankedPosts
+      } = await handleSelectedFieldAChange({
+        listenerImplementer: listenerImplementer,
+        fieldPostsObjectA: categorisedPostsObject, 
+        selectedFieldA: selectedCategories, 
+        postDocsObject: postDocsObject,
+        postScoreObjectB: postScoreObjectOfSelectedIngredients,
+        titleToSearch: titleToSearch,
+      });
 
-      const localPostDocsObjectOfSelectedCategories
-        = await loadPostsOfSelectedFields(postDocsObjectOfSelectedCategories, localPostIDsOfSelectedCategories, listenerImplementer);
-      setPostDocsObjectOfSelectedCategories(localPostDocsObjectOfSelectedCategories);
-
-      const postsFilteredByCategoriesAndTitle
-        = handleTitleSearch(localPostIDsOfSelectedCategories, localPostDocsObjectOfSelectedCategories, titleToSearch);
-
-      const postScoreObjectOfSelectedCategories
-        = calculatePostScore(postsFilteredByCategoriesAndTitle, localPostDocsObjectOfSelectedCategories);
-      setPostScoreObjectOfSelectedCategories(postScoreObjectOfSelectedCategories);
-
-      const rankedPosts
-      = rankPosts(postScoreObjectOfSelectedCategories, postScoreObjectOfSelectedIngredients);
+      setPostIDsOfSelectedCategories(postIDsOfSelectedFieldA);
+      setPostDocsObject(postDocsObjectUpdated);
+      setPostScoreObjectOfSelectedCategories(postScoreObjectAUpdated);
       setIDsOfRankedFilteredPostsToDisplay(rankedPosts);
 
       setIsFiltering(false);
     }
-    setIsFiltering(true);
-    handleFilteringWhenSelectedCategoriesChange();
+    handleSelectedCategoriesChange();
   }, [selectedCategories]);
 
   useEffect(() => {
-    async function handleFilteringWhenSelectedIngredientsChange() {
-      const localPostIDsOfSelectedIngredients
-        = combinePostIDsOfSelectedFields(ingredientPostsObject, selectedIngredients);
-      setPostIDsOfSelectedIngredients(localPostIDsOfSelectedIngredients);
+    setIsFiltering(true); 
+    async function handleSelectedIngredientsChange() {
+      const {
+        postIDsOfSelectedFieldA,
+        postDocsObjectUpdated,
+        postScoreObjectAUpdated,
+        rankedPosts
+      } = await handleSelectedFieldAChange({
+        listenerImplementer: listenerImplementer,
+        fieldPostsObjectA: ingredientPostsObject, 
+        selectedFieldA: selectedIngredients, 
+        postDocsObject: postDocsObject,
+        postScoreObjectB: postScoreObjectOfSelectedCategories,
+        titleToSearch: titleToSearch,
+      });
 
-      const localPostDocsObjectOfSelectedIngredients
-        = await loadPostsOfSelectedFields(postDocsObjectOfSelectedIngredients, localPostIDsOfSelectedIngredients, listenerImplementer);
-      setPostDocsObjectOfSelectedIngredients(localPostDocsObjectOfSelectedIngredients);
-
-      const postsFilteredByIngredientsAndTitle
-        = handleTitleSearch(localPostIDsOfSelectedIngredients, localPostDocsObjectOfSelectedIngredients, titleToSearch);
-
-      const postScoreObjectOfSelectedIngredients
-        = calculatePostScore(postsFilteredByIngredientsAndTitle, localPostDocsObjectOfSelectedIngredients);
-      setPostScoreObjectOfSelectedIngredients(postScoreObjectOfSelectedIngredients);
-
-      const rankedPosts
-      = rankPosts(postScoreObjectOfSelectedCategories, postScoreObjectOfSelectedIngredients);
-
+      setPostIDsOfSelectedIngredients(postIDsOfSelectedFieldA);
+      setPostDocsObject(postDocsObjectUpdated);
+      setPostScoreObjectOfSelectedIngredients(postScoreObjectAUpdated);
       setIDsOfRankedFilteredPostsToDisplay(rankedPosts);
+
       setIsFiltering(false);
     }
-    setIsFiltering(true);
-    handleFilteringWhenSelectedIngredientsChange();
+    handleSelectedIngredientsChange();
   }, [selectedIngredients]);
 
   useEffect(() => {
-    setIsFiltering(true);
-
-    const filteredCategorisedPosts
-      = handleTitleSearch(postIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleToSearch);
-    const postScoreObjectOfSelectedCategories
-      = calculatePostScore(filteredCategorisedPosts, postDocsObjectOfSelectedCategories);
-
-    const filteredIngredientPosts
-      = handleTitleSearch(postIDsOfSelectedIngredients, postDocsObjectOfSelectedIngredients, titleToSearch);
-    const postScoreObjectOfSelectedIngredients
-      = calculatePostScore(filteredIngredientPosts, postDocsObjectOfSelectedIngredients);
-
-    const rankedPosts
-      = rankPosts(postScoreObjectOfSelectedCategories, postScoreObjectOfSelectedIngredients);
-
+    const rankedPosts = handleTitleChange({
+      postDocsObject: postDocsObject,
+      titleToSearch: titleToSearch,
+      postIDsOfSelectedFieldA: postIDsOfSelectedCategories,
+      postIDsOfSelectedFieldB: postIDsOfSelectedIngredients,
+    });
     setIDsOfRankedFilteredPostsToDisplay(rankedPosts);
-
-    setIsFiltering(false);
   }, [titleToSearch]);
 
   return {

@@ -1,4 +1,7 @@
 import { setupFieldPostsObject } from "../commonUtils";
+import {
+    combinePostIDsOfSelectedFields
+  } from '../commonUtils';
 
 /**
  * This function is used to load postIDs of posts based on their categories/ingredients.
@@ -40,6 +43,8 @@ export async function explore_setupFieldPostsObject
  * and stored in an object with keys as postIDs and values as post documents.
  * Only posts in the postIDs array are ranked.
  * 
+ * Exported for testing purposes.
+ * 
  * @param {string[]} postIDs - Array of postIDs 
  * @param {object} postDocsObject - Object with keys as postIDs and values as post documents
  * @returns {object[]} - Array of objects with two fields: postID and postRank
@@ -63,6 +68,8 @@ export function calculatePostScore(postIDs, postDocsObject) {
 /**
  * This function is used to compare two arrays of postScoreObjects and rank them.
  * It assumes that the postScoreObjects are already sorted in descending order.
+ * 
+ * Exported for testing purposes.
  * 
  * @param {*} postScoreObject1 
  * @param {*} postScoreObject2 
@@ -94,6 +101,8 @@ export function rankPosts(postScoreObject1, postScoreObject2) {
 /**
  * This function is used to filter posts based on the title.
  * 
+ * Exported for testing purposes.
+ * 
  * @param {string[]} postIDsOfSelectedFields - Array of postIDs that are in the selected categories/ingredients
  * @param {object} postDocsObjectOfSelectedFields - Object with keys as postIDs and values as post documents
  * @param {string} titleToSearch - Title to search for
@@ -116,6 +125,8 @@ export function handleTitleSearch(postIDsOfSelectedFields, postDocsObjectOfSelec
  * This ensures that the post documents are up to date with changes such as likes and comments,
  * when selected categories/ingredients change
  * 
+ * Exported for testing purposes.
+ * 
  * @param {object} postDocsObjectOfSelectedFields - Object with keys as postIDs and values as post documents
  * @param {string[]} postIDsOfSelectedFields - Array of postIDs that are in the selected categories/ingredients
  * @param {*} listenerImplementer 
@@ -129,4 +140,70 @@ export async function loadPostsOfSelectedFields(postDocsObjectOfSelectedFields, 
         localPostDocsObjectOfSelectedFields[postID] = postDoc;
     }
     return localPostDocsObjectOfSelectedFields;
+}
+
+/**
+ * This function is used to handle the change in selected categories/ingredients.
+ * A refers to the field that changes, B refers to the other field.
+ * @returns {object} - An object with the following fields:
+ * postIDsOfSelectedFieldA: Array of postIDs that are in the selected categories/ingredients
+ * postDocsObjectOfSelectedFieldAUpdated: Object with keys as postIDs and values as post documents
+ * postScoreObjectAUpdated: Array of objects with two fields: postID and postRank
+ * rankedPosts: Array of postIDs in descending order of rank
+ */
+export async function handleSelectedFieldAChange ({
+    listenerImplementer, postDocsObject, titleToSearch,
+    fieldPostsObjectA, selectedFieldA,
+    postScoreObjectB,
+}) {
+    const postIDsOfSelectedFieldA 
+    = combinePostIDsOfSelectedFields(fieldPostsObjectA, selectedFieldA);
+
+    const postDocsObjectUpdated
+    = await loadPostsOfSelectedFields(postDocsObject, postIDsOfSelectedFieldA, listenerImplementer);
+
+    const postsFilteredByFieldAandTitle
+    = handleTitleSearch(postIDsOfSelectedFieldA, postDocsObjectUpdated, titleToSearch);
+
+    const postScoreObjectAUpdated
+    = calculatePostScore(postsFilteredByFieldAandTitle, postDocsObjectUpdated);
+
+    const rankedPosts
+    = rankPosts(postScoreObjectAUpdated, postScoreObjectB);
+
+    return {
+        postIDsOfSelectedFieldA,
+        postDocsObjectUpdated,
+        postScoreObjectAUpdated,
+        rankedPosts,
+    }
+}
+
+/**
+ * This function is used to handle the change in title.
+ * 
+ * @param {object} postDocsObject - Object with keys as postIDs and values as post documents
+ * @param {string} titleToSearch - Title to search for
+ * @param {string[]} postIDsOfSelectedFieldA - Array of postIDs that are in the selected categories/ingredients
+ * @param {string[]} postIDsOfSelectedFieldB - Array of postIDs that are in the other field
+ * @returns {string[]} - Array of postIDs that are in the selected categories/ingredients and have the title
+ */
+export function handleTitleChange ({
+    postDocsObject, titleToSearch,
+    postIDsOfSelectedFieldA, postIDsOfSelectedFieldB
+}) {
+    const postsFilteredByFieldAandTitle
+    = handleTitleSearch(postIDsOfSelectedFieldA, postDocsObject, titleToSearch);
+    const postScoreObjectAUpdated
+    = calculatePostScore(postsFilteredByFieldAandTitle, postDocsObject);
+
+    const postsFilteredByFieldBandTitle
+    = handleTitleSearch(postIDsOfSelectedFieldB, postDocsObject, titleToSearch);
+    const postScoreObjectBUpdated
+    = calculatePostScore(postsFilteredByFieldBandTitle, postDocsObject);
+
+    const rankedPosts
+    = rankPosts(postScoreObjectAUpdated, postScoreObjectBUpdated);
+
+    return rankedPosts;
 }

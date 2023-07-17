@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 
 import {
-    rankPostsByDate,
-    dashboard_setupFieldPostsObject
+    dashboard_setupFieldPostsObject,
+    handleCategoriesOrIngredientsChange,
 } from './dashboardUtils';
-
-import {
-    combinePostIDsOfSelectedFields,
-} from '../commonUtils';
 
 /**
  * This hook handles the logic for the dashboard page.
@@ -126,34 +122,17 @@ export default function useDashboard() {
 
     useEffect(() => {
 
-        const postIDsOfSelectedCategories =
-            combinePostIDsOfSelectedFields(
-                categorisedPostsObject,
-                selectedCategories
-            );
+        const IDsOfPostsToDisplay = handleCategoriesOrIngredientsChange({
+            categorisedPostsObject: categorisedPostsObject, selectedCategories: selectedCategories,
+            ingredientPostsObject: ingredientPostsObject, selectedIngredients: selectedIngredients,
+            IDsOfAllPosts: IDsOfAllPosts
+        });
+        setIDsOfPostsToDisplay(IDsOfPostsToDisplay);
 
-        const postIDsOfSelectedIngredients =
-            combinePostIDsOfSelectedFields(
-                ingredientPostsObject,
-                selectedIngredients
-            );
-
-        // Combine array and remove duplicates 
-        const postIDsOfSelectedCategoriesAndIngredients =
-            [...new Set([...postIDsOfSelectedCategories, ...postIDsOfSelectedIngredients])];
-
-        let localIDsOfPostsToDisplay = [];
-        if (selectedCategories.length === 0 && selectedIngredients.length === 0) {
-            localIDsOfPostsToDisplay = [...IDsOfAllPosts];
-        } else {
-            localIDsOfPostsToDisplay =
-                rankPostsByDate(postIDsOfSelectedCategoriesAndIngredients, IDsOfAllPosts);
-        }
-        const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
-
-        setIDsOfPostsToDisplay(localIDsOfPostsToDisplay);
-        setMaxNumberOfPages(Math.ceil(localIDsOfPostsToDisplay.length / POSTS_PER_PAGE));
+        const localIDsOfLoadedPosts 
+        = IDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
         setIDsOfLoadedPosts(localIDsOfLoadedPosts);
+        setMaxNumberOfPages(Math.ceil(IDsOfPostsToDisplay.length / POSTS_PER_PAGE));
         setCurrentPage(1);
 
     }, [selectedCategories, selectedIngredients]);

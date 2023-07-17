@@ -1,14 +1,20 @@
 import {
     setupFieldPostsObject,
 } from '../commonUtils';
+import {
+    combinePostIDsOfSelectedFields,
+} from '../commonUtils';
+
 /**
  * This function ranks postIDs based on their orders in IDsOfAllPosts.
  * IDsOfAllPosts is sorted in descending order of date_created.
+ * It is exported for testing purposes.
  * 
  * @param {string[]} postIDsOfSelectedCategoriesAndIngredients 
  * @param {string[]} IDsOfAllPosts 
  * @returns {string[]} - Array of postIDs that are in the selected categories and ingredients
  */
+
 export function rankPostsByDate(postIDsOfSelectedCategoriesAndIngredients, IDsOfAllPosts) {
     let localIDsOfPostsToDisplay = [];
 
@@ -39,4 +45,48 @@ export async function dashboard_setupFieldPostsObject (fieldName, array, listene
     }
 
     await setupFieldPostsObject(fieldName, array, listenerImplementer, verifierCallback, callback);
+}
+
+/**
+ * This function is used to handle changes in selected categories/ingredients.
+ * It integrates the logic of combining postIDs of selected categories/ingredients,
+ * and ranking the postIDs by date.
+ * 
+ * @param {*} categorisedPostsObject - Object of categories and their corresponding postIDs
+ * @param {string[]} selectedCategories - Array of selected categories
+ * @param {*} ingredientPostsObject - Object of ingredients and their corresponding postIDs
+ * @param {string[]} selectedIngredients - Array of selected ingredients
+ * @param {string[]} IDsOfAllPosts - Array of postIDs that are in user's postsToView
+ * @returns {string[]} - Array of postIDs that are in the selected categories and ingredients
+ */
+export function handleCategoriesOrIngredientsChange ({
+    categorisedPostsObject, selectedCategories,
+    ingredientPostsObject, selectedIngredients,
+    IDsOfAllPosts
+}) {
+    const postIDsOfSelectedCategories =
+        combinePostIDsOfSelectedFields(
+            categorisedPostsObject,
+            selectedCategories
+        );
+
+    const postIDsOfSelectedIngredients =
+        combinePostIDsOfSelectedFields(
+            ingredientPostsObject,
+            selectedIngredients
+        );
+
+    // Combine array and remove duplicates 
+    const postIDsOfSelectedCategoriesAndIngredients =
+        [...new Set([...postIDsOfSelectedCategories, ...postIDsOfSelectedIngredients])];
+
+    let IDsOfPostsToDisplay = [];
+    if (selectedCategories.length === 0 && selectedIngredients.length === 0) {
+        IDsOfPostsToDisplay = [...IDsOfAllPosts];
+    } else {
+        IDsOfPostsToDisplay =
+            rankPostsByDate(postIDsOfSelectedCategoriesAndIngredients, IDsOfAllPosts);
+    }
+
+    return IDsOfPostsToDisplay;
 }
