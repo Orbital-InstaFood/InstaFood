@@ -1,20 +1,27 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
-import { db, auth, storage, functions } from '../../firebaseConf';
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { doc, setDoc, updateDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
-
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
 
 import listenerImplementer from '../../listeners/ListenerImplementer';
-
+import { db, auth, storage, functions } from '../../firebaseConf';
 import {
     _handleImageChange,
 } from './newpostUtils';
 
-function useNewPost() {
+/**
+ * This hook handles the logic for the new post page.
+ * It handles image upload, deletion, and viewing.
+ * It also handles the submission of the new post.
+ * It exposes the following methods:
+ * 
+ * @function handleImageChange - handles new image selection
+ * @function handleImageDelete - delete an uploaded image
+ * @function handleSubmitNewPost - submit the new post
+ */
+export default function useNewPost() {
 
     const navigate = useNavigate();
     const user = auth.currentUser;
@@ -23,6 +30,7 @@ function useNewPost() {
     const [title, setTitle] = useState('');
     const [caption, setCaption] = useState('');
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
 
     // State for image preview
@@ -37,6 +45,9 @@ function useNewPost() {
     const [categoriesListener, setCategoriesListener] = useState(null);
     const [categories, setCategories] = useState([]);
 
+    const [ingredientsListener, setIngredientsListener] = useState(null);
+    const [ingredients, setIngredients] = useState([]);
+
     // State for loading
     const [isLoading, setIsLoading] = useState(true);
 
@@ -48,12 +59,18 @@ function useNewPost() {
         const categoriesListener = await listenerImplementer.getCategoriesListener();
         setCategoriesListener(categoriesListener);
 
+        const ingredientsListener = await listenerImplementer.getIngredientsListener();
+        setIngredientsListener(ingredientsListener);
+
         // Initialise states
         const userDoc = userDocListener.getCurrentDocument();
         setUserID(userDoc.userID);
 
         const categoriesDoc = categoriesListener.getCurrentDocument();
         setCategories(categoriesDoc.categories);
+
+        const ingredientsDoc = ingredientsListener.getCurrentDocument();
+        setIngredients(ingredientsDoc.Ingredients);
 
         setIsLoading(false);
     }
@@ -135,6 +152,21 @@ function useNewPost() {
             }
         }
 
+        for (const ingredient of selectedIngredients) {
+            const ingredientRef = doc(db, 'ingredientPosts', ingredient);
+            const ingredientDoc = await getDoc(ingredientRef);
+
+            if (ingredientDoc.exists()) {
+                await updateDoc(ingredientRef, {
+                    post_id_array: arrayUnion(postID)
+                });
+            } else {
+                await setDoc(ingredientRef, {
+                    post_id_array: [postID]
+                });
+            }
+        }
+
         navigate('/viewProfile');
     };
 
@@ -142,10 +174,10 @@ function useNewPost() {
         title, setTitle,
         caption, setCaption,
         categories, selectedCategories, setSelectedCategories,
+        ingredients, selectedIngredients, setSelectedIngredients,
         imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
         handleImageChange, handleImageDelete,
         handleSubmitNewPost, isLoading
     }
 }
 
-export default useNewPost;

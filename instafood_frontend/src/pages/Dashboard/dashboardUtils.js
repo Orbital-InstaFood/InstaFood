@@ -1,20 +1,19 @@
 import {
-    _setupCategorisedPostsObject,
+    setupFieldPostsObject,
 } from '../commonUtils';
 /**
- * This function ranks the postIDs in the combinedArrayOfPostIDsOfSelectedCategories
- * The ranking is based on the order of the IDsOfAllPosts
- * Thus, IDsOfAllPosts must be sorted in the order that the posts should be displayed
+ * This function ranks postIDs based on their orders in IDsOfAllPosts.
+ * IDsOfAllPosts is sorted in descending order of date_created.
  * 
- * @param {string[]} postIDsOfSelectedCategories 
+ * @param {string[]} postIDsOfSelectedCategoriesAndIngredients 
  * @param {string[]} IDsOfAllPosts 
- * @returns {string[]} - Array of postIDs that are in the selected categories and ranked by date
+ * @returns {string[]} - Array of postIDs that are in the selected categories and ingredients
  */
-export function rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts) {
+export function rankPostsByDate(postIDsOfSelectedCategoriesAndIngredients, IDsOfAllPosts) {
     let localIDsOfPostsToDisplay = [];
 
     for (const postID of IDsOfAllPosts) {
-        if (postIDsOfSelectedCategories.includes(postID)) {
+        if (postIDsOfSelectedCategoriesAndIngredients.includes(postID)) {
             localIDsOfPostsToDisplay.push(postID);
         }
     }
@@ -23,20 +22,21 @@ export function rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts) {
 }
 
 /**
- * This function is used to load postIDs of posts based on their categories.
- * It is an extension of the _setupCategorisedPostsObject function in commonUtils.js.
+ * This function is used to load postIDs of posts based on their categories/ingredients.
+ * It is an extension of the _setupFieldPostsObject function in commonUtils.js.
  * The provided verifierCallback filters out posts that are not in user's postsToView.
  * 
- * @param {string[]} categories - Array of categories 
+ * @param {string} fieldName - 'category' or 'ingredient'
+ * @param {string[]} array - Array of categories/ingredients
  * @param {*} listenerImplementer 
  * @param {string[]} IDsOfAllposts - Array of postIDs that are in user's postsToView
  * @param {*} callback 
  */
-export async function dashboard_setupCategorisedPostsObject (categories, listenerImplementer, IDsOfAllposts, callback) {
+export async function dashboard_setupFieldPostsObject (fieldName, array, listenerImplementer, IDsOfAllposts, callback) {
 
     const verifierCallback = (postID) => {
         return IDsOfAllposts.includes(postID);
     }
 
-    await _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback);
+    await setupFieldPostsObject(fieldName, array, listenerImplementer, verifierCallback, callback);
 }

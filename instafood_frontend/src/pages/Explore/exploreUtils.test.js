@@ -1,10 +1,11 @@
 import {
-    explore_setupCategorisedPostsObject,
+    explore_setupFieldPostsObject,
+    handleTitleSearch,
+    calculatePostScore,
     rankPosts,
-    handleTitleSearch   
 } from './exploreUtils';
 
-describe('explore_setupCategorisedPostsObject', () => {
+describe('explore_setupFieldPostsObject', () => {
 
     it('should reject a post if it is not public', async () => {
 
@@ -26,7 +27,7 @@ describe('explore_setupCategorisedPostsObject', () => {
         const userProfile = { personalPosts: [], };
         const publicUsers = ['user1'];
 
-        await explore_setupCategorisedPostsObject(categories, listenerImplementer, callback, userProfile, publicUsers);
+        await explore_setupFieldPostsObject('category', categories, listenerImplementer, callback, userProfile, publicUsers);
 
         expect(callback).toHaveBeenCalledWith(
             {
@@ -55,7 +56,7 @@ describe('explore_setupCategorisedPostsObject', () => {
         const userProfile = { personalPosts: ['user1_post1'], };
         const publicUsers = ['user2', 'user3'];
 
-        await explore_setupCategorisedPostsObject(categories, listenerImplementer, callback, userProfile, publicUsers);
+        await explore_setupFieldPostsObject('category', categories, listenerImplementer, callback, userProfile, publicUsers);
 
         expect(callback).toHaveBeenCalledWith(
             {
@@ -87,7 +88,7 @@ describe('explore_setupCategorisedPostsObject', () => {
         const userProfile1 = { personalPosts: ['user1_post1'], };
         const publicUsers1 = ['user1'];
 
-        await explore_setupCategorisedPostsObject(categories, listenerImplementer, callback, userProfile1, publicUsers1);
+        await explore_setupFieldPostsObject('category', categories, listenerImplementer, callback, userProfile1, publicUsers1);
         expect(callback).toHaveBeenCalledWith(
             {
                 category: [],
@@ -100,7 +101,7 @@ describe('explore_setupCategorisedPostsObject', () => {
         const userProfile2 = { personalPosts: [], };
         const publicUsers2 = [];
 
-        await explore_setupCategorisedPostsObject(categories, listenerImplementer, callback, userProfile2, publicUsers2);
+        await explore_setupFieldPostsObject('category', categories, listenerImplementer, callback, userProfile2, publicUsers2);
         expect(callback).toHaveBeenCalledWith(
             {
                 category: [],
@@ -108,62 +109,6 @@ describe('explore_setupCategorisedPostsObject', () => {
         );
     });
 
-});
-
-
-describe('rankPosts', () => {
-
-    it('should return an empty array if filteredPosts is empty', () => {
-        const filteredPosts = [];
-        const postDocsThatMatchSelectedCategories = {
-            'postID1': {
-                likes: [],
-                comments: [],
-            },
-            'postID2': {
-                likes: [],
-                comments: [],
-            },
-        };
-        const rankedPosts = rankPosts(filteredPosts, postDocsThatMatchSelectedCategories);
-        expect(rankedPosts).toEqual([]);
-    });
-
-    it('should return an array of postIDs sorted by postRank, where postRank is the sum of likes and comments', () => {
-        const filteredPosts = ['postID1', 'postID2'];
-        const postDocsThatMatchSelectedCategories = {
-            'postID1': {
-                likes: ['user1'],
-                comments: ['comment1', 'comment2'],
-            },
-            'postID2': {
-                likes: ['user1'],
-                comments: ['comment1', 'comment2', 'comment3'],
-            },
-        };
-        const rankedPosts = rankPosts(filteredPosts, postDocsThatMatchSelectedCategories);
-        expect(rankedPosts).toEqual(['postID2', 'postID1']);
-    });
-
-    it('sorting works with more than 2 postIDs', () => {
-        const filteredPosts = ['postID1', 'postID2', 'postID3'];
-        const postDocsThatMatchSelectedCategories = {
-            'postID1': {
-                likes: ['user1'],
-                comments: ['comment1'],
-            },
-            'postID2': {
-                likes: ['user1'],
-                comments: ['comment1', 'comment2'],
-            },
-            'postID3': {
-                likes: ['user1'],
-                comments: ['comment1', 'comment2', 'comment3'],
-            },
-        };
-        const rankedPosts = rankPosts(filteredPosts, postDocsThatMatchSelectedCategories);
-        expect(rankedPosts).toEqual(['postID3', 'postID2', 'postID1']);
-    });
 });
 
 describe('handleTitleSearch', () => {
@@ -182,7 +127,7 @@ describe('handleTitleSearch', () => {
             },
         };
         const titleSearch = 'title1';
-        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch );
+        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch);
         expect(result).toEqual(['postID1']);
     });
 
@@ -200,7 +145,7 @@ describe('handleTitleSearch', () => {
             },
         };
         const titleSearch = 'TITLE1';
-        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch );
+        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch);
         expect(result).toEqual(['postID1']);
     });
 
@@ -218,7 +163,129 @@ describe('handleTitleSearch', () => {
             },
         };
         const titleSearch = 'title';
-        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch );
+        const result = handleTitleSearch(combinedArrayOfPostIDsOfSelectedCategories, postDocsObjectOfSelectedCategories, titleSearch);
         expect(result).toEqual(['postID1', 'postID2', 'postID3']);
-    }); 
+    });
+});
+
+describe('calculatePostScore', () => {
+
+    it('should return an empty array if there are no posts', () => {
+        const postIDs = [];
+        const postDocsObject = {
+            'postID1': {
+                likes: ['user1', 'user2'],
+                comments: ['comment1', 'comment2'],
+            },
+            'postID2': {
+                likes: ['user1', 'user2'],
+                comments: ['comment1', 'comment2'],
+            },
+        };
+        const result = calculatePostScore(postIDs, postDocsObject);
+        expect(result).toEqual([]);
+    });
+
+    it('should return an array of postIDs ranked correctly with their corresponding scores', () => {
+        const postIDs = ['postID1', 'postID2'];
+        const postDocsObject = {
+            'postID1': {
+                likes: ['user1', 'user2', 'user3'],
+                comments: ['comment1', 'comment2'],
+            },
+            'postID2': {
+                likes: ['user1', 'user2'],
+                comments: ['comment1', 'comment2'],
+            },
+        };
+        const result = calculatePostScore(postIDs, postDocsObject);
+        expect(result).toEqual([
+            {
+                postID: 'postID1',
+                postRank: 5,
+            },
+            {
+                postID: 'postID2',
+                postRank: 4,
+            }
+        ]);
+    });
+
+    it('should return an array of postIDs ranked correctly, with more than 2 posts', () => {
+        const postIDs = ['postID1', 'postID2', 'postID3'];
+        const postDocsObject = {
+            'postID1': {
+                likes: ['user1', 'user2', 'user3'],
+                comments: ['comment1', 'comment2'],
+            },
+            'postID2': {
+                likes: ['user1', 'user2'],
+                comments: ['comment1', 'comment2'],
+            },
+            'postID3': {
+                likes: ['user1', 'user2', 'user3', 'user4'],
+                comments: ['comment1', 'comment2'],
+            },
+        };
+        const result = calculatePostScore(postIDs, postDocsObject);
+        expect(result).toEqual([
+            {
+                postID: 'postID3',
+                postRank: 6,
+            },
+            {
+                postID: 'postID1',
+                postRank: 5,
+            },
+            {
+                postID: 'postID2',
+                postRank: 4,
+            }
+        ]);
+    });
+});
+
+describe('rankPosts', () => {
+
+    it('should remove duplicate postScoreObjects', () => {
+        const postScoreObjects1 = [
+            {
+                postID: 'postID1',
+                postRank: 5,
+            },
+            {
+                postID: 'postID2',
+                postRank: 4,
+            }
+        ];
+        const postScoreObjects2 = [
+            {
+                postID: 'postID1',
+                postRank: 5,
+            },
+            {
+                postID: 'postID3',
+                postRank: 4,
+            }
+        ];
+        const result = rankPosts(postScoreObjects1, postScoreObjects2);
+        expect(result).toEqual(['postID1', 'postID2', 'postID3']);
+    });
+
+    it('duplicates are determined by postID, not postRank', () => {
+        const postScoreObjects1 = [
+            {
+                postID: 'postID1',
+                postRank: 5,
+            },
+        ];
+        const postScoreObjects2 = [
+            {
+                postID: 'postID2',
+                postRank: 5,
+            },
+        ];
+        const result = rankPosts(postScoreObjects1, postScoreObjects2);
+        expect(result).toEqual(['postID1', 'postID2']);
+    });
 });

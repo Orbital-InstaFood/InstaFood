@@ -8,7 +8,6 @@ import {
   Grid,
   Typography,
   styled,
-  Button,
   Chip,
   TextField,
 } from '@mui/material';
@@ -35,17 +34,18 @@ color: #666;
 margin-bottom: 1rem;
 `;
 
-function Explore() {
+/**
+ * This component is used to render the explore page.
+ */
+export default function Explore() {
 
   const {
-    userProfile,
-    categories,
-    selectedCategories, setSelectedCategories, categorisedPostsObject,
+    userDoc, savedPosts,
+    categories,selectedCategories, setSelectedCategories, categorisedPostsObject,
+    ingredients, selectedIngredients, setSelectedIngredients, ingredientPostsObject,
     titleToSearch, setTitleToSearch,
-    savedPosts,
     IDsOfRankedFilteredPostsToDisplay,
-    isInitialising,
-    isFiltering,
+    isInitialising, isFiltering,
   } = useExplore();
 
   const handleCategorySelect = (category) => {
@@ -54,6 +54,15 @@ function Explore() {
       setSelectedCategories(selectedCategories.filter((c) => c !== category));
     } else {
       setSelectedCategories([...selectedCategories, category]);
+    }
+  };
+
+  const handleIngredientSelect = (ingredient) => {
+    const isSelected = selectedIngredients.includes(ingredient);
+    if (isSelected) {
+      setSelectedIngredients(selectedIngredients.filter((i) => i !== ingredient));
+    } else {
+      setSelectedIngredients([...selectedIngredients, ingredient]);
     }
   };
 
@@ -87,7 +96,7 @@ function Explore() {
             onChange={(e) => setTitleToSearch(e.target.value)}
           />
 
-          <Typography variant="subtitle1">Categories:</Typography>
+          <Typography variant="subtitle1">Categories</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
             {categories.map((category) => (
               <Chip
@@ -95,6 +104,19 @@ function Explore() {
                 label={`${category} ${categorisedPostsObject[category].length}`}
                 onClick={() => handleCategorySelect(category)}
                 color={selectedCategories.includes(category) ? 'primary' : 'default'}
+                sx={{ margin: '0.5rem' }}
+              />
+            ))}
+          </Box>
+
+          <Typography variant="subtitle1">Ingredients</Typography>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>
+            {ingredients.map((ingredient) => (
+              <Chip
+                key={ingredient}
+                label={`${ingredient} ${ingredientPostsObject[ingredient].length}`}
+                onClick={() => handleIngredientSelect(ingredient)}
+                color={selectedIngredients.includes(ingredient) ? 'primary' : 'default'}
                 sx={{ margin: '0.5rem' }}
               />
             ))}
@@ -110,7 +132,7 @@ function Explore() {
             <DisplayPostUI
               key={postID}
               postID={postID}
-              userOwnID={userProfile.userID}
+              userOwnID={userDoc.userID}
               isAPersonalPost={false}
               isASavedPost={savedPosts.includes(postID)}
             />
@@ -120,5 +142,3 @@ function Explore() {
     </Grid>
   );
 }
-
-export default Explore;

@@ -30,11 +30,15 @@ import {
   ButtonOverlay
 } from '../../functions/Post/PostStyles.js';
 
-function NewPost() {
+/**
+ * This component is used to render the new post page.
+ */
+export default function NewPost() {
   const {
     title, setTitle,
     caption, setCaption,
     categories, selectedCategories, setSelectedCategories,
+    ingredients, selectedIngredients, setSelectedIngredients,
     imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
     handleImageChange, handleImageDelete,
     handleSubmitNewPost, isLoading
@@ -112,6 +116,39 @@ function NewPost() {
               ))}
             </Select>
 
+          </FormControl>
+
+          <FormControl sx={{
+            marginBottom: 2,
+            marginTop: 2,
+            width: '100%',
+          }}>
+            <InputLabel id="ingredient-label">Ingredients</InputLabel>
+            <Select
+              labelId="ingredient-label"
+              id="ingredient"
+              multiple
+              value={selectedIngredients}
+              onChange={(e) => setSelectedIngredients(e.target.value)}
+              input={<Input />}
+              renderValue={(selected) => (
+                <Box sx={{
+                  display: 'flex',
+                  maxWidth: '100%',
+                  flexWrap: 'wrap'
+                }}>
+                  {selected.map((ingredient) => (
+                    <Chip key={ingredient} label={ingredient} sx={{ m: 0.5 }} />
+                  ))}
+                </Box>
+              )}
+            >
+              {ingredients.map((ingredient) => (
+                <MenuItem key={ingredient} value={ingredient}>
+                  {ingredient}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
 
           <TextField
@@ -232,5 +269,3 @@ function NewPost() {
     </Grid>
   );
 }
-
-export default NewPost;

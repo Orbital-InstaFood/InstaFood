@@ -1,60 +1,73 @@
 /**
- * This function combines the postIDs of selected categories
- * The postIDs are retrieved from the categorisedPostsObject
- * Since a post can be in multiple categories, the returned array will not have duplicate postIDs
+ * This function combines the postIDs of selected fields into one array
+ * The postIDs are retrieved from the fieldPostsObject
+ * Since a post can be in multiple categories/ingredients, the array may contain duplicates
+ * Thuus, the array is converted into a set and then back into an array to remove duplicates
  * 
- * @param {object} categorisedPostsObject - Object with keys as categories and values as arrays of postIDs
- * @param {string[]} selectedCategories - Array of selected categories
- * @returns {string[]} - Array of postIDs that are in the selected categories
+ * @param {object} fieldPostsObject - Object with keys as categories/ingredients and values as arrays of postIDs
+ * @param {string[]} selectedFields - Array of selected categories/ingredients
+ * @returns {string[]} - Array of postIDs that are in the selected categories/ingredients
  */
-export function combinePostIDsOfSelectedCategories(categorisedPostsObject, selectedCategories) {
+export function combinePostIDsOfSelectedFields(fieldPostsObject, selectedFields) {
 
-    let localCombinedArrayOfPostIDsOfSelectedCategories = [];
-    for (const category of selectedCategories) {
-        const postIDsOfCategory = categorisedPostsObject[category];
-        localCombinedArrayOfPostIDsOfSelectedCategories.push(...postIDsOfCategory);
+    let postIDsOfSelectedFields = [];
+    for (const selectedField of selectedFields) {
+        const postIDsOfSelectedField = fieldPostsObject[selectedField];
+        postIDsOfSelectedFields.push(...postIDsOfSelectedField);
     }
-    const combinedArrayWithoutDuplicates = [...new Set(localCombinedArrayOfPostIDsOfSelectedCategories)];
+    const combinedArrayWithoutDuplicates = [...new Set(postIDsOfSelectedFields)];
     return combinedArrayWithoutDuplicates;
 }
 
-
 /**
- * This function retrieves the postIDs of the selected categories from the database
- * and creates a categorisedPostObject
- * where the keys are the categories and the values are the postIDs in the category
+ * This function retrieves the postIDs of the selected categories/ingredients from the database
+ * and creates a fieldPostsObject
+ * where the keys are the categories/ingredients and the values are arrays of postIDs
  * 
  * It filters out posts that do not pass the verifierCallback
  * The verifierCallback is provided by the caller, 
- * thus this function is a private function and should not be called directly
+ * thus this function should not be called directly
  * 
- * It ends by calling the callback function with the categorisedPostObject
+ * It ends by calling the callback function provided with the fieldPostsObject
  * 
- * @param {string[]} categories - Array of categories
+ * @param {string} fieldName - Either 'ingredient' or 'category'
+ * @param {string[]} array - Array of categories
  * @param {*} listenerImplementer 
  * @param {*} verifierCallback - Callback function that returns true if the postID passes the verification
  * @param {*} callback - Callback function called with the categorisedPostObject. Provided by the caller
  */
-export async function _setupCategorisedPostsObject(categories, listenerImplementer, verifierCallback, callback) {
-    let categorisedPostObject = {};
+export async function setupFieldPostsObject( fieldName, array, listenerImplementer, verifierCallback, callback) {
+    let fieldPostsObject = {};
 
-    for (const category of categories) {
-        const categorisedPostsListener = await listenerImplementer.getCategorisedPostsListener(category);
+    for (const member of array) {
 
-        if (categorisedPostsListener === null) {
-            categorisedPostObject[category] = [];
+        let fieldPostsListener;
+
+        if (fieldName === 'ingredient') {
+            fieldPostsListener = await listenerImplementer.getIngredientPostsListener(member);
+        } else if (fieldName === 'category') {
+            fieldPostsListener = await listenerImplementer.getCategorisedPostsListener(member);
+        }
+
+        if (fieldPostsListener === null) {
+            fieldPostsObject[member] = [];
             continue;
         }
         
-        const categorisedPostsDoc = categorisedPostsListener.getCurrentDocument();
-        const categorisedPosts = categorisedPostsDoc.post_id_array;
+        const fieldPostsDoc = fieldPostsListener.getCurrentDocument();
+        const fieldPosts = fieldPostsDoc.post_id_array;
 
-        const filteredCategorisedPosts = categorisedPosts.filter((postID) => {
+        if(!fieldPosts) {
+            fieldPostsObject[member] = [];
+            continue;
+        }
+
+        const filteredFieldPosts = fieldPosts.filter((postID) => {
             return verifierCallback(postID);
         });
 
-        categorisedPostObject[category] = filteredCategorisedPosts;
+        fieldPostsObject[member] = filteredFieldPosts;
     }
 
-    callback(categorisedPostObject);
+    callback(fieldPostsObject);
 }

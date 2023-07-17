@@ -4,16 +4,21 @@ import listenerImplementer from '../../listeners/ListenerImplementer';
 
 import {
     rankPostsByDate,
-    dashboard_setupCategorisedPostsObject
+    dashboard_setupFieldPostsObject
 } from './dashboardUtils';
 
 import {
-    combinePostIDsOfSelectedCategories,
+    combinePostIDsOfSelectedFields,
 } from '../commonUtils';
 
-function useDashboard() {
+/**
+ * This hook handles the logic for the dashboard page.
+ * It allows the user to filter posts by category.
+ * It also implements pagination to achieve pseudo-infinite scrolling.
+ */
+export default function useDashboard() {
 
-    const POSTS_PER_PAGE = 1;
+    const POSTS_PER_PAGE = 20;
     let cleanupFunctions = [];
 
     const [userProfile, setUserProfile] = useState(null);
@@ -27,6 +32,8 @@ function useDashboard() {
     // postsToDisplay is the array of posts that the user sees on the dashboard
     // It is a subset of allPosts, and is modified when the user filters the posts
     const [IDsOfPostsToDisplay, setIDsOfPostsToDisplay] = useState([]);
+
+    // loadedPosts is the array of posts that the user sees on the dashboard at the current page
     const [IDsOfLoadedPosts, setIDsOfLoadedPosts] = useState([]);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -37,15 +44,16 @@ function useDashboard() {
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [categorisedPostsObject, setCategorisedPostsObject] = useState(null);
 
+    const [ingredients, setIngredients] = useState([]);
+    const [ingredientsListener, setIngredientsListener] = useState(null);
+    const [selectedIngredients, setSelectedIngredients] = useState([]);
+    const [ingredientPostsObject, setIngredientPostsObject] = useState(null);
+
     const [isInitialising, setIsInitialising] = useState(true);
 
     const navigate = useNavigate();
 
     async function setup() {
-
-        // Setup listeners
-        const categoriesListener = await listenerImplementer.getCategoriesListener();
-        setCategoriesListener(categoriesListener);
 
         const userDocListener = await listenerImplementer.getUserDocListener();
         // If userDocListener is null, the user has not created a profile
@@ -54,6 +62,12 @@ function useDashboard() {
             return;
         }
         setUserDocListener(userDocListener);
+
+        const categoriesListener = await listenerImplementer.getCategoriesListener();
+        setCategoriesListener(categoriesListener);
+
+        const ingredientsListener = await listenerImplementer.getIngredientsListener();
+        setIngredientsListener(ingredientsListener);
 
         // Initialise userDoc and userProfile
         const userDoc = userDocListener.getCurrentDocument();
@@ -72,6 +86,10 @@ function useDashboard() {
         const categories = categoriesListener.getCurrentDocument().categories;
         setCategories(categories);
 
+        // Retrieve ingredients from ingredientsListener    
+        const ingredients = ingredientsListener.getCurrentDocument().Ingredients;
+        setIngredients(ingredients);
+
         // Setup subscriptions
         const unsubscribeFromSavedPosts =
             userDocListener.subscribeToField('savedPosts',
@@ -80,12 +98,20 @@ function useDashboard() {
                 });
         cleanupFunctions.push(unsubscribeFromSavedPosts);
 
-        // Retrieve postIDs in each category
-        await dashboard_setupCategorisedPostsObject(
+        await dashboard_setupFieldPostsObject(
+            'category',
             categories,
             listenerImplementer,
             IDsOfAllPosts,
             setCategorisedPostsObject
+        );
+
+        await dashboard_setupFieldPostsObject(
+            'ingredient',
+            ingredients,
+            listenerImplementer,
+            IDsOfAllPosts,
+            setIngredientPostsObject
         );
 
         setIsInitialising(false);
@@ -101,17 +127,27 @@ function useDashboard() {
     useEffect(() => {
 
         const postIDsOfSelectedCategories =
-            combinePostIDsOfSelectedCategories(
+            combinePostIDsOfSelectedFields(
                 categorisedPostsObject,
                 selectedCategories
             );
 
+        const postIDsOfSelectedIngredients =
+            combinePostIDsOfSelectedFields(
+                ingredientPostsObject,
+                selectedIngredients
+            );
+
+        // Combine array and remove duplicates 
+        const postIDsOfSelectedCategoriesAndIngredients =
+            [...new Set([...postIDsOfSelectedCategories, ...postIDsOfSelectedIngredients])];
+
         let localIDsOfPostsToDisplay = [];
-        if (selectedCategories.length === 0) {
+        if (selectedCategories.length === 0 && selectedIngredients.length === 0) {
             localIDsOfPostsToDisplay = [...IDsOfAllPosts];
         } else {
             localIDsOfPostsToDisplay =
-                rankPostsByDate(postIDsOfSelectedCategories, IDsOfAllPosts);
+                rankPostsByDate(postIDsOfSelectedCategoriesAndIngredients, IDsOfAllPosts);
         }
         const localIDsOfLoadedPosts = localIDsOfPostsToDisplay.slice(0, POSTS_PER_PAGE);
 
@@ -120,7 +156,7 @@ function useDashboard() {
         setIDsOfLoadedPosts(localIDsOfLoadedPosts);
         setCurrentPage(1);
 
-    }, [selectedCategories]);
+    }, [selectedCategories, selectedIngredients]);
 
     useEffect(() => {
         const indexOfLastPost = currentPage * POSTS_PER_PAGE;
@@ -131,10 +167,9 @@ function useDashboard() {
     return {
         userProfile, IDsOfSavedPosts,
         categories, selectedCategories, setSelectedCategories, categorisedPostsObject,
+        ingredients, selectedIngredients, setSelectedIngredients, ingredientPostsObject,
         IDsOfPostsToDisplay,
         isInitialising,
         IDsOfLoadedPosts, setCurrentPage, currentPage, maxNumberOfPages
     }
 }
-
-export default useDashboard;
