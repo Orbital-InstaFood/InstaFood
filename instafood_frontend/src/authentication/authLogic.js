@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConf";
+import { auth, db, functions } from "../firebaseConf";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -10,6 +10,9 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
+
+import getFCMToken from '../pages/Notification/fcmTokenService';
+import { httpsCallable } from "firebase/functions";
 
 const useAuth = () => {
   const [email, setEmail] = useState("");
@@ -50,7 +53,35 @@ const useAuth = () => {
           signOut(auth);
           navigate("/");
         } else {
-          navigate("/dashboard");
+
+          // update fcmToken for push notifications
+          const uid = user.uid;
+          try {
+            const temp_fcmToken = await getFCMToken();
+
+            const updateFCMToken = httpsCallable(functions, 'updateFCMToken');
+
+            try {
+              const temp_fcmToken = await getFCMToken();
+            
+              if (temp_fcmToken) {
+                const result = await updateFCMToken({ token: temp_fcmToken });
+                console.log(result.data.message);
+              } else {
+                console.log("Invalid fcmToken.");
+              }
+              navigate("/dashboard");
+            } catch (error) {
+              console.log("Error updating fcmToken: ", error);
+            }
+            
+
+
+          } catch (error) {
+            console.log("Error updating fcmToken: ", error);
+
+          }
+
         }
       })
 
@@ -128,7 +159,7 @@ const useAuth = () => {
         alert("Password reset email sent.");
         navigate("/");
       })
-      
+
       .catch((error) => {
         if (error.code === "auth/invalid-email") {
           alert("Invalid email address.");
