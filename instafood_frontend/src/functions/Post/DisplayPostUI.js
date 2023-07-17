@@ -117,6 +117,22 @@ export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isAS
                 ))
             }
 
+            <SubHeading sx={{ marginTop: '1rem' }}>
+                Ingredients
+            </SubHeading>
+
+            {postDoc.ingredients &&
+                postDoc.ingredients.map((ingredient) => (
+                    <Chip
+                        key={ingredient}
+                        label={ingredient}
+                        variant="outlined"
+                        size="small"
+                        sx={{ margin: '0.5rem' }}
+                    />
+                ))
+            }
+
             <SubHeading
                 sx={{ marginTop: '1rem' }}
             >

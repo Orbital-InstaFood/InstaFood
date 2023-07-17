@@ -134,6 +134,7 @@ export default function Dashboard() {
                                 }}
                                 disabled={currentPage === 1 || IDsOfPostsToDisplay.length === 0}
                             >
+                                Previous
                             </Button>
                             <Button
                                 variant="contained"
@@ -145,6 +146,7 @@ export default function Dashboard() {
                                 }}
                                 disabled={maxNumberOfPages === currentPage || IDsOfPostsToDisplay.length === 0}
                             >
+                                Next
                             </Button>
                         </div>
                     )}

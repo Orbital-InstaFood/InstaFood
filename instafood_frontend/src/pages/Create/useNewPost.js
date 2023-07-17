@@ -93,7 +93,6 @@ export default function useNewPost() {
     }
 
     const handleSubmitNewPost = async (e) => {
-        e.preventDefault();
 
         const timestamp = serverTimestamp();
         const uniqueID = generateUniqueID();
@@ -119,7 +118,8 @@ export default function useNewPost() {
             postID: postID,
             likes: [],
             comments: [],
-            categories: selectedCategories
+            categories: selectedCategories,
+            ingredients: selectedIngredients
         };
 
         await setDoc(postDocRef, postDoc);
