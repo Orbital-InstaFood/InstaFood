@@ -93,7 +93,7 @@ body {
   text-decoration: none;
 }
 
-.container-login-page {
+/*.container-login-page {
     background-image: url("./theme/images/login_background.jpg");
     background-size: cover;
     background-position: center;
@@ -109,7 +109,7 @@ body {
     background-size: cover;
     background-position: center;
     height: 100vh;
-  }
+  }*/
 
   .container-in-website {
     display: flex;
@@ -142,5 +142,15 @@ body {
 .content-button:active {
   background-color: #4295ae;
 }
+
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* Additional styles as needed */
+}
+
 
 

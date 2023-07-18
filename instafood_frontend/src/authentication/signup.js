@@ -1,79 +1,94 @@
-import { Link } from "react-router-dom";
-import useAuth from "./authLogic";
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Typography } from '@mui/material';
+import { FormContainer, TextFieldElement } from 'react-hook-form-mui';
+import GoogleIcon from './google-icon.png';
+import useAuth from './authLogic';
 import {
-    FormContainer,
-    TextFieldElement
-} from 'react-hook-form-mui'
-import {
-    Button,
-    Typography,
-} from '@mui/material'
-import { StyledBox, StyledGoogleIcon, DividerWithText, Title, Description } from "./authStyle";
-import GoogleIcon from "./google-icon.png";
+  StyledBox,
+  StyledGoogleIcon,
+  DividerWithText,
+  Title,
+  Description,
+} from './authStyle';
 
-/**
- * This component is used to render the sign up page.
- */
-export default function SignUp() {
-    const {
-        email, setEmail,
-        password, setPassword,
-        handleSignup,
-        handleGoogle,
-    } = useAuth();
+import './signup.css';
 
-    return (
-        <StyledBox>
-            <Title variant="h2">SIGN UP</Title>
-            <Description variant="body1">
-                Welcome to Instafood!
-            </Description>
+const SignUp = () => {
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    handleSignup,
+    handleGoogle,
+  } = useAuth();
 
-            <FormContainer onSuccess={handleSignup}>
-                <TextFieldElement
-                    type="email"
-                    name="email"
-                    label="Email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    sx={{ 
-                        width: "100%",
-                        marginBottom: "1rem"
-                    }}
-                />
-                <TextFieldElement
-                    type="password"
-                    name="password"
-                    label="Password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    sx={{ 
-                        width: "100%",
-                        marginBottom: "1rem"
-                    }}
-                />
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
 
-                <Button variant="contained" type="submit" sx={{ width: "100%" }}>
-                    SIGN UP
-                </Button>
-            </FormContainer>
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+  };
 
-            <DividerWithText>OR</DividerWithText>
+  const handleSubmit = () => {
+    handleSignup();
+  };
 
-            <Button
-                variant="outlined"
-                onClick={handleGoogle}
-                sx={{ width: "100%" }}
-                startIcon={<StyledGoogleIcon src={GoogleIcon} alt="Google Icon" />}
-            >
-                CONTINUE WITH GOOGLE
-            </Button>
+  return (
+    <div className="signup-container">
+      <StyledBox>
+        <Title variant="h2" className="signup-title">
+          SIGN UP
+        </Title>
+        <Description variant="body1" className="signup-description">
+          Welcome to Instafood!
+        </Description>
 
-            <Typography component="div" variant="body2">
-                Already have an account? <Link to="/">LOG IN</Link>
-            </Typography>
-        </StyledBox>
-    );
-}
+        <FormContainer onSuccess={handleSubmit} className="signup-form-container">
+          <TextFieldElement
+            type="email"
+            name="email"
+            label="Email"
+            required
+            value={email}
+            onChange={handleEmailChange}
+            className="signup-input"
+          />
+          <TextFieldElement
+            type="password"
+            name="password"
+            label="Password"
+            required
+            value={password}
+            onChange={handlePasswordChange}
+            className="signup-input"
+          />
+
+          <Button variant="contained" type="submit" className="signup-button">
+            SIGN UP
+          </Button>
+        </FormContainer>
+
+
+        <DividerWithText>OR</DividerWithText>
+
+        <Button
+          variant="outlined"
+          onClick={handleGoogle}
+          className="signup-google-button"
+          startIcon={<StyledGoogleIcon src={GoogleIcon} alt="Google Icon" />}
+        >
+          CONTINUE WITH GOOGLE
+        </Button>
+
+        <Typography component="div" variant="body2" className="signup-login-link">
+          Already have an account? <Link to="/" className="signup-login-link-text">LOG IN</Link>
+        </Typography>
+      </StyledBox>
+    </div>
+  );
+};
+
+export default SignUp;

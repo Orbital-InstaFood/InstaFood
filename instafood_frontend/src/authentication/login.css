@@ -1,0 +1,18 @@
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    height: 60vh;
+    background-color: #FFC947; /* Replace with your desired food-inspired color */
+  }
+  
+  .login-form {
+    background-color: #FFF;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 400px; /* Adjust the width as needed */
+    max-width: 90%; /* Adjust the maximum width as needed */
+  }
+  
+  

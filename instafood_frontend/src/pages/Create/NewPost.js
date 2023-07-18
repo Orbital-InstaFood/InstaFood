@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Grid,
   TextField,
@@ -9,21 +10,20 @@ import {
   Chip,
   IconButton,
   Input,
-  Backdrop,
   Box,
-  CircularProgress
+  CircularProgress,
 } from '@mui/material';
 
 import {
   Delete,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
 } from '@mui/icons-material';
 
 import {
   FormContainer,
-  TextFieldElement
-} from 'react-hook-form-mui'
+  TextFieldElement,
+} from 'react-hook-form-mui';
 
 import useNewPost from './useNewPost.js';
 
@@ -34,7 +34,7 @@ import {
   ImagePreview,
   Image,
   DeleteButtonContainer,
-  ButtonOverlay
+  ButtonOverlay,
 } from '../../functions/Post/PostStyles.js';
 
 import ReactQuill from 'react-quill';
@@ -45,24 +45,42 @@ import 'react-quill/dist/quill.snow.css';
  */
 export default function NewPost() {
   const {
-    title, setTitle,
-    caption, setCaption,
-    captionHTML, setCaptionHTML,
-    categories, selectedCategories, setSelectedCategories,
-    ingredients, selectedIngredients, setSelectedIngredients,
-    imageObjects, currentImageIndex, setCurrentImageIndex, shouldShowArrows, setShouldShowArrows,
-    handleImageChange, handleImageDelete,
-    handleSubmitNewPost, isLoading
+    title,
+    setTitle,
+    caption,
+    setCaption,
+    captionHTML,
+    setCaptionHTML,
+    categories,
+    selectedCategories,
+    setSelectedCategories,
+    ingredients,
+    selectedIngredients,
+    setSelectedIngredients,
+    imageObjects,
+    currentImageIndex,
+    setCurrentImageIndex,
+    shouldShowArrows,
+    setShouldShowArrows,
+    handleImageChange,
+    handleImageDelete,
+    handleSubmitNewPost,
+    isLoading,
   } = useNewPost();
 
   if (isLoading) {
     return (
-      <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={isLoading}
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          background: 'linear-gradient(to bottom, #f9f9f9, #eaeaea)',
+        }}
       >
-        <CircularProgress color="inherit" />
-      </Backdrop>
+        <CircularProgress color="primary" />
+      </Box>
     );
   }
 
@@ -70,13 +88,11 @@ export default function NewPost() {
     <Grid
       container
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        justify: 'center',
-        alignItems: 'center',
-        padding: '1rem',
-      }}>
-      <Grid item xs={6}>
+        justifyContent: 'center',
+        padding: '2rem',
+      }}
+    >
+      <Grid item xs={12} md={8} lg={6}>
         <PostContainer>
           <Title>CREATE A NEW POST</Title>
 
@@ -92,16 +108,23 @@ export default function NewPost() {
               type="text"
               required
               value={title}
-              margin='normal'
+              margin="normal"
               onChange={(e) => setTitle(e.target.value)}
+              sx={{
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+                marginBottom: '1.5rem',
+              }}
             />
 
-            <FormControl sx={{
-              marginBottom: 2,
-              marginTop: 2,
-              width: '100%',
-            }}>
-
+            <FormControl
+              sx={{
+                marginBottom: '1.5rem',
+                width: '100%',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+              }}
+            >
               <InputLabel id="category-label">Categories</InputLabel>
               <Select
                 labelId="category-label"
@@ -111,13 +134,23 @@ export default function NewPost() {
                 onChange={(e) => setSelectedCategories(e.target.value)}
                 input={<Input />}
                 renderValue={(selected) => (
-                  <Box sx={{
-                    display: 'flex',
-                    maxWidth: '100%',
-                    flexWrap: 'wrap'
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      maxWidth: '100%',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     {selected.map((category) => (
-                      <Chip key={category} label={category} sx={{ m: 0.5 }} />
+                      <Chip
+                        key={category}
+                        label={category}
+                        sx={{
+                          m: 0.5,
+                          backgroundColor: '#f7f7f7',
+                          color: '#333333',
+                        }}
+                      />
                     ))}
                   </Box>
                 )}
@@ -128,11 +161,14 @@ export default function NewPost() {
                   </MenuItem>
                 ))}
               </Select>
-
             </FormControl>
 
             <ReactQuill
-              sx={{ marginBottom: 2 }}
+              sx={{
+                marginBottom: '1.5rem',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+              }}
               fullWidth
               label="Recipe Details"
               multiline
@@ -143,62 +179,14 @@ export default function NewPost() {
               onChange={(newHTML) => setCaptionHTML(newHTML)}
             />
 
-            <Button
-              component="label"
-              variant="outlined"
-              color="primary"
-              htmlFor="images"
-              marginRight={2}
-            />
-            Upload Images
-            <input
-              type="file"
-              id="images"
-              multiple
-              onChange={handleImageChange}
-              style={{ display: 'none' }}
-            />
-
-            <FormControl sx={{
-              marginBottom: 2,
-              marginTop: 2,
-              width: '100%',
-            }}>
-
-              <InputLabel id="category-label">Categories</InputLabel>
-              <Select
-                labelId="category-label"
-                id="category"
-                multiple
-                value={selectedCategories}
-                onChange={(e) => setSelectedCategories(e.target.value)}
-                input={<Input />}
-                renderValue={(selected) => (
-                  <Box sx={{
-                    display: 'flex',
-                    maxWidth: '100%',
-                    flexWrap: 'wrap'
-                  }}>
-                    {selected.map((category) => (
-                      <Chip key={category} label={category} sx={{ m: 0.5 }} />
-                    ))}
-                  </Box>
-                )}
-              >
-                {categories.map((category) => (
-                  <MenuItem key={category} value={category}>
-                    {category}
-                  </MenuItem>
-                ))}
-              </Select>
-
-            </FormControl>
-
-            <FormControl sx={{
-              marginBottom: 2,
-              marginTop: 2,
-              width: '100%',
-            }}>
+            <FormControl
+              sx={{
+                marginBottom: '1.5rem',
+                width: '100%',
+                backgroundColor: '#ffffff',
+                borderRadius: '8px',
+              }}
+            >
               <InputLabel id="ingredient-label">Ingredients</InputLabel>
               <Select
                 labelId="ingredient-label"
@@ -208,13 +196,23 @@ export default function NewPost() {
                 onChange={(e) => setSelectedIngredients(e.target.value)}
                 input={<Input />}
                 renderValue={(selected) => (
-                  <Box sx={{
-                    display: 'flex',
-                    maxWidth: '100%',
-                    flexWrap: 'wrap'
-                  }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      maxWidth: '100%',
+                      flexWrap: 'wrap',
+                    }}
+                  >
                     {selected.map((ingredient) => (
-                      <Chip key={ingredient} label={ingredient} sx={{ m: 0.5 }} />
+                      <Chip
+                        key={ingredient}
+                        label={ingredient}
+                        sx={{
+                          m: 0.5,
+                          backgroundColor: '#f7f7f7',
+                          color: '#333333',
+                        }}
+                      />
                     ))}
                   </Box>
                 )}
@@ -227,25 +225,17 @@ export default function NewPost() {
               </Select>
             </FormControl>
 
-            <TextFieldElement
-              sx={{ marginBottom: 2 }}
-              fullWidth
-              name='Recipe Details'
-              label="Recipe Details"
-              multiline
-              type="text"
-              id="caption"
-              required
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-            />
-
             <Button
               component="label"
-              variant="outlined"
+              variant="contained"
               color="primary"
               htmlFor="images"
-              marginRight={2}
+              sx={{
+                marginBottom: '1.5rem',
+                backgroundColor: '#f09c3d',
+                color: '#ffffff',
+                borderRadius: '8px',
+              }}
             >
               Upload Images
               <input
@@ -259,13 +249,24 @@ export default function NewPost() {
 
             {imageObjects.length > 0 && (
               <Box
-                sx={{ marginTop: 2 }}
+                sx={{
+                  marginBottom: '1.5rem',
+                  position: 'relative',
+                }}
                 onMouseEnter={() => setShouldShowArrows(true)}
                 onMouseLeave={() => setShouldShowArrows(false)}
               >
-
                 <ImagePreview key={imageObjects[currentImageIndex].uniqueID}>
-                  <Image src={imageObjects[currentImageIndex].imageURL} alt="preview" />
+                  <Image
+                    src={imageObjects[currentImageIndex].imageURL}
+                    alt="preview"
+                    sx={{
+                      maxWidth: '100%',
+                      height: 'auto',
+                      borderRadius: '8px',
+                      boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+                    }}
+                  />
 
                   {shouldShowArrows && (
                     <IconButton
@@ -276,6 +277,9 @@ export default function NewPost() {
                         left: 0,
                         transform: 'translateY(-50%)',
                         pointerEvents: 'auto',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: '50%',
                       }}
                       disabled={currentImageIndex === 0}
                     >
@@ -287,22 +291,23 @@ export default function NewPost() {
                     <ButtonOverlay />
                     <IconButton
                       onClick={() => {
-
                         if (imageObjects.length === 1) {
-                          setCurrentImageIndex(0)
+                          setCurrentImageIndex(0);
                         } else if (currentImageIndex === imageObjects.length - 1) {
-                          setCurrentImageIndex(currentImageIndex - 1)
+                          setCurrentImageIndex(currentImageIndex - 1);
                         } else {
-                          setCurrentImageIndex(currentImageIndex)
+                          setCurrentImageIndex(currentImageIndex);
                         }
-
-                        handleImageDelete(imageObjects[currentImageIndex].uniqueID)
+                        handleImageDelete(imageObjects[currentImageIndex].uniqueID);
                       }}
                       sx={{
                         position: 'absolute',
                         top: 0,
                         right: 0,
                         pointerEvents: 'auto',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: '50%',
                       }}
                     >
                       <Delete />
@@ -318,25 +323,28 @@ export default function NewPost() {
                         right: 0,
                         transform: 'translateY(-50%)',
                         pointerEvents: 'auto',
+                        color: '#ffffff',
+                        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                        borderRadius: '50%',
                       }}
                       disabled={currentImageIndex === imageObjects.length - 1}
                     >
                       <ChevronRight />
                     </IconButton>
                   )}
-
-
                 </ImagePreview>
-
               </Box>
-
             )}
 
             <Button
               type="submit"
               variant="contained"
               color="primary"
-              marginLeft={2}
+              sx={{
+                backgroundColor: '#f09c3d',
+                color: '#ffffff',
+                borderRadius: '8px',
+              }}
             >
               Create Post
             </Button>
@@ -346,7 +354,3 @@ export default function NewPost() {
     </Grid>
   );
 }
-
-
-
-
