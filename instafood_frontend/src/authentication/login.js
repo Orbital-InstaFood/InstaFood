@@ -3,9 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import useAuth from './authLogic';
 import GoogleIcon from './google-icon.png';
 import {
+  StyledBox,
   StyledGoogleIcon,
   DividerWithText,
-  Title,
   Description,
 } from './authStyle';
 import { Button, Typography, Grid } from '@mui/material';
@@ -22,8 +22,7 @@ export default function Login() {
 
   return (
     <div className="login-container">
-      <div className="login-form">
-        <Title variant="h2">LOG IN</Title>
+      <StyledBox>
         <Description variant="body1">Welcome back to Instafood!</Description>
 
         <FormContainer onSuccess={handleLogin}>
@@ -98,7 +97,7 @@ export default function Login() {
         <Typography component="div" variant="body2" sx={{ marginBottom: '1.5rem' }}>
           Don't have an account? <Link to="/signup" style={{ color: '#FF7D64', textDecoration: 'underline' }}>SIGN UP</Link>
         </Typography>
-      </div>
+      </StyledBox>
     </div>
   );
 }

@@ -41,6 +41,8 @@ function App() {
     window.location.pathname === '/signup' ||
     window.location.pathname === '/forgotPassword' ||
     window.location.pathname === '/signInAfterEmailVerification';
+  const pageTitle = isAuthPage ? 'InstaFood | Join a Community of Food Lovers!' : 'InstaFood';
+  const titleClassName = isAuthPage ? 'auth-title' : 'other-title';
 
   return (
     <Router>
@@ -52,7 +54,7 @@ function App() {
           backgroundPosition: 'center',
         }}
       >
-        <h1>InstaFood</h1>
+        <h1 className={titleClassName}>{pageTitle}</h1>
 
         {user && user.emailVerified && <Navbar />}
 

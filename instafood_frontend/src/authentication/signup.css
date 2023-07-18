@@ -2,11 +2,16 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  border-radius: 4px;
   height: 61vh; 
   background-image: url('../theme/auth_background.jpg');
   background-size: cover;
   background-position: center;
-  opacity: 0.95; 
+  opacity: 0.95;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(-50%, -50%); 
 }
 
 .signup-title {

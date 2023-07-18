@@ -1,18 +1,15 @@
 .login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 8px;
-    height: 60vh;
-    background-color: #FFC947; /* Replace with your desired food-inspired color */
-  }
-  
-  .login-form {
-    background-color: #FFF;
-    padding: 2rem;
-    border-radius: 8px;
-    width: 400px; /* Adjust the width as needed */
-    max-width: 90%; /* Adjust the maximum width as needed */
-  }
-  
-  
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  height: 61vh;
+  background-image: url('../theme/auth_background.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.9;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(-50%, -50%);
+}
