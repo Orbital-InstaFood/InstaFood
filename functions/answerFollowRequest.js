@@ -3,10 +3,19 @@ const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
 const admin = require("firebase-admin");
 
+/**
+ * @param {string} followerUserID - ID of the user who sent the follow request
+ * @param {string} followedUserID - ID of the user who received the follow request
+ * @param {boolean} isAccepted - true if the follow request is accepted, false if rejected
+ * 
+ * This function is called when a user answers a follow request
+ * It accepts the userIDs, visits backend_userID_UID to get the UIDs,
+ * then updates the users' documents accordingly
+ */
 exports.answerFollowRequest = functions.https.onCall(async (request) => {
     const followerUserID = request.data.followerUserID;
     const followedUserID = request.data.followedUserID;
-    const accept = request.data.accept;
+    const isAccepted = request.data.accept;
 
     if (followerUserID === undefined) {
         return { result: "No followerUserID provided!!" };
@@ -16,7 +25,7 @@ exports.answerFollowRequest = functions.https.onCall(async (request) => {
         return { result: "No followedUserID provided!!" };
     }
 
-    if (accept === undefined) {
+    if (isAccepted === undefined) {
         return { result: "No accept provided!!" };
     }
 
@@ -26,7 +35,7 @@ exports.answerFollowRequest = functions.https.onCall(async (request) => {
     const followedSnapshot = await db.collection('backend_userID_UID').doc(followedUserID).get();
     const followedUID = followedSnapshot.data().UID;
 
-    if (accept) {
+    if (isAccepted) {
 
         await db.collection('users').doc(followerUID).update(
             {

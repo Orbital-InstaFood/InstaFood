@@ -26,27 +26,31 @@ import DisplayRequestReceived from './DisplayRequestReceived';
 import DisplayRequestSent from './DisplayRequestSent';
 import DisplayFollower from './DisplayFollower';
 import DisplayFollowing from './DisplayFollowing';
-import DisplayPostUI from '../../functions/Post/DisplayPostUI';
+import DisplayPostUI from '../../../functions/Post/DisplayPostUI';
 
 import {
     UserInfoContainer,
-} from './ProfileStyles';
+} from '../ProfileStyles';
 
-function ViewProfile() {
-
-    const Title = styled(Typography)`
-    font-size: 1.5rem;
-    font-weight: bold;
+const Title = styled(Typography)`
+font-size: 1.5rem;
+font-weight: bold;
 `;
 
-    const Description = styled(Typography)`
-    font-size: 1rem;
-    color: #666;
+const Description = styled(Typography)`
+font-size: 1rem;
+color: #666;
 `;
 
-    const Caption = styled(Typography)`
-    font-size: 1rem;
+const Caption = styled(Typography)`
+font-size: 1rem;
 `;
+
+/**
+ * This component is used to render the view profile page
+ * for the user's own profile.
+ */
+export default function ViewProfile() {
 
     const navigate = useNavigate();
 
@@ -231,7 +235,7 @@ function ViewProfile() {
                         </UserInfoContainer>
                     )}
 
-                    {selectedField === 'personalPosts' && userDoc.personalPosts.map((postID) => (
+                    {selectedField === 'personalPosts' && [...userDoc.personalPosts].reverse().map((postID) => (
                         <DisplayPostUI
                             postID={postID}
                             userOwnID={userDoc.userID}
@@ -253,6 +257,3 @@ function ViewProfile() {
         </Grid>
     );
 }
-
-
-export default ViewProfile;

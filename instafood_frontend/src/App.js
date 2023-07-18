@@ -11,13 +11,13 @@ import SignInAfterEmailVerification from './authentication/signInAfterEmailVerif
 import ForgotPassword from './authentication/forgotPassword';
 
 import Dashboard from './pages/Dashboard/Dashboard';
-import CreateProfile from './pages/Profile/CreateProfile';
-import ViewProfile from './pages/Profile/ViewProfileUI';
+import CreateProfile from './pages/Profile/Create/CreateProfile';
+import ViewProfile from './pages/Profile/View/ViewProfileUI';
 import NewPost from './pages/Create/NewPost';
 import ConnectUI from './pages/Connect/ConnectUI';
 import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
-import EditProfile from './pages/Profile/EditProfile';
+import EditProfile from './pages/Profile/Edit/EditProfile';
 import EventUI from './pages/Event/EventUI';
 
 import Navbar from './Navbar';
@@ -39,10 +39,10 @@ function App() {
 
   return (
     <Router>
-      <div> 
-      <h1>InstaFood</h1>
+      <div>
+        <h1>InstaFood</h1>
 
-      {user && user.emailVerified && <Navbar />}
+        {user && user.emailVerified && <Navbar />}
 
       <Routes>
         <Route path="/" element={<Login />} />
@@ -65,7 +65,7 @@ function App() {
         )
           : null}
           <Route path="*" element={<PageNotFound />} />
-      </Routes>
+        </Routes>
       </div>
     </Router>
   );

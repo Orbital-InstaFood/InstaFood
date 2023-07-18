@@ -19,17 +19,17 @@ import {
     Title,
     CheckboxButtonContainer,
     Container
-} from './ProfileStyles';
+} from '../ProfileStyles';
 
-function EditProfile() {
+/**
+ * This component is used to render the edit profile page.
+ */
+export default function EditProfile() {
 
     const {
-        username,
-        setUserName,
-        bio,
-        setBio,
-        isPrivate,
-        setIsPrivate,
+        username, setUserName,
+        bio, setBio,
+        isPrivate, setIsPrivate,
         isLoading,
         handleSubmitUserInfo,
     } = useEditProfile();
@@ -126,5 +126,3 @@ function EditProfile() {
     );
 
 }
-
-export default EditProfile;

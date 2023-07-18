@@ -1,12 +1,21 @@
-import { useNavigate } from "react-router-dom";
+import { Button, Typography, Box } from "@mui/material";
 
 export default function PageNotFound() {
-    const navigate = useNavigate();
 
-    return (
-        <div>
-            <p>Page not found.</p>
-            <button onClick={() => navigate("/")}>Go to home page</button>
-        </div>
-    );
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      alignItems="center"
+      justifyContent="center"
+      minHeight="80vh"
+    >
+      <Typography variant="h1" gutterBottom>
+        404
+      </Typography>
+      <Typography variant="h5" gutterBottom>
+        PAGE NOT FOUND
+      </Typography>
+    </Box>
+  );
 }

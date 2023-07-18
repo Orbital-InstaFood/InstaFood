@@ -3,6 +3,13 @@ const { getFirestore } = require("firebase-admin/firestore");
 const db = getFirestore();
 const admin = require("firebase-admin");
 
+/**
+ * @param {string} requesterUserID - The userID of the user who is requesting to follow the public user
+ * @param {string} publicUserID - The userID of the public user
+ * 
+ * This function adds the public user to the requester's following list
+ * and adds the requester to the public user's followers list
+ */
 exports.followPublicUser = functions.https.onCall(async (request) => {
     const requesterUserID = request.data.requesterUserID;
     const publicUserID = request.data.publicUserID;

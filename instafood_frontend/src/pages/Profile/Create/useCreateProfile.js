@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db, functions } from "../../firebaseConf";
+import { auth, db, functions } from "../../../firebaseConf";
 import { httpsCallable } from "firebase/functions";
 
-import getFCMToken from "../Notification/fcmTokenService";
-
-import listenerImplementer from "../../listeners/ListenerImplementer";
+import listenerImplementer from "../../../listeners/ListenerImplementer";
 
 export default function useCreateProfile() {
 
@@ -117,39 +115,25 @@ export default function useCreateProfile() {
     const handleCreate = async () => {
         setIsCreatingUserProfile(true);
 
-        try {
-            const fcmToken = await getFCMToken();
+        await createUserProfile({
+            UID: user.uid,
+            username: username,
+            bio: bio,
+            isPrivate: isPrivate,
+            userID: userID,
+        });
 
-            await createUserProfile({
-                UID: user.uid,
-                username: username,
-                bio: bio,
-                isPrivate: isPrivate,
-                userID: userID,
-                fcmToken: fcmToken,
-            });
-
-            setIsCreatingUserProfile(false);
-            navigate("/dashboard");
-        } catch (error) {
-            console.log("Error creating profile");
-            setIsCreatingUserProfile(false);
-        }
+        setIsCreatingUserProfile(false);
+        navigate("/dashboard");
     }
 
     return {
-        username,
-        setUserName,
-        bio,
-        setBio,
-        isPrivate,
-        setIsPrivate,
-        userID,
-        setUserID,
-        helperText,
-        isValidUserID,
+        username, setUserName,
+        bio, setBio,
+        isPrivate, setIsPrivate,
+        userID, setUserID,
+        isValidUserID, helperText,
         isLoading,
-        handleCreate,
-        isCreatingUserProfile,
+        handleCreate, isCreatingUserProfile,
     }
 }

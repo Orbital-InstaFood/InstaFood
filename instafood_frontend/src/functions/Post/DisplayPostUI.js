@@ -51,16 +51,22 @@ import {
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
-function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
+/**
+ * This component is used to render a post 
+ * 
+ * This component assumes that the user has view access to the post
+ * @param {string} postID The ID of the post to be displayed
+ * @param {string} userOwnID The ID of the user who is viewing the post
+ * @param {boolean} isAPersonalPost Whether the post is a personal post
+ * @param {boolean} isASavedPost Whether the post is a saved post. This must be updated when the user saves or unsaves a post
+ */
+export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
 
     const {
         postDoc,
         isLoading,
-        handleLikeOrDislike,
-        commentText,
-        setCommentText,
-        handleMakeComment,
-        handleDeleteComment,
+        commentText, setCommentText,
+        handleMakeComment, handleLikeOrDislike, handleDeleteComment,
     } = useDisplayPostLogic({ postID, userOwnID });
 
     const [shouldShowArrows, setShouldShowArrows] = useState(false);
@@ -116,6 +122,22 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                 ))
             }
 
+            <SubHeading sx={{ marginTop: '1rem' }}>
+                Ingredients
+            </SubHeading>
+
+            {postDoc.ingredients &&
+                postDoc.ingredients.map((ingredient) => (
+                    <Chip
+                        key={ingredient}
+                        label={ingredient}
+                        variant="outlined"
+                        size="small"
+                        sx={{ margin: '0.5rem' }}
+                    />
+                ))
+            }
+
             <SubHeading
                 sx={{ marginTop: '1rem' }}
             >
@@ -151,7 +173,6 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
                                 >
                                     <AccountCircle />
                                 </ListItemIcon>
-                                {/* <ListItemText primary={like} /> */}
                                 <DisplayUserLink userID={like} />
                             </ListItem>
                         ))}
@@ -308,5 +329,3 @@ function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isASavedPost }) {
     );
 
 }
-
-export default DisplayPostUI;
