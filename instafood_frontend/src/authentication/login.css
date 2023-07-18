@@ -7,9 +7,14 @@
   background-image: url('../theme/auth_background.jpg');
   background-size: cover;
   background-position: center;
-  opacity: 0.9;
+  opacity: 0.93;
   position: absolute;
   top: 50%;
   right: 0;
   transform: translate(-50%, -50%);
+}
+
+.login-google-button {
+  width: 100%;
+  margin-top: 1rem;
 }

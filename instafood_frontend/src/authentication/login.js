@@ -81,21 +81,14 @@ export default function Login() {
         <Button
           variant="outlined"
           onClick={handleGoogle}
-          sx={{
-            width: '100%',
-            marginBottom: '1.5rem',
-            color: '#fff',
-            border: '2px solid #fff',
-            background: '#FF7D64',
-            borderRadius: '8px',
-          }}
+          className="login-google-button"
           startIcon={<StyledGoogleIcon src={GoogleIcon} alt="Google Icon" />}
         >
           CONTINUE WITH GOOGLE
         </Button>
 
         <Typography component="div" variant="body2" sx={{ marginBottom: '1.5rem' }}>
-          Don't have an account? <Link to="/signup" style={{ color: '#FF7D64', textDecoration: 'underline' }}>SIGN UP</Link>
+          Don't have an account? <Link to="/signup" style={{ color: '#1976d2', textDecoration: 'underline' }}>SIGN UP</Link>
         </Typography>
       </StyledBox>
     </div>
