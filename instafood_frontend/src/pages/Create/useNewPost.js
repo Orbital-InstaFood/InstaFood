@@ -29,10 +29,7 @@ export default function useNewPost() {
     // State for post details
     const [title, setTitle] = useState('');
 
-    const [caption, setCaption] = useState('');
     const [captionHTML, setCaptionHTML] = useState('');
-
-    const [otherCategory, setOtherCategory] = useState('Others');
 
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedIngredients, setSelectedIngredients] = useState([]);
@@ -41,7 +38,6 @@ export default function useNewPost() {
     // State for image preview
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [shouldShowArrows, setShouldShowArrows] = useState(false);
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -101,26 +97,22 @@ export default function useNewPost() {
 
         const timestamp = serverTimestamp();
         const uniqueID = generateUniqueID();
+        const encodedCaption = encodeURIComponent(captionHTML);
 
         const postID = `${userID}_${uniqueID}`;
-
         const postDocRef = doc(db, 'posts', postID);
-
-        const encodedCaption = encodeURIComponent(captionHTML);
-        const caption = encodedCaption;
 
         const uploadTasks = imageObjects.map(async (imageObject) => {
             const imageRef = ref(storage, `/${userID}/${postID}/${imageObject.content.name}/${imageObject.uniqueID}`);
             const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
             return getDownloadURL(snapshot.ref);
         });
-
         const imageUrls = await Promise.all(uploadTasks);
 
         const postDoc = {
             title: title,
             creator: userID,
-            caption: caption,
+            caption: encodedCaption,
             date_created: timestamp,
             images: imageUrls,
             postID: postID,
@@ -148,25 +140,6 @@ export default function useNewPost() {
         for (const category of selectedCategories) {
             const categoryRef = doc(db, 'categorisedPosts', category) ;
             const categoryDoc = await getDoc(categoryRef);
-
-            if (category == 'Others') {
-                const userCategory = prompt('Enter your category name:');
-                setOtherCategory(userCategory);
-                if (userCategory == null || userCategory == '') {
-                    alert('Please enter a valid category name!');
-                    return;
-                }
-                if (categoryDoc.exists()) {
-                    await updateDoc(categoryRef, {
-                        post_id_array: arrayUnion(postID)
-                    });
-                } else {
-                    await setDoc(categoryRef, {
-                        post_id_array: [postID],
-                        category_name: userCategory
-                    });
-                }
-            }
 
             if (categoryDoc.exists()) {
                 await updateDoc(categoryRef, {
@@ -199,11 +172,10 @@ export default function useNewPost() {
 
     return {
         title, setTitle,
-        caption, setCaption,
         captionHTML, setCaptionHTML,
         categories, selectedCategories, setSelectedCategories,
         ingredients, selectedIngredients, setSelectedIngredients,
-        imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
+        imageObjects, currentImageIndex,setCurrentImageIndex,
         handleImageChange, handleImageDelete,
         handleSubmitNewPost, isLoading
     }
