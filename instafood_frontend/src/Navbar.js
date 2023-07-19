@@ -10,7 +10,7 @@ const links = [
     { path: '/viewProfile', icon: <Person />, label: 'Profile' },
     { path: '/connect', icon: <PeopleAlt />, label: 'Connect' },
     { path: '/explore', icon: <Explore />, label: 'Explore' },
-    { path: '/event', icon: <Event />, label: 'Event' }
+    { path: '/viewEvent', icon: <Event />, label: 'Event' }
   ];
 
 function Navbar() {
