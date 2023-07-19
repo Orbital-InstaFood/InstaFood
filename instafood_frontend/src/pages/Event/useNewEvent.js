@@ -24,7 +24,7 @@ function useNewEvent() {
       const timestamp = serverTimestamp();
       const uniqueID = generateUniqueID();
 
-      const eventID = `${user.uid}_${uniqueID}`;
+      const eventID = `${uniqueID}`;
 
       const eventDocRef = doc(db, 'events', eventID);
 
