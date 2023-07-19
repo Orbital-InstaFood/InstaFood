@@ -1,30 +1,41 @@
 import { useEffect, useState } from 'react';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '../../firebaseConf';
 
-function useViewEvent() {
-  const [eventData, setEventData] = useState([]);
-  const [loading, setLoading] = useState(true);
+import listenerImplementer from '../../listeners/ListenerImplementer';
 
-  useEffect(() => {
-    async function fetchEventData() {
-      try {
-        const querySnapshot = await getDocs(collection(db, 'events'));
-        const eventsData = querySnapshot.docs.map((doc) => doc.data());
-        setEventData(eventsData);
-        setLoading(false);
-      } catch (error) {
-        console.log('Failed to fetch event data:', error);
-      }
+export default function useViewEvent() {
+  const [IDsOfEventsToView, setIDsOfEventsToView] = useState([]);
+  const [IDsOfEventsCreated, setIDsOfEventsCreated] = useState([]);
+  const [isInitialising, setIsInitialising] = useState(true);
+
+  async function setup() {
+    const userDocListener = await listenerImplementer.getUserDocListener();
+    const userDoc = userDocListener.getCurrentDocument();
+
+    const eventsToView = userDoc.eventsToView;
+    if (eventsToView && eventsToView.length !== 0) {
+      setIDsOfEventsToView([...eventsToView].reverse());
+    } else {
+      setIDsOfEventsToView([]);
     }
 
-    fetchEventData();
+    const eventsCreated = userDoc.eventsCreated;
+    if (eventsCreated && eventsCreated.length !== 0) {
+      setIDsOfEventsCreated([...eventsCreated].reverse());
+    } else {
+      setIDsOfEventsCreated([]);
+    }
+
+    setIsInitialising(false);
+  }
+
+  useEffect(() => {
+    setup();
   }, []);
 
   return {
-    eventData,
-    loading,
+    IDsOfEventsToView,
+    IDsOfEventsCreated,
+    isInitialising,
   };
 }
 
-export default useViewEvent;

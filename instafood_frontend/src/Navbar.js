@@ -11,7 +11,7 @@ const links = [
     { path: '/newPost', icon: <Add />, label: 'Create' },
     { path: '/connect', icon: <PeopleAlt />, label: 'Connect' },
     { path: '/explore', icon: <Explore />, label: 'Explore' },
-    { path: '/event', icon: <Event />, label: 'Event' },
+    { path: '/viewEvent', icon: <Event />, label: 'Event' },
     { path: '/viewProfile', icon: <Person />, label: 'Profile' },
 ];
 

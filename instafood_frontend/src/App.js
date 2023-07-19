@@ -16,7 +16,8 @@ import ConnectUI from './pages/Connect/ConnectUI';
 import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/Edit/EditProfile';
-import EventUI from './pages/Event/EventUI';
+import ViewEvent from './pages/Event/ViewEvent';
+import NewEvent from './pages/Event/NewEvent';
 
 import Navbar from './Navbar';
 import PageNotFound from './pages/404';
@@ -73,7 +74,8 @@ function App() {
               <Route path="/connect" element={<ConnectUI />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/viewOtherUsers" element={<ViewOtherUsers />} />
-              <Route path="/event" element={<EventUI />} />
+              <Route path="/viewEvent" element={<ViewEvent />} />
+              <Route path="/newEvent" element={<NewEvent />} />
             </>
           ) : null}
           <Route path="*" element={<PageNotFound />} />
