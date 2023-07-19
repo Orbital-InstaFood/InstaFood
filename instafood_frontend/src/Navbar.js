@@ -1,16 +1,17 @@
 import { Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { Dashboard, Add, Person, PeopleAlt, Explore, Event } from '@mui/icons-material';
 import './Navbar.css';
 import useAuth from './authentication/authLogic';
 
 const links = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/newPost', label: 'Create' },
-    { path: '/viewProfile', label: 'Profile' },
-    { path: '/connect', label: 'Connect' },
-    { path: '/explore', label: 'Explore' },
-    { path: '/event', label: 'Event'}
-];
+    { path: '/dashboard', icon: <Dashboard />, label: 'Dashboard' },
+    { path: '/newPost', icon: <Add />, label: 'Create' },
+    { path: '/viewProfile', icon: <Person />, label: 'Profile' },
+    { path: '/connect', icon: <PeopleAlt />, label: 'Connect' },
+    { path: '/explore', icon: <Explore />, label: 'Explore' },
+    { path: '/event', icon: <Event />, label: 'Event' }
+  ];
 
 function Navbar() {
     const location = useLocation();
@@ -20,10 +21,7 @@ function Navbar() {
     const Logout = () => {
         return (
             <div className="logout-container">
-                <Link
-                    to={'/'}
-                    onClick={handleLogout}
-                >
+                <Link to={'/'} onClick={handleLogout}>
                     Logout
                 </Link>
             </div>
@@ -31,9 +29,11 @@ function Navbar() {
     };
 
     if (pathname === '/createProfile') {
-        return <div className='navbar'>
-            <Logout />
-        </div>;
+        return (
+            <div className="navbar">
+                <Logout />
+            </div>
+        );
     }
 
     return (
