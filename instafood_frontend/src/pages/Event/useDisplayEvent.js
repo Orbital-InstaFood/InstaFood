@@ -1,8 +1,6 @@
-import { updateDoc, arrayRemove, arrayUnion, doc } from '@firebase/firestore';
 import listenerImplementer from '../../listeners/ListenerImplementer';
 import eventDocEditor from '../../editor/eventDocEditor';
 import { useEffect, useState } from 'react';
-import { db } from '../../firebaseConf';
 
 export default function useDisplayEvent ({eventID}) {
     const [eventDoc, setEventDoc] = useState(null);
@@ -41,10 +39,6 @@ export default function useDisplayEvent ({eventID}) {
 
         setIsInitialising(false);
     }
-
-    useEffect(() => {
-        console.log("eventDoc: ", eventDoc);
-    }, [eventDoc]);
 
     useEffect(() => {
         setup();

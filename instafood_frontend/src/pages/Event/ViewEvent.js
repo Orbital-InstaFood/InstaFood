@@ -1,9 +1,7 @@
-
 import useViewEvent from './useViewEvent';
 import DisplayEventUI from './DisplayEventUI';
-import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import { Grid, Backdrop, CircularProgress, Box, styled, Typography } from '@mui/material';
+import { Backdrop, CircularProgress, Box, styled, Typography } from '@mui/material';
 
 const ScrollableContainer = styled(Box)`
   flex-direction: column;

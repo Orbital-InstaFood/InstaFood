@@ -1,4 +1,3 @@
-
 import useDisplayEvent from "./useDisplayEvent";
 import DisplayUserLink from "../../functions/DisplayUserLink";
 import { useState } from "react";

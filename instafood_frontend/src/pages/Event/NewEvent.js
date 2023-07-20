@@ -2,9 +2,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import useNewEvent from './useNewEvent';
 import {
-  Grid, TextField, CircularProgress, Input,
+  Grid, CircularProgress, Input,
   InputLabel, Select, MenuItem, FormControl,
-  Button, Backdrop, Box, Chip, IconButton,
+  Button, Backdrop, Box, Chip, 
 } from '@mui/material';
 
 import {
