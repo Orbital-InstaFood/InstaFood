@@ -50,9 +50,9 @@ export default function ViewEvent() {
 
   return (
     <Box>
-      <Title sx={{ marginLeft: 1, marginTop: 1 }}>Party Mood? </Title>
+      <Title sx={{ marginLeft: 1, marginTop: 5 }}>Join Us For A Culinary Extravaganza </Title>
       <Caption sx={{ marginLeft: 1, marginBottom: 1 }}>
-        Check out the events by other users and your own events!
+      Are you a food enthusiast who loves the joy of cooking and sharing delicious meals with others? Look no further! Welcome to our exciting event page, where foodies like you come together to celebrate the art of cooking and savor the delights of mouthwatering dishes. At our events, you get to showcase your culinary prowess and invite fellow food lovers to your cozy abode, creating an intimate setting where everyone can bond over the love of food and good company. Whether you're a seasoned chef or a passionate home cook, this is the perfect opportunity to dazzle taste buds and exchange cherished recipes.
       </Caption>
 
       <FlexContainer>

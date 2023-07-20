@@ -58,7 +58,7 @@ export default function NewEvent() {
         >
           <Title>New Event</Title>
           <Description>
-            Invite your friends to your event and enjoy nice food together!
+          Design your unique food-themed gathering, set the date, and select the mouthwatering category or ingredients that define your culinary creation. Set a limit on the number of attendees and invite your friends to join you for a fun-filled evening of food and laughter.
           </Description>
 
           <FormContainer onSuccess={createEvent}>
