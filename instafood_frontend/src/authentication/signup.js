@@ -16,25 +16,11 @@ import './signup.css';
 
 const SignUp = () => {
   const {
-    email,
-    setEmail,
-    password,
-    setPassword,
+    email, setEmail,
+    password, setPassword,
     handleSignup,
     handleGoogle,
   } = useAuth();
-
-  const handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
-
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleSubmit = () => {
-    handleSignup();
-  };
 
   return (
     <div className="signup-container">
@@ -46,14 +32,14 @@ const SignUp = () => {
           Welcome to Instafood!
         </Description>
 
-        <FormContainer onSuccess={handleSubmit} className="signup-form-container">
+        <FormContainer onSuccess={handleSignup} className="signup-form-container">
           <TextFieldElement
             type="email"
             name="email"
             label="Email"
             required
             value={email}
-            onChange={handleEmailChange}
+            onChange={ () => setEmail(email) }
             className="signup-input"
           />
           <TextFieldElement
@@ -62,11 +48,11 @@ const SignUp = () => {
             label="Password"
             required
             value={password}
-            onChange={handlePasswordChange}
+            onChange={ () => setPassword(password) }
             className="signup-input"
           />
 
-          <Button variant="contained" type="submit" className="signup-button">
+          <Button variant="contained" type="submit" className='signup-button'>
             SIGN UP
           </Button>
         </FormContainer>
