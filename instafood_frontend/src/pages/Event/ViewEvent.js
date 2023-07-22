@@ -1,32 +1,47 @@
-import React from 'react';
 import useViewEvent from './useViewEvent';
-import { Box, CircularProgress, Backdrop, Grid, Typography } from '@mui/material';
+import DisplayEventUI from './DisplayEventUI';
+import { Link } from 'react-router-dom';
+import { Backdrop, CircularProgress, Box, styled, Typography } from '@mui/material';
 
-const Title = Typography;
+const ScrollableContainer = styled(Box)`
+  flex-direction: column;
+  margin-top: 1rem;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 1rem;
+  width: 50%;
+  border: 1px solid #ccc;
+  padding: 1rem;
+  overflow-y: auto; 
+  height: 800px; 
+`;
 
-const eventBoxStyles = {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  height: '200px',
-  width: '300px',
-  backgroundColor: 'primary.main',
-  color: 'common.white',
-  borderRadius: 'borderRadius',
-  boxShadow: 'shadows.2',
-  margin: '2',
-  padding: '2',
-};
+const FlexContainer = styled(Box)`
+  display: flex;
+  gap: 16px;
+`;
 
-function ViewEvent() {
-  const { eventData, loading } = useViewEvent();
+const Title = styled(Typography)`
+font-size: 1.5rem;
+font-weight: bold;
+`;
 
-  if (loading) {
+const Caption = styled(Typography)`
+font-size: 1rem;
+`;
+
+export default function ViewEvent() {
+  const {
+    IDsOfEventsToView,
+    IDsOfEventsCreated,
+    isInitialising
+  } = useViewEvent();
+
+  if (isInitialising) {
     return (
       <Backdrop
         sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={loading}
+        open={isInitialising}
       >
         <CircularProgress color="inherit" />
       </Backdrop>
@@ -34,19 +49,41 @@ function ViewEvent() {
   }
 
   return (
-    <Grid container spacing={2}>
-      {eventData.map((event) => (
-        <Grid key={event.eventID} item xs={12} sm={6} md={4} lg={3}>
-          <Box sx={eventBoxStyles}>
-            <Typography variant="h6">{event.eventName}</Typography>
-            <Typography variant="body1">Event Time: {event.eventTime}</Typography>
-            <Typography variant="body1">Event Place: {event.eventPlace}</Typography>
-          </Box>
-        </Grid>
-      ))}
-      {eventData.length === 0 && <div>No events found.</div>}
-    </Grid>
+    <Box>
+      <Title sx={{ marginLeft: 1, marginTop: 5 }}>Join Us For A Culinary Extravaganza </Title>
+      <Caption sx={{ marginLeft: 1, marginBottom: 1 }}>
+      Are you a food enthusiast who loves the joy of cooking and sharing delicious meals with others? Look no further! Welcome to our exciting event page, where foodies like you come together to celebrate the art of cooking and savor the delights of mouthwatering dishes. At our events, you get to showcase your culinary prowess and invite fellow food lovers to your cozy abode, creating an intimate setting where everyone can bond over the love of food and good company. Whether you're a seasoned chef or a passionate home cook, this is the perfect opportunity to dazzle taste buds and exchange cherished recipes.
+      </Caption>
+
+      <FlexContainer>
+        <ScrollableContainer>
+          <Title sx={{ marginLeft: 1 }}>Events by your following</Title>
+          <Caption sx={{ marginLeft: 1, marginBottom: 1 }}>
+            Join an event to get the party started!
+          </Caption>
+          {IDsOfEventsToView.map((eventID) => (
+            <DisplayEventUI
+              eventID={eventID}
+              key={eventID}
+              isAuthor={false}
+            />
+          ))}
+        </ScrollableContainer>
+
+        <ScrollableContainer>
+          <Title sx={{ marginLeft: 1}}>Your events</Title>
+          <Caption sx={{ marginLeft: 1, marginBottom: 1 }}>
+            Or create a new event <Link to="/newEvent">here</Link>
+          </Caption>
+          {IDsOfEventsCreated.map((eventID) => (
+            <DisplayEventUI
+              eventID={eventID}
+              key={eventID}
+              isAuthor={true}
+            />
+          ))}
+        </ScrollableContainer>
+      </FlexContainer>
+    </Box>
   );
 }
-
-export default ViewEvent;

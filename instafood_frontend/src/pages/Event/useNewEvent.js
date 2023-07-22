@@ -1,64 +1,99 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 
 import { db, auth, functions } from '../../firebaseConf';
 import { httpsCallable } from 'firebase/functions';
-import { doc, setDoc, serverTimestamp, getDoc, arrayUnion } from 'firebase/firestore';
+import { doc, setDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 
 import { generateUniqueID } from 'web-vitals/dist/modules/lib/generateUniqueID';
+import listenerImplementer from '../../listeners/ListenerImplementer';
+import { useNavigate } from 'react-router-dom';
 
-function useNewEvent() {
+export default function useNewEvent() {
+
+  const [eventName, setEventName] = useState(null);
+  const [eventTime, setEventTime] = useState(null);
+  const [eventPlace, setEventPlace] = useState(null);
+  const [eventDescription, setEventDescription] = useState(null);
+  const [attendeesLimit, setAttendeesLimit] = useState(0);
+
+  const [userProfile, setUserProfile] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [ingredients, setIngredients] = useState([]);
+  const [selectedIngredients, setSelectedIngredients] = useState([]);
+
+  const [isInitialising, setIsInitialising] = useState(true);
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+
   const navigate = useNavigate();
-  const user = auth.currentUser;
 
-  const [eventName, setEventName] = useState('');
-  const [eventTime, setEventTime] = useState('');
-  const [eventPlace, setEventPlace] = useState('');
+  async function setup() {
 
-  const [isLoading, setIsLoading] = useState(false);
+    const userDocListener = await listenerImplementer.getUserDocListener();
+    const categoriesListener = await listenerImplementer.getCategoriesListener();
+    const ingredientsListener = await listenerImplementer.getIngredientsListener();
 
-  const createEvent = async () => {
-    try {
-      setIsLoading(true);
+    // Retrieve userDoc from userDocListener
+    const userDoc = userDocListener.getCurrentDocument();
+    setUserProfile(userDoc);
+    // Retrieve categories from categoriesListener
+    const categories = categoriesListener.getCurrentDocument().categories;
+    setCategories(categories);
+    // Retrieve ingredients from ingredientsListener    
+    const ingredients = ingredientsListener.getCurrentDocument().Ingredients;
+    setIngredients(ingredients);
 
-      const timestamp = serverTimestamp();
-      const uniqueID = generateUniqueID();
+    setIsInitialising(false);
+  }
 
-      const eventID = `${uniqueID}`;
+  useEffect(() => {
+    setup();
+  }, []);
 
-      const eventDocRef = doc(db, 'events', eventID);
+  async function createEvent() { 
 
-      const eventDoc = {
-        eventName,
-        eventTime,
-        eventPlace,
-        creator: user.uid,
-        createdAt: timestamp,
-      };
+    setIsCreatingEvent(true);
 
-      await setDoc(eventDocRef, eventDoc);
+    const uniqueID = generateUniqueID();
+    const eventID = `${userProfile.userID}_${uniqueID}`;
 
- //     const notifyFollowers = httpsCallable(functions, 'notifyFollowersEmail');
- //     await notifyFollowers ({ userID: user.uid, eventID: eventID });
+    const eventDocRef = doc(db, 'events', eventID);
+    const eventDoc = {
+      eventName: eventName,
+      eventTime: eventTime,
+      eventPlace: eventPlace,
+      attendeesLimit: attendeesLimit,
+      eventDescription: eventDescription,
+      creator: userProfile.userID,
+      attendees: [],
+      categories: selectedCategories,
+      ingredients: selectedIngredients,
+    };
+    await setDoc(eventDocRef, eventDoc);
 
-      navigate(`/event/${eventID}`);
-    } catch (error) {
-      console.log('Failed to create event:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    const userDocRef = doc(db, 'users', auth.currentUser.uid);
+    await updateDoc(userDocRef, {
+      eventsCreated: arrayUnion(eventID),
+    });
+
+    const notifyFollowersAboutNewEvent = httpsCallable(functions, 'notifyFollowersAboutNewEvent');
+    notifyFollowersAboutNewEvent({
+      eventID: eventID,
+      followers: userProfile.followers,
+    });
+
+    navigate(`/viewEvent`);
+  }
 
   return {
-    eventName,
-    setEventName,
-    eventTime,
-    setEventTime,
-    eventPlace,
-    setEventPlace,
+    eventName, setEventName,
+    eventTime, setEventTime,
+    eventPlace, setEventPlace,
+    eventDescription, setEventDescription,
+    attendeesLimit, setAttendeesLimit,
+    categories, selectedCategories, setSelectedCategories,
+    ingredients, selectedIngredients, setSelectedIngredients,
     createEvent,
-    isLoading,
+    isInitialising, isCreatingEvent,
   };
 }
-
-export default useNewEvent;
