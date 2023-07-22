@@ -15,10 +15,6 @@ const links = [
     { path: '/viewProfile', icon: <Person />, label: 'Profile' },
 ];
 
-const handleLogoClick = () => {
-    window.location.href = '/dashboard';
-};
-
 function Navbar() {
     const location = useLocation();
     const { pathname } = location;
@@ -52,9 +48,7 @@ function Navbar() {
         <AppBar position="fixed" sx={{ backgroundColor: '#f5efea', height: '56px' }}>
             <Toolbar>
                 <div className="logo-container">
-                    <button className="logo-button" onClick={handleLogoClick}>
-                        <img src={logoImage} alt="Logo" className="logo" />
-                    </button>
+                        <img src={logoImage} alt="Logo" className="logo" />                 
                 </div>
                 <div className="links-container">
                     {links.map((link, index) => (
