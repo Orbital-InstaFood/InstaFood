@@ -11,7 +11,6 @@ const likePost = require("./likePost");
 const makeComment = require("./makeComment");
 const makeFollowRequest = require("./makeFollowRequest");
 const notifyFollowersAboutNewEvent = require("./notifyFollowersAboutNewEvent");
-const notifyFollowersEmail = require("./notifyFollowersEmail");
 const removeFollower = require("./removeFollower");
 const unfollow = require("./unfollow");
 const unlikePost = require("./unlikePost");
@@ -29,6 +28,5 @@ exports.removeFollower = removeFollower.removeFollower;
 exports.unfollow = unfollow.unfollow;
 exports.unlikePost = unlikePost.unlikePost;
 exports.notifyFollowersAboutNewEvent = notifyFollowersAboutNewEvent.notifyFollowersAboutNewEvent;
-exports.notifyFollowersEmail = notifyFollowersEmail.notifyFollowersEmail;
 
 
