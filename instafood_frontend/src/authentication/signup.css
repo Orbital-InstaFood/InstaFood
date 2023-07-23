@@ -30,6 +30,7 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   width: 180%; 
+  max-width: 180%;
 }
 
 .signup-input .MuiFormLabel-root.Mui-focused {
