@@ -1,7 +1,8 @@
-import { messaging } from '../../firebaseConf';
+import { messaging, auth, db } from '../firebaseConf';
 import { getToken } from 'firebase/messaging';
+import { doc, setDoc} from 'firebase/firestore';
 
-function getFCMToken() {
+function getFCMToken(uid) {
   console.log('Requesting permission...');
   Notification.requestPermission().then((permission) => {
     if (permission === 'granted') {
@@ -12,7 +13,10 @@ function getFCMToken() {
       }).then((currentToken) => {
         if (currentToken) {
           console.log("currentToken: ", currentToken);
-          return currentToken;
+          const tokenRef = doc (db, "FCM_TOKEN", uid);
+          setDoc(tokenRef, {currentToken});
+
+       
         } else {
           console.log('No registration token available. Request permission to generate one.');
         }

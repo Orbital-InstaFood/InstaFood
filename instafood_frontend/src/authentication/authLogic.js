@@ -11,7 +11,7 @@ import {
 } from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
 
-import getFCMToken from '../pages/Notification/fcmTokenService';
+import getFCMToken from '../firebase/notification';
 import { httpsCallable } from "firebase/functions";
 
 /**
@@ -30,7 +30,7 @@ export default function useAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {});
+    const unsubscribe = auth.onAuthStateChanged((user) => { });
     return () => unsubscribe();
   }, []);
 
@@ -40,11 +40,12 @@ export default function useAuth() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then(() => { navigate("/dashboard") })
-      .catch((error) => { 
+      .catch((error) => {
         if (error.code === "auth/popup-closed-by-user") {
           return;
         }
-        alert(error.code) });
+        alert(error.code)
+      });
 
   };
 
@@ -55,30 +56,15 @@ export default function useAuth() {
 
           // update fcmToken for push notifications
           try {
-            const temp_fcmToken = await getFCMToken();
+            const temp_fcmToken = await getFCMToken(auth.currentUser.uid);
 
-            const updateFCMToken = httpsCallable(functions, 'updateFCMToken');
+            //        const updateFCMToken = httpsCallable(functions, 'updateFCMToken');
 
-            try {
-              const temp_fcmToken = await getFCMToken();
-            
-              if (temp_fcmToken) {
-                const result = await updateFCMToken({ token: temp_fcmToken });
-                console.log(result.data.message);
-              } else {
-                console.log("Invalid fcmToken.");
-              }
-              navigate("/dashboard");
-            } catch (error) {
-              console.log("Error updating fcmToken: ", error);
-            }
-            
-
-
+            navigate("/dashboard");
           } catch (error) {
             console.log("Error updating fcmToken: ", error);
-
           }
+        } else {
 
           return;
         }
@@ -135,7 +121,7 @@ export default function useAuth() {
         alert("Password reset email sent.");
         navigate("/");
       })
-      
+
       .catch((error) => {
         if (error.code === "auth/user-not-found") {
           alert("You do not have an account. Please create an account.");
