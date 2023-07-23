@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../firebaseConf";
+import { auth, db, functions } from "../firebaseConf";
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -10,6 +10,9 @@ import {
   sendPasswordResetEmail
 } from "firebase/auth";
 import SendEmailVerification from "./sendEmailVerification";
+
+import getFCMToken from '../firebase/notification';
+import { httpsCallable } from "firebase/functions";
 
 /**
  * Custom hook for authentication
@@ -27,7 +30,7 @@ export default function useAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {});
+    const unsubscribe = auth.onAuthStateChanged((user) => { });
     return () => unsubscribe();
   }, []);
 
@@ -37,11 +40,12 @@ export default function useAuth() {
     const provider = new GoogleAuthProvider();
     signInWithPopup(auth, provider)
       .then(() => { navigate("/dashboard") })
-      .catch((error) => { 
+      .catch((error) => {
         if (error.code === "auth/popup-closed-by-user") {
           return;
         }
-        alert(error.code) });
+        alert(error.code)
+      });
 
   };
 
@@ -49,7 +53,14 @@ export default function useAuth() {
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         if (userCredential.user.emailVerified) {
-          navigate("/dashboard");
+
+          try {
+            await getFCMToken(auth.currentUser.uid);
+            navigate("/dashboard");
+          } catch (error) {
+            console.log("Error updating fcmToken: ", error);
+          }
+  
           return;
         }
 

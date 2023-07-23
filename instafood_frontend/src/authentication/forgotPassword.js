@@ -7,12 +7,14 @@ import {
     TextField,
 } from "@mui/material";
 
+import './forgotPassword.css'
 /**
  * This component is used to render the forgot password page.
  */
 export default function ForgotPassword() {
     const { email, setEmail, handleSendPasswordResetEmail } = useAuth();
     return (
+        <div className="forgotPassword-container">
         <StyledBox>
 
             <Title variant="h2">Forgot your password?</Title>
@@ -50,5 +52,6 @@ export default function ForgotPassword() {
                 </Grid>
             </Grid>
         </StyledBox>
+        </div>
     );
 }

@@ -1,0 +1,60 @@
+.signup-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 4px;
+  height: 61vh; 
+  background-image: url('../theme/auth_background.jpg');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.95;
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translate(-50%, -50%); 
+}
+
+.signup-title {
+  color: #1976d2;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.signup-input .MuiOutlinedInput-root {
+  background-color: #ffffff;
+  justify-content: center;
+  align-items: center;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+  width: 180%; 
+  max-width: 180%;
+}
+
+.signup-input .MuiFormLabel-root.Mui-focused {
+  color: #077ef5; 
+}
+
+.signup-button {
+  width: 100%;
+}
+
+.signup-google-button {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.signup-login-link {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.signup-form-container{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
+  background-color: rgba(190, 137, 11, 0);
+}

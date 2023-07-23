@@ -28,7 +28,9 @@ export default function useNewPost() {
 
     // State for post details
     const [title, setTitle] = useState('');
-    const [caption, setCaption] = useState('');
+
+    const [captionHTML, setCaptionHTML] = useState('');
+
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [selectedIngredients, setSelectedIngredients] = useState([]);
     const [imageObjects, setImageObjects] = useState([]);
@@ -36,7 +38,6 @@ export default function useNewPost() {
     // State for image preview
 
     const [currentImageIndex, setCurrentImageIndex] = useState(0);
-    const [shouldShowArrows, setShouldShowArrows] = useState(false);
 
     // State for listeners
     const [userDocListener, setUserDocListener] = useState(null);
@@ -96,9 +97,9 @@ export default function useNewPost() {
 
         const timestamp = serverTimestamp();
         const uniqueID = generateUniqueID();
+        const encodedCaption = encodeURIComponent(captionHTML);
 
         const postID = `${userID}_${uniqueID}`;
-
         const postDocRef = doc(db, 'posts', postID);
 
         const uploadTasks = imageObjects.map(async (imageObject) => {
@@ -106,13 +107,12 @@ export default function useNewPost() {
             const snapshot = await uploadBytesResumable(imageRef, imageObject.content);
             return getDownloadURL(snapshot.ref);
         });
-
         const imageUrls = await Promise.all(uploadTasks);
 
         const postDoc = {
             title: title,
             creator: userID,
-            caption: caption,
+            caption: encodedCaption,
             date_created: timestamp,
             images: imageUrls,
             postID: postID,
@@ -172,10 +172,10 @@ export default function useNewPost() {
 
     return {
         title, setTitle,
-        caption, setCaption,
+        captionHTML, setCaptionHTML,
         categories, selectedCategories, setSelectedCategories,
         ingredients, selectedIngredients, setSelectedIngredients,
-        imageObjects, currentImageIndex,setCurrentImageIndex,shouldShowArrows,setShouldShowArrows,
+        imageObjects, currentImageIndex,setCurrentImageIndex,
         handleImageChange, handleImageDelete,
         handleSubmitNewPost, isLoading
     }

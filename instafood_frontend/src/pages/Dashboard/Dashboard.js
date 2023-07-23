@@ -88,8 +88,13 @@ export default function Dashboard() {
                 {/* First grid with basic information */}
                 <UserInfoContainer style={{ position: 'sticky', top: 0 }}>
 
-                    <Title> Welcome, {userProfile.username}! </Title>
-                    <Description> Discover the newest recipes from people you follow </Description>
+                    <Typography variant="h4" component="h1" sx={{ fontWeight: 600 }}>
+                        Welcome, <span style={{ fontFamily: 'Georgia', color: '#ffff' }}>{userProfile.username}</span>!
+                    </Typography>
+
+                    <Typography variant="body1" component="p" sx={{ fontFamily: 'Arial', fontStyle: 'italic' }}>
+                        Discover the newest recipes from people you follow
+                    </Typography>
 
                     <Typography variant="subtitle1">Categories</Typography>
                     <Box sx={{ display: 'flex', flexWrap: 'wrap' }}>

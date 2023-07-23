@@ -13,8 +13,10 @@ import { db, auth } from "../firebaseConf";
  * @method getPostListener - Returns a listener for a post document.
  * @method getUserDocListener - Returns a listener for the user document of the current user.
  * @method getListOfUserIDsListener - Returns a listener for the list of user IDs document.
+ * @method getEventDocListener - Returns a listener for the event document.
  * 
  */
+
 class ListenerImplementer {
     constructor() {
         this.listeners = {};
@@ -61,21 +63,36 @@ class ListenerImplementer {
         return this._getListener(userIDsRef);
     }
 
+    /**
+     * @returns {Listener} - A listener for the list of public user IDs document
+     */
     async getPublicUsersListener() {
         const publicUsersRef = doc(db, "lists", "publicUsers");
         return this._getListener(publicUsersRef);
     }
 
+    /**
+     * @returns {Listener} - A listener for the list of public user IDs document
+     */
     async getCategoriesListener() {
         const categoriesRef = doc(db, "lists", "categories");
         return this._getListener(categoriesRef);
     }
-
+    /**
+     * @returns {Listener} - A listener for the list of post categories
+     */
     async getCategorisedPostsListener(category) {
         const categorisedPostsRef = doc(db, "categorisedPosts", category);
         return this._getListener(categorisedPostsRef);
     }
 
+    /**
+     * @returns {Listener} - A listener for the event IDs document
+     */ 
+    async getEventDocListener(eventID) {
+        const eventRef = doc(db, "events", eventID);
+        return this._getListener(eventRef);
+    }
     async getIngredientsListener() {
         const ingredientsRef = doc(db, "lists", "Ingredients");
         return this._getListener(ingredientsRef);

@@ -3,12 +3,12 @@ import DisplayUserLink from "../DisplayUserLink";
 import saveOrUnsaveAPost from "./saveOrUnsaveAPost";
 import useDisplayPostLogic from "./useDisplayPostLogic";
 
-import { 
-    List, 
-    ListItem, 
-    ListItemText, 
-    Collapse, 
-    ListItemIcon, 
+import {
+    List,
+    ListItem,
+    ListItemText,
+    Collapse,
+    ListItemIcon,
     ListItemButton,
     Paper,
     InputBase,
@@ -16,7 +16,7 @@ import {
     IconButton,
     Chip,
     CircularProgress,
- } from "@mui/material";
+} from "@mui/material";
 
 import {
     PostContainer,
@@ -48,6 +48,9 @@ import {
     ArrowUpward,
 } from '@mui/icons-material';
 
+import ReactQuill from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+
 /**
  * This component is used to render a post 
  * 
@@ -78,12 +81,14 @@ export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isAS
     const [likesOpen, setLikesOpen] = useState(false);
     const [commentsOpen, setCommentsOpen] = useState(false);
 
+    const decodedCaption = postDoc?.caption ? decodeURIComponent(postDoc.caption) : '';
+
     if (isLoading) {
         return (
             <Box sx={{ display: 'flex' }}>
-              <CircularProgress />
+                <CircularProgress />
             </Box>
-          );
+        );
     }
 
     return (
@@ -140,7 +145,7 @@ export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isAS
             </SubHeading>
 
             <Caption>
-                {postDoc.caption}
+                <div dangerouslySetInnerHTML={{ __html: decodedCaption }} />
             </Caption>
 
             <SubHeading
@@ -295,8 +300,8 @@ export default function DisplayPostUI({ postID, userOwnID, isAPersonalPost, isAS
             </Box>
 
             <Paper
-                sx={{ 
-                    marginTop: '2rem', 
+                sx={{
+                    marginTop: '2rem',
                     display: 'flex',
                     p: '2px 4px',
                     width: '100%',

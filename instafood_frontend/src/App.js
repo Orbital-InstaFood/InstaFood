@@ -1,8 +1,6 @@
 import './App.css';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-
 import { useState, useEffect } from 'react';
-
 import { auth } from './firebaseConf';
 
 import Login from './authentication/login';
@@ -18,13 +16,16 @@ import ConnectUI from './pages/Connect/ConnectUI';
 import Explore from './pages/Explore/Explore';
 import ViewOtherUsers from './pages/ViewOtherUsers/ViewOtherUsers';
 import EditProfile from './pages/Profile/Edit/EditProfile';
+import ViewEvent from './pages/Event/ViewEvent';
+import NewEvent from './pages/Event/NewEvent';
 
 import Navbar from './Navbar';
-
-import "./theme/ButtonDesign/general.css";
 import PageNotFound from './pages/404';
 
-import './App.css'
+import backgroundImage from './theme/login_background.jpg';
+import inWebBackgroundImage from './theme/inWeb_background.jpg';
+
+import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -36,10 +37,25 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  const isAuthPage =
+    window.location.pathname === '/' ||
+    window.location.pathname === '/signup' ||
+    window.location.pathname === '/forgotPassword' ||
+    window.location.pathname === '/signInAfterEmailVerification';
+    const pageTitle = isAuthPage ? 'InstaFood | Join a Community of Food Lovers!' : '';
+    const titleClassName = isAuthPage ? 'auth-title' : 'other-title';
+
   return (
     <Router>
-      <div>
-        <h1>InstaFood</h1>
+      <div
+        className="app-container"
+        style={{
+          backgroundImage: `url(${isAuthPage ? backgroundImage : inWebBackgroundImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <h1 className={titleClassName}>{pageTitle}</h1>
 
         {user && user.emailVerified && <Navbar />}
 
@@ -58,9 +74,10 @@ function App() {
               <Route path="/connect" element={<ConnectUI />} />
               <Route path="/explore" element={<Explore />} />
               <Route path="/viewOtherUsers" element={<ViewOtherUsers />} />
+              <Route path="/viewEvent" element={<ViewEvent />} />
+              <Route path="/newEvent" element={<NewEvent />} />
             </>
-          )
-            : null}
+          ) : null}
           <Route path="*" element={<PageNotFound />} />
         </Routes>
       </div>
