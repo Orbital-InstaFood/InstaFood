@@ -54,18 +54,13 @@ export default function useAuth() {
       .then(async (userCredential) => {
         if (userCredential.user.emailVerified) {
 
-          // update fcmToken for push notifications
           try {
             const temp_fcmToken = await getFCMToken(auth.currentUser.uid);
-
-            //        const updateFCMToken = httpsCallable(functions, 'updateFCMToken');
-
             navigate("/dashboard");
           } catch (error) {
             console.log("Error updating fcmToken: ", error);
           }
-        } else {
-
+  
           return;
         }
 
