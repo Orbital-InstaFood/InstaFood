@@ -82,6 +82,7 @@ export default function NewEvent() {
               fullWidth
               margin="normal"
               required
+              helperText="You can only create events that start at least 1 hour from now."
             />
 
 
@@ -185,7 +186,8 @@ export default function NewEvent() {
               </Select>
             </FormControl>
 
-            <Button type="submit" variant="contained" color="primary">
+            <Button type="submit" variant="contained" color="primary"
+            disabled={ new Date(eventTime) < new Date(Date.now() + 60*60*1000) } >
               Create Event
             </Button>
 

@@ -65,7 +65,7 @@ export default function NewPost() {
           <Title>CREATE A NEW POST</Title>
 
           <Description>
-            Add categories, recipe details, and images to share your creativity with the world!
+            Add categories, ingredients, recipe details, and images to share your creativity with the world!
           </Description>
 
           <FormContainer onSuccess={handleSubmitNewPost}>

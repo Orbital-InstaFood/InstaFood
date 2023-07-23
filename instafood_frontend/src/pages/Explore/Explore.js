@@ -84,7 +84,7 @@ export default function Explore() {
         <UserInfoContainer style={{ position: 'sticky', top: 0 }}>
 
           <Title> Discover the most popular recipes on Instafood! </Title>
-          <Description> Filter by title or category to find the best recipes for you. You must select at least one category. </Description>
+          <Description> Filter by title or category/ingredient to find the best recipes for you. You must select at least one category/ingredient. </Description>
 
           <TextField
             fullWidth
