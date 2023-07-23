@@ -55,7 +55,7 @@ export default function Login() {
               borderRadius: '8px',
             }}
           />
-        </FormContainer>
+
 
         <Grid container alignItems="center" justifyContent="space-between" marginBottom="1.5rem">
           <Grid item xs>
@@ -63,18 +63,20 @@ export default function Login() {
               variant="text"
               size="small"
               color="error"
-              onClick={() => navigate('/forgotpassword')}
+              onClick={() => navigate('/forgotPassword')}
             >
               Forgot password?
             </Button>
           </Grid>
 
           <Grid item>
-            <Button variant="contained" onClick={handleLogin} sx={{ width: '100%' }}>
+            <Button variant="contained" type='submit' sx={{ width: '100%' }}>
               LOG IN
             </Button>
           </Grid>
         </Grid>
+
+        </FormContainer>
 
         <DividerWithText>OR</DividerWithText>
 

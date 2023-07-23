@@ -60,6 +60,8 @@ export default function useAuth() {
           } catch (error) {
             console.log("Error updating fcmToken: ", error);
           }
+  
+          return;
         }
 
         if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
