@@ -54,19 +54,12 @@ export default function useAuth() {
       .then(async (userCredential) => {
         if (userCredential.user.emailVerified) {
 
-          // update fcmToken for push notifications
           try {
-            const temp_fcmToken = await getFCMToken(auth.currentUser.uid);
-
-            //        const updateFCMToken = httpsCallable(functions, 'updateFCMToken');
-
+            getFCMToken(auth.currentUser.uid);
             navigate("/dashboard");
           } catch (error) {
             console.log("Error updating fcmToken: ", error);
           }
-        } else {
-
-          return;
         }
 
         if (window.confirm("Email address not verified. Please verify your email address before logging in. Resend verification email?")) {
