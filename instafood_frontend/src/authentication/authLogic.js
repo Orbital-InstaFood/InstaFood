@@ -55,7 +55,7 @@ export default function useAuth() {
         if (userCredential.user.emailVerified) {
 
           try {
-            getFCMToken(auth.currentUser.uid);
+            await getFCMToken(auth.currentUser.uid);
             navigate("/dashboard");
           } catch (error) {
             console.log("Error updating fcmToken: ", error);

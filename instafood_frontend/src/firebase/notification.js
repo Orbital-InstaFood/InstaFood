@@ -1,4 +1,4 @@
-import { messaging, auth, db } from '../firebaseConf';
+import { messaging, db } from '../firebaseConf';
 import { getToken } from 'firebase/messaging';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
@@ -15,7 +15,7 @@ function getFCMToken(uid) {
           console.log("currentToken: ", currentToken);   
           const tokenRef = doc (db, "FCM_TOKEN", uid);
           const docSnapshot = getDoc(tokenRef);
-          if (docSnapshot.data()) {
+          if (docSnapshot) {
             updateDoc(tokenRef, { currentToken });
           } else {
             setDoc(tokenRef, { currentToken });
