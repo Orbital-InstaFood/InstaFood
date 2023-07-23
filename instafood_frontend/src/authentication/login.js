@@ -63,7 +63,7 @@ export default function Login() {
               variant="text"
               size="small"
               color="error"
-              onClick={() => navigate('/forgotpassword')}
+              onClick={() => navigate('/forgotPassword')}
             >
               Forgot password?
             </Button>
