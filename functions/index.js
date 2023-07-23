@@ -10,11 +10,11 @@ const infoUserCanView = require("./infoUserCanView");
 const likePost = require("./likePost");
 const makeComment = require("./makeComment");
 const makeFollowRequest = require("./makeFollowRequest");
+const notifyFollowersAboutNewEvent = require("./notifyFollowersAboutNewEvent");
+const notifyFollowersEmail = require("./notifyFollowersEmail");
 const removeFollower = require("./removeFollower");
 const unfollow = require("./unfollow");
 const unlikePost = require("./unlikePost");
-const updateFCMToken = require("./updateFCMToken");
-const notifyFollowersAboutNewEvent = require("./notifyFollowersAboutNewEvent");
 
 exports.addPostToFollowersToView = addPostToFollowersToView.addPostToFollowersToView;
 exports.answerFollowRequest = answerFollowRequest.answerFollowRequest;
@@ -28,7 +28,7 @@ exports.makeFollowRequest = makeFollowRequest.makeFollowRequest;
 exports.removeFollower = removeFollower.removeFollower;
 exports.unfollow = unfollow.unfollow;
 exports.unlikePost = unlikePost.unlikePost;
-exports.updateFCMToken = updateFCMToken.updateFCMToken;
 exports.notifyFollowersAboutNewEvent = notifyFollowersAboutNewEvent.notifyFollowersAboutNewEvent;
+exports.notifyFollowersEmail = notifyFollowersEmail.notifyFollowersEmail;
 
 
