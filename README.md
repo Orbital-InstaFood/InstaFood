@@ -26,7 +26,7 @@ InstaFood is a vibrant online community for food lovers, designed to bring culin
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-username/InstaFood.git
+   git clone https://github.com/yyangdaa/InstaFood.git
    ```
    
 2. **Install dependencies**:
